@@ -31,9 +31,9 @@
 
 Click the button below to deploy directly to Azure:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/PLACEHOLDER_DEPLOYMENT_URL)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-17T17%3A37%3A38Z%26se%3D2026-06-17T01%3A37%3A38Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Db%26sig%3DUda77qHOroJlcDc1%252BxBcZihUuY72WBqX3h7UsnU2oTo%253D)
 
-> **Note:** For system administrators - To update the deployment template URL, follow the instructions in the [deployment setup guide](docs/deployment_setup.md).
+> **Note:** The deployment button requires you to be signed into Azure. The template is hosted in a secure Azure Storage account with proper CORS configuration.
 
 ### Option 2: Manual Template Deployment
 
@@ -322,6 +322,10 @@ Three deployment methods are provided:
 
 ### Resource Types
 The deployment template creates the following Azure resources:
+- App Service Plan and Web App
+- Application Insights
+- Cosmos DB (optional, for chat history)
+lowing Azure resources:
 - App Service Plan and Web App
 - Application Insights
 - Cosmos DB (optional, for chat history)
