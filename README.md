@@ -2,7 +2,7 @@
 
 **Policing Assistant** is an advanced AI-powered Smart Assistant designed to enhance police decision-making and effectiveness. Built within a secure Microsoft Azure environment, this assistant integrates trusted data, policy, and user feedback to deliver actionable, transparent, and secure guidance.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FRuss-Holloway%2FPolicing-Assistant%2Fmain%2Finfrastructure%2Fdeployment.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-17T12%253A21%253A54Z%26se%3D2026-06-17T20%253A21%253A54Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Db%26sig%3DwARou5kYl%252BqQVJQ8YFYqYZXxI%252F8n0XryzEEUhNpM4e0%253D)
 
 ---
 
