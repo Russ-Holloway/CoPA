@@ -2,7 +2,57 @@
 
 **Policing Assistant** is an advanced AI-powered Smart Assistant designed to enhance police decision-making and effectiveness. Built within a secure Microsoft Azure environment, this assistant integrates trusted data, policy, and user feedback to deliver actionable, transparent, and secure guidance.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json)
+---
+
+## Table of Contents
+
+- [Vision & Purpose](#vision--purpose)
+- [Key Features](#key-features)
+- [How It Works](#how-it-works)
+- [Key Benefits](#key-benefits)
+- [Screenshots](#screenshots)
+- [Quick Start](#quick-start)
+- [Configure the App](#configure-the-app)
+- [Deploy the App](#deploy-the-app)
+- [Authentication](#authentication)
+- [App Configuration](#app-configuration)
+- [Best Practices](#best-practices)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [Community & Support](#community--support)
+- [Trademarks](#trademarks)
+- [Disclaimer](#disclaimer)
+
+---
+
+## Deployment Options
+
+### Option 1: One-Click Deployment (SAS Token)
+
+Click the button below to deploy directly to Azure (valid until June 16, 2026):
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-17T15%3A38%3A04Z%26se%3D2026-06-16T23%3A38%3A04Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Db%26sig%3Dq%252FXSsbGbQRF%252BVXyVMBlUtB%252F9CLrV01cc5EhZOkHEUfM%253D)
+
+### Option 2: Manual Template Deployment
+
+If the deployment button above doesn't work:
+
+1. Download the [deployment template](https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D) file
+2. Go to the [Azure Portal](https://portal.azure.com)
+3. Click "Create a resource" → Search for "Template deployment" → "Create"
+4. Select "Build your own template in the editor"
+5. Click "Load file" and upload the downloaded deployment.json file
+6. Click "Save" and proceed with the deployment
+
+### Option 3: Azure CLI Deployment
+
+For deployment using Azure CLI:
+
+```powershell
+az deployment group create --resource-group <your-resource-group-name> --template-uri "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D"
+```
+
+---
 
 ---
 
