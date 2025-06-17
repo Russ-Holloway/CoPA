@@ -27,17 +27,17 @@
 
 ## Deployment Options
 
-### Option 1: One-Click Deployment (Azure DevOps)
+### Option 1: One-Click Deployment
 
 Click the button below to deploy directly to Azure:
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3a%2f%2fdev.azure.com%2fBTPDigitalWorkplace%2fPolicing%2520Assistant%2520Deployment%2520Template%2f_apis%2fgit%2frepositories%2fPolicing%2520Assistant%2520Deployment%2520Template%2fitems%3fpath%3d%2fdeployment.json%26api-version%3d6.0%26download%3dtrue)
 
-> **Note:** This deployment button requires permissions to access the Azure DevOps repository. Make sure that you're signed in to Azure DevOps before using this button. If you encounter a JSON parsing error, please fix the comment in line 346 of deployment.json as indicated.
+> **Note:** This deployment button requires permissions to access the Azure DevOps repository. Make sure that you're signed in to Azure DevOps before using this button.
 
 ### Option 2: Manual Template Deployment
 
-A reliable alternative method for deploying this solution:
+If the one-click deployment option doesn't work, you can use this alternative method:
 
 1. Download the [deployment template](https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D) file
 2. Go to the [Azure Portal](https://portal.azure.com)
@@ -46,7 +46,7 @@ A reliable alternative method for deploying this solution:
 5. Click "Load file" and upload the downloaded deployment.json file
 6. Click "Save" and proceed with the deployment
 
-### Option 2: Direct Deployment via Azure CLI
+### Option 3: Direct Deployment via Azure CLI
 
 For users familiar with the Azure CLI:
 
@@ -59,7 +59,6 @@ az deployment group create --resource-group <your-resource-group-name> --templat
 ```
 
 > **Note:** The SAS token for the deployment template is valid until June 16, 2026.
-```
 
 ---
 - [Quick Start](#quick-start)
@@ -253,4 +252,52 @@ _Example scenarios where caution is required:_
 
 ---
 
-**Feel free to adapt this template further for your project's unique needs! Let me know if you want more specific content for any section or have other requests.**
+## Troubleshooting Deployment
+
+If you encounter issues during deployment, please try the following:
+
+### Authentication Errors
+If you see authentication errors when using the one-click deployment button:
+1. Make sure you're logged into Azure DevOps before clicking the button
+2. If you don't have access to the Azure DevOps repository, use Option 2 (Manual Template Deployment) instead
+3. Check that your Azure account has the necessary permissions to deploy resources
+
+### Access Denied Errors
+If you encounter access denied errors when accessing the template:
+1. Make sure your SAS token hasn't expired (for the blob storage option)
+2. Try downloading the file manually first, then upload it in the Azure Portal
+3. Use the Azure CLI method (Option 3)
+
+### Deployment Parameter Errors
+If you encounter errors related to missing or invalid parameters:
+1. Make sure to fill in all required parameters in the Azure Portal
+2. For sensitive values like API keys, ensure they are entered correctly
+3. For region-specific resources, ensure the selected region supports all required services
+
+For additional assistance, please contact your system administrator.
+
+---
+
+---
+
+## Implementation Notes
+
+This section provides technical details about the deployment process:
+
+### Deployment Methods
+Three deployment methods are provided:
+1. One-Click Deployment - Convenient deployment directly from Azure DevOps repository
+2. Manual Template Deployment - Alternative method using Azure Blob Storage
+3. Azure CLI Deployment - For advanced users familiar with command-line tools
+
+### Access Requirements
+- The one-click deployment requires access to the Azure DevOps repository
+- The manual deployment uses a SAS token for Azure Blob Storage valid until June 16, 2026
+
+### Resource Types
+The deployment template creates the following Azure resources:
+- App Service Plan and Web App
+- Application Insights
+- Cosmos DB (optional, for chat history)
+
+---
