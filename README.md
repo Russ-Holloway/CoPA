@@ -31,20 +31,24 @@
 
 Click the button below to deploy directly to Azure:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FRuss-Holloway%2FPolicing-Assistant%2Fmain%2Finfrastructure%2Fdeployment.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/PLACEHOLDER_DEPLOYMENT_URL)
 
-> **Note:** For this deployment button to work correctly, make sure the deployment.json file is properly synchronized between your Azure DevOps repository and GitHub repository.
+> **Note:** For system administrators - To update the deployment template URL, follow the instructions in the [deployment setup guide](docs/deployment_setup.md).
 
 ### Option 2: Manual Template Deployment
 
-If the one-click deployment option doesn't work, you can use this alternative method:
+This is the recommended method for deploying the Policing Assistant:
 
-1. Download the [deployment template](https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D) file
-2. Go to the [Azure Portal](https://portal.azure.com)
-3. Click "Create a resource" → Search for "Template deployment" → "Create"
-4. Select "Build your own template in the editor"
-5. Click "Load file" and upload the downloaded deployment.json file
-6. Click "Save" and proceed with the deployment
+1. **Download the deployment template:**
+   - From Azure DevOps: Navigate to your Azure DevOps project, locate the `deployment.json` file, and download it
+   - Or use this direct link if available: [Download Template](https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D)
+
+2. **Deploy using the Azure Portal:**
+   - Go to the [Azure Portal](https://portal.azure.com)
+   - Click "Create a resource" → Search for "Template deployment" → "Create"
+   - Select "Build your own template in the editor"
+   - Click "Load file" and upload the downloaded deployment.json file
+   - Click "Save" and proceed with the deployment
 
 ### Option 3: Direct Deployment via Azure CLI
 
@@ -252,6 +256,28 @@ _Example scenarios where caution is required:_
 
 ---
 
+## Note on Deploy to Azure Button
+
+The "Deploy to Azure" button requires that the ARM template (deployment.json) be accessible via a public URL with CORS enabled. There are several common issues that can prevent this from working:
+
+1. **Private Repository Access**: If your Azure DevOps repository is private, Azure's deployment service cannot access the file directly.
+
+2. **CORS Policy**: The URL hosting the template must have CORS (Cross-Origin Resource Sharing) enabled to allow Azure to download it.
+
+3. **Authentication Requirements**: If authentication is required to access the file, the deployment process will fail.
+
+4. **URL Encoding Complexity**: Complex URLs with special characters can sometimes cause parsing issues.
+
+To make the "Deploy to Azure" button work directly, you would need to:
+
+1. Host the deployment.json file on a public storage service with CORS enabled (like Azure Blob Storage configured for public access with CORS)
+2. Use a clean, simple URL structure without complex query parameters
+3. Ensure the URL is properly encoded in the markdown link
+
+For most private repository scenarios, the manual deployment method (Option 2) is the most reliable approach.
+
+---
+
 ## Troubleshooting Deployment
 
 If you encounter issues during deployment, please try the following:
@@ -299,6 +325,3 @@ The deployment template creates the following Azure resources:
 - App Service Plan and Web App
 - Application Insights
 - Cosmos DB (optional, for chat history)
-
----
-
