@@ -27,15 +27,17 @@
 
 ## Deployment Options
 
-### Option 1: One-Click Deployment (SAS Token)
+### Option 1: One-Click Deployment (Azure DevOps)
 
-Click the button below to deploy directly to Azure (valid until June 16, 2026):
+Click the button below to deploy directly to Azure:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-17T15%3A38%3A04Z%26se%3D2026-06-16T23%3A38%3A04Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Db%26sig%3Dq%252FXSsbGbQRF%252BVXyVMBlUtB%252F9CLrV01cc5EhZOkHEUfM%253D)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fdev.azure.com%2FBTPDigitalWorkplace%2FPolicing%2520Assistant%2520Deployment%2520Template%2F_apis%2Fgit%2Frepositories%2FPolicing%2520Assistant%2520Deployment%2520Template%2Fitems%3Fpath%3D%2Fdeployment.json%26api-version%3D6.0)
+
+> **Note:** This deployment button requires Azure DevOps access. If it doesn't work, please use Option 2 below.
 
 ### Option 2: Manual Template Deployment
 
-If the deployment button above doesn't work:
+A reliable alternative method for deploying this solution:
 
 1. Download the [deployment template](https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D) file
 2. Go to the [Azure Portal](https://portal.azure.com)
@@ -44,25 +46,22 @@ If the deployment button above doesn't work:
 5. Click "Load file" and upload the downloaded deployment.json file
 6. Click "Save" and proceed with the deployment
 
-### Option 3: Azure CLI Deployment
+### Option 2: Direct Deployment via Azure CLI
 
-For deployment using Azure CLI:
+For users familiar with the Azure CLI:
 
 ```powershell
-az deployment group create --resource-group <your-resource-group-name> --template-uri "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D"
+# Download the template file first
+Invoke-WebRequest -Uri "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D" -OutFile "deployment.json"
+
+# Deploy using the local file
+az deployment group create --resource-group <your-resource-group-name> --template-file deployment.json
+```
+
+> **Note:** The SAS token for the deployment template is valid until June 16, 2026.
 ```
 
 ---
-
----
-
-## Table of Contents
-
-- [Vision & Purpose](#vision--purpose)
-- [Key Features](#key-features)
-- [How It Works](#how-it-works)
-- [Key Benefits](#key-benefits)
-- [Screenshots](#screenshots)
 - [Quick Start](#quick-start)
 - [Configure the App](#configure-the-app)
 - [Deploy the App](#deploy-the-app)
@@ -255,3 +254,4 @@ _Example scenarios where caution is required:_
 ---
 
 **Feel free to adapt this template further for your project's unique needs! Let me know if you want more specific content for any section or have other requests.**
+
