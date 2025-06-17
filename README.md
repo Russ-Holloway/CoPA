@@ -27,13 +27,13 @@
 
 ## Deployment Options
 
-### Option 1: One-Click Deployment (Azure DevOps)
+### Option 1: One-Click Deployment (SAS Token)
 
-Click the button below to deploy directly to Azure:
+Click the button below to deploy directly to Azure (valid until June 16, 2026):
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fdev.azure.com%2FBTPDigitalWorkplace%2FPolicing%2520Assistant%2520Deployment%2520Template%2F_apis%2Fgit%2Frepositories%2FPolicing%2520Assistant%2520Deployment%2520Template%2Fitems%3Fpath%3D%2Fdeployment.json%26api-version%3D6.0)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3a%2f%2fstbtpukssandopenai.blob.core.windows.net%2fpolicing-assistant-azure-deployment-template%2fdeployment.json%3fsp%3dr%26st%3d2025-06-17T15%3a38%3a04Z%26se%3d2026-06-16T23%3a38%3a04Z%26spr%3dhttps%26sv%3d2024-11-04%26sr%3db%26sig%3dq%2fXSsbGbQRF%2bVXyVMBlUtB%2f9CLrV01cc5EhZOkHEUfM%3d)
 
-> **Note:** This deployment button requires Azure DevOps access. If it doesn't work, please use Option 2 below.
+> **Note:** If you encounter a CORS error or JSON parsing issue, please use Option 2 below.
 
 ### Option 2: Manual Template Deployment
 
@@ -254,4 +254,3 @@ _Example scenarios where caution is required:_
 ---
 
 **Feel free to adapt this template further for your project's unique needs! Let me know if you want more specific content for any section or have other requests.**
-
