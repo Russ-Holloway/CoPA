@@ -27,13 +27,13 @@
 
 ## Deployment Options
 
-### Option 1: One-Click Deployment (SAS Token)
+### Option 1: One-Click Deployment (Azure DevOps)
 
-Click the button below to deploy directly to Azure (valid until June 16, 2026):
+Click the button below to deploy directly to Azure:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3a%2f%2fstbtpukssandopenai.blob.core.windows.net%2fpolicing-assistant-azure-deployment-template%2fdeployment.json%3fsp%3dr%26st%3d2025-06-17T15%3a38%3a04Z%26se%3d2026-06-16T23%3a38%3a04Z%26spr%3dhttps%26sv%3d2024-11-04%26sr%3db%26sig%3dq%2fXSsbGbQRF%2bVXyVMBlUtB%2f9CLrV01cc5EhZOkHEUfM%3d)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3a%2f%2fdev.azure.com%2fBTPDigitalWorkplace%2fPolicing%2520Assistant%2520Deployment%2520Template%2f_apis%2fgit%2frepositories%2fPolicing%2520Assistant%2520Deployment%2520Template%2fitems%3fpath%3d%2fdeployment.json%26api-version%3d6.0%26download%3dtrue)
 
-> **Note:** If you encounter a CORS error or JSON parsing issue, please use Option 2 below.
+> **Note:** This deployment button requires permissions to access the Azure DevOps repository. Make sure that you're signed in to Azure DevOps before using this button. If you encounter a JSON parsing error, please fix the comment in line 346 of deployment.json as indicated.
 
 ### Option 2: Manual Template Deployment
 
