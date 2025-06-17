@@ -37,8 +37,6 @@ Click the button below to deploy directly to Azure:
 
 ### Option 2: Manual Template Deployment
 
-This is the recommended method for deploying the Policing Assistant:
-
 1. **Download the deployment template:**
    - From Azure DevOps: Navigate to your Azure DevOps project, locate the `deployment.json` file, and download it
    - Or use this direct link if available: [Download Template](https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D)
