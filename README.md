@@ -1,17 +1,123 @@
-# [Preview] Sample Chat App with AOAI
+# Policing Assistant
+**Policing Assistant** is an advanced AI-powered Smart Assistant designed to enhance police decision-making and effectiveness. Built within a secure Microsoft Azure environment, this assistant integrates human intelligence, police experience, and authoritative data sources to provide reliable, up-to-date advice and guidance to police officers and staff.
 
-This repo contains sample code for a simple chat webapp that integrates with Azure OpenAI. Note: some portions of the app use preview APIs.
+---
 
-## Prerequisites
-- An existing Azure OpenAI resource and model deployment of a chat model (e.g. `gpt-35-turbo-16k`, `gpt-4`)
-- To use Azure OpenAI on your data, one of the following data sources:
-  - Azure AI Search Index
-  - Azure CosmosDB Mongo vCore vector index
-  - Elasticsearch index (preview)
-  - Pinecone index (private preview)
-  - Azure SQL Server (private preview)
-  - Mongo DB (preview)
+## Vision & Purpose
 
+- **Improving Police Decision-Making:**  
+  Policing Assistant supports officers by delivering advice grounded in both national and local policy, leveraging AI to process information from trusted sources such as the College of Policing, CPS Guidance, and Gov.uk.
+
+- **Human in the Loop:**  
+  The tool augments, but does not replace, human decision-making, supporting officers across the College of Policing’s four key areas: Criminal Justice, Investigations, Prevention, and Neighbourhood Policing.
+
+---
+
+## How It Works
+
+- **Data Integration:**  
+  Curated sources (e.g., College of Policing APP, CPS Guidance, Gov.uk) are indexed daily. Local force policies and guidelines are consolidated in a central Azure Storage Account for easy management and instant updates.
+
+- **AI Model:**  
+  Runs securely on a Police Service Azure Tenant using a self-contained version of OpenAI. Delivers human-like responses to technical, procedural, and legislative queries.
+
+- **Interface:**  
+  User-friendly chatbot/search interface, including speech-to-text for mobile efficiency.
+
+- **Transparency:**  
+  Every response includes references/citations for provenance and trust.
+
+---
+
+## Key Features
+
+- **Comprehensive Support:**  
+  Advice across Criminal Justice, Investigations, Prevention, and Neighbourhood Policing.
+
+- **Transparency & Trust:**  
+  Source citations provided for every answer.
+
+- **Continuous Improvement:**  
+  Regular audits, user feedback, and updates.
+
+- **Security & Compliance:**  
+  Operates within a secure, compliant Azure environment.
+
+- **Efficiency:**  
+  Fast, speech-enabled access to information.
+
+- **Integration:**  
+  Seamless with local/national policies and Azure services.
+
+---
+
+## Key Benefits
+
+- **Enhanced Decision-Making:**  
+  Reliable, up-to-date guidance from official sources.
+
+- **Efficiency:**  
+  Quick access to advice, saving officer time.
+
+- **Comprehensive Coverage:**  
+  Integrates both national and local information.
+
+- **Transparency:**  
+  Citations and user responsibility reminders in every response.
+
+- **Continuous Improvement:**  
+  Daily data indexing and user-driven refinements.
+
+- **Security:**  
+  Strong data protection and compliance with legal standards.
+
+---
+
+## Governance & Responsible AI
+
+- **Ethical Scrutiny:**  
+  Independent ethics committee review before deployment.
+
+- **Transparency:**  
+  Comprehensive documentation and public engagement.
+
+- **Validation:**  
+  Algorithmic transparency, risk and impact assessments, DPIA, and independent audits.
+
+- **Continuous Monitoring:**  
+  Periodic testing for bias, drift, and performance.
+
+- **Training:**  
+  User-centric design and comprehensive training programs.
+
+---
+
+**Disclaimer:**  
+Policing Assistant is an advisory tool. All advice is based on curated, up-to-date data, but ultimate responsibility for decisions remains with the user.
+
+---
+
+## Configure the app
+
+### Create a .env file for local development
+
+Follow instructions below in the [app configuration](#app-settings) section to create a .env file for local development of your app.  This file can be used as a reference to populate the app settings [...]
+
+### Create a JSON file for populating Azure App Service app settings
+
+After creating your .env file, run one of the following commands in your preferred shell to create a JSON representation of your environment which is recognized by Azure App Service.
+
+#### Powershell
+```powershell
+Get-Content .env | ForEach-Object {   
+     if ($_ -match "(?<name>[A-Z_]+)=(?<value>.*)") {   
+         [PSCustomObject]@{   
+             name = $matches["name"]   
+             value = $matches["value"]   
+             slotSetting = $false  
+         }  
+    }  
+} | ConvertTo-Json | Out-File -FilePath env.json
 ## Configure the app
 
 ### Create a .env file for local development
