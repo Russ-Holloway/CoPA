@@ -31,9 +31,9 @@
 
 Click the button below to deploy directly to Azure:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3a%2f%2fdev.azure.com%2fBTPDigitalWorkplace%2fPolicing%2520Assistant%2520Deployment%2520Template%2f_apis%2fgit%2frepositories%2fPolicing%2520Assistant%2520Deployment%2520Template%2fitems%3fpath%3d%2fdeployment.json%26api-version%3d6.0%26download%3dtrue)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FRuss-Holloway%2FPolicing-Assistant%2Fmain%2Finfrastructure%2Fdeployment.json)
 
-> **Note:** This deployment button requires permissions to access the Azure DevOps repository. Make sure that you're signed in to Azure DevOps before using this button.
+> **Note:** For this deployment button to work correctly, make sure the deployment.json file is properly synchronized between your Azure DevOps repository and GitHub repository.
 
 ### Option 2: Manual Template Deployment
 
@@ -301,3 +301,4 @@ The deployment template creates the following Azure resources:
 - Cosmos DB (optional, for chat history)
 
 ---
+
