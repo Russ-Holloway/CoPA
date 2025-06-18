@@ -84,6 +84,7 @@ New-AzResourceGroupDeployment `
   -Name $DEPLOYMENT_NAME `
   -ResourceGroupName $RESOURCE_GROUP `
   -TemplateFile "infrastructure/deployment.json" `
+  -TemplateParameterFile "infrastructure/custom-parameters.json" `
   -WebsiteName $WEBSITE_NAME `
   -AzureSearchService $SEARCH_NAME `
   -AzureOpenAIResource $OPENAI_NAME `

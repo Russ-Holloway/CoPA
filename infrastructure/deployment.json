@@ -144,7 +144,7 @@
         },
         "AzureOpenAIModel": {
             "type": "string",
-            "defaultValue": "gpt-4o",
+            "defaultValue": "deployment-gpt4o",
             "metadata": {
                 "description": "Azure OpenAI Model Deployment Name"
             }
@@ -717,7 +717,7 @@
             "properties": {
                 "model": {
                     "format": "OpenAI",
-                    "name": "[parameters('AzureOpenAIModelName')]",
+                    "name": "gpt-4o",
                     "version": "2024-11-20"
                 },
                 "scaleSettings": {

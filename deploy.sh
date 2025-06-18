@@ -81,6 +81,7 @@ az deployment group create \
   --name "$DEPLOYMENT_NAME" \
   --resource-group "$RESOURCE_GROUP" \
   --template-file "infrastructure/deployment.json" \
+  --parameters @infrastructure/custom-parameters.json \
   --parameters \
     WebsiteName="$WEBSITE_NAME" \
     AzureSearchService="$SEARCH_NAME" \
