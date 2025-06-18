@@ -288,6 +288,55 @@
             "metadata": {
                 "description": "GitHub branch to deploy"
             }
+        },
+        "AzureSearchDataSourceName": {
+            "type": "string",
+            "defaultValue": "policingdata",
+            "metadata": {
+                "description": "Name of the data source for Azure Search"
+            }
+        },
+        "AzureSearchIndexName": {
+            "type": "string",
+            "defaultValue": "policingindex",
+            "metadata": {
+                "description": "Name of the index for Azure Search"
+            }
+        },
+        "AzureSearchIndexerName": {
+            "type": "string",
+            "defaultValue": "policingindexer",
+            "metadata": {
+                "description": "Name of the indexer for Azure Search"
+            }
+        },
+        "AzureSearchSkillset1Name": {
+            "type": "string",
+            "defaultValue": "policing-text-skillset",
+            "metadata": {
+                "description": "Name of the first skillset for Azure Search"
+            }
+        },
+        "AzureSearchSkillset2Name": {
+            "type": "string",
+            "defaultValue": "policing-enrichment-skillset",
+            "metadata": {
+                "description": "Name of the second skillset for Azure Search"
+            }
+        },
+        "StorageAccountName": {
+            "type": "string",
+            "defaultValue": "[format('stor{0}', uniqueString(resourceGroup().id))]",
+            "metadata": {
+                "description": "Name of the storage account for data source"
+            }
+        },
+        "StorageContainerName": {
+            "type": "string",
+            "defaultValue": "documents",
+            "metadata": {
+                "description": "Name of the blob container for data source"
+            }
         }
     },
     "variables": {
@@ -295,7 +344,9 @@
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
-        "roleAssignmentId": "[guid(variables('roleDefinitionId'), parameters('WebsiteName'), resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name')))]"
+        "roleAssignmentId": "[guid(variables('roleDefinitionId'), parameters('WebsiteName'), resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name')))]",
+        "deploymentScriptUri": "[concat(parameters('GitRepoUrl'), '/raw/', parameters('GitBranch'), '/scripts/setup_search_components.ps1')]",
+        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
     },
     "resources": [
         {
@@ -341,7 +392,7 @@
                         },
                         {
                             "name": "AZURE_SEARCH_INDEX",
-                            "value": "[parameters('AzureSearchIndex')]"
+                            "value": "[parameters('AzureSearchIndexName')]"
                         },
                         {
                             "name": "AZURE_SEARCH_KEY",
@@ -656,6 +707,106 @@
                     "scaleType": "Standard",
                     "capacity": "[parameters('AzureOpenAICapacity')]"
                 }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('StorageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('StorageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('StorageContainerName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('StorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2020-10-01",
+            "name": "setupSearchComponents",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parameters('StorageAccountName'), 'default', parameters('StorageContainerName'))]"
+            ],
+            "kind": "AzurePowerShell",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'SearchSetupIdentity')]": {}
+                }
+            },
+            "properties": {
+                "azPowerShellVersion": "6.4",
+                "timeout": "PT30M",
+                "arguments": "[concat('-searchServiceName \"', parameters('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', parameters('AzureSearchDataSourceName'), '\" -indexName \"', parameters('AzureSearchIndexName'), '\" -indexerName \"', parameters('AzureSearchIndexerName'), '\" -skillset1Name \"', parameters('AzureSearchSkillset1Name'), '\" -skillset2Name \"', parameters('AzureSearchSkillset2Name'), '\" -storageAccountName \"', parameters('StorageAccountName'), '\" -storageAccountKey \"', listKeys(variables('storageAccountId'), '2021-04-01').keys[0].value, '\" -storageContainerName \"', parameters('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\"')]",
+                "primaryScriptUri": "[variables('deploymentScriptUri')]",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            }
+        },
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "apiVersion": "2018-11-30",
+            "name": "SearchSetupIdentity",
+            "location": "[resourceGroup().location]"
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'SearchSetupIdentity'), resourceGroup().id, 'Contributor')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'SearchSetupIdentity')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'SearchSetupIdentity')).principalId]",
+                "principalType": "ServicePrincipal"
             }
         }
     ]
