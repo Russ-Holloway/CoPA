@@ -37,6 +37,60 @@ Click the button below to deploy directly to Azure:
 
 ### Option 2: Manual Template Deployment
 
+This is the recommended method for deploying the Policing Assistant:
+
+1. **Download the deployment template:**
+   - From Azure DevOps: Navigate to your Azure DevOps project, locate the `deployment.json` file, and download it
+   - Or use this direct link if available: [Download Template](https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D)
+
+2. **Deploy using the Azure Portal:**
+   - Go to the [Azure Portal](https://portal.azure.com)
+   - Click "Create a resource" → Search for "Template deployment" → "Create"
+   - Select "Build your own template in the editor"
+   - Click "Load file" and upload the downloaded deployment.json file
+   - Click "Save" and proceed with the deployment
+
+### Option 3: Direct Deployment via Azure CLI
+
+For users familiar with the Azure CLI:
+
+```powershell
+# Download the template file first
+Invoke-WebRequest -Uri "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D" -OutFile "deployment.json"
+
+# Deploy using the local file
+az deployment group create --resource-group <your-resource-group-name> --template-file deployment.json
+```
+
+> **Note:** The SAS token for the deployment template is valid until June 16, 2026.
+
+---
+- [Quick Start](#quick-start)
+- [Configure the App](#configure-the-app)
+- [Deploy the App](#deploy-the-app)
+- [Authentication](#authentication)
+- [App Configuration](#app-configuration)
+- [Best Practices](#best-practices)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [Community & Support](#community--support)
+- [Trademarks](#trademarks)
+- [Disclaimer](#disclaimer)
+
+---
+
+## Deployment Options
+
+### Option 1: One-Click Deployment
+
+Click the button below to deploy directly to Azure:
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-17T17%3A37%3A38Z%26se%3D2026-06-17T01%3A37%3A38Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Db%26sig%3DUda77qHOroJlcDc1%252BxBcZihUuY72WBqX3h7UsnU2oTo%253D)
+
+> **Note:** The deployment button requires you to be signed into Azure. The template is hosted in a secure Azure Storage account with proper CORS configuration.
+
+### Option 2: Manual Template Deployment
+
 1. **Download the deployment template:**
    - From Azure DevOps: Navigate to your Azure DevOps project, locate the `deployment.json` file, and download it
    - Or use this direct link if available: [Download Template](https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/deployment.json?sp=r&st=2025-06-17T15:38:04Z&se=2026-06-16T23:38:04Z&spr=https&sv=2024-11-04&sr=b&sig=q%2FXSsbGbQRF%2BVXyVMBlUtB%2F9CLrV01cc5EhZOkHEUfM%3D)
@@ -256,6 +310,76 @@ _Example scenarios where caution is required:_
 
 ## Note on Deploy to Azure Button
 
+<<<<<<< HEAD
+The "Deploy to Azure" button requires that the ARM template (deployment.json) be accessible via a public URL with CORS enabled. There are several common issues that can prevent this from working:
+
+1. **Private Repository Access**: If your Azure DevOps repository is private, Azure's deployment service cannot access the file directly.
+
+2. **CORS Policy**: The URL hosting the template must have CORS (Cross-Origin Resource Sharing) enabled to allow Azure to download it.
+
+3. **Authentication Requirements**: If authentication is required to access the file, the deployment process will fail.
+
+4. **URL Encoding Complexity**: Complex URLs with special characters can sometimes cause parsing issues.
+
+To make the "Deploy to Azure" button work directly, you would need to:
+
+1. Host the deployment.json file on a public storage service with CORS enabled (like Azure Blob Storage configured for public access with CORS)
+2. Use a clean, simple URL structure without complex query parameters
+3. Ensure the URL is properly encoded in the markdown link
+
+For most private repository scenarios, the manual deployment method (Option 2) is the most reliable approach.
+
+---
+
+## Troubleshooting Deployment
+
+If you encounter issues during deployment, please try the following:
+
+### Authentication Errors
+If you see authentication errors when using the one-click deployment button:
+1. Make sure you're logged into Azure DevOps before clicking the button
+2. If you don't have access to the Azure DevOps repository, use Option 2 (Manual Template Deployment) instead
+3. Check that your Azure account has the necessary permissions to deploy resources
+
+### Access Denied Errors
+If you encounter access denied errors when accessing the template:
+1. Make sure your SAS token hasn't expired (for the blob storage option)
+2. Try downloading the file manually first, then upload it in the Azure Portal
+3. Use the Azure CLI method (Option 3)
+
+### Deployment Parameter Errors
+If you encounter errors related to missing or invalid parameters:
+1. Make sure to fill in all required parameters in the Azure Portal
+2. For sensitive values like API keys, ensure they are entered correctly
+3. For region-specific resources, ensure the selected region supports all required services
+
+For additional assistance, please contact your system administrator.
+
+---
+
+---
+
+## Implementation Notes
+
+This section provides technical details about the deployment process:
+
+### Deployment Methods
+Three deployment methods are provided:
+1. One-Click Deployment - Convenient deployment directly from Azure DevOps repository
+2. Manual Template Deployment - Alternative method using Azure Blob Storage
+3. Azure CLI Deployment - For advanced users familiar with command-line tools
+
+### Access Requirements
+- The one-click deployment requires access to the Azure DevOps repository
+- The manual deployment uses a SAS token for Azure Blob Storage valid until June 16, 2026
+
+### Resource Types
+The deployment template creates the following Azure resources:
+- App Service Plan and Web App
+- Application Insights
+- Cosmos DB (optional, for chat history)
+
+=======
 The "Deploy to Azure" button requires that the ARM template (deployment.json) be accessible via a public URL with CORS enabled. There are several common issues that can prevent this from working:
 
 1. **Private Repository Access**: If your Azure DevOps repository is private, Azure's deployment service cannot access the file directly.
@@ -327,3 +451,5 @@ lowing Azure resources:
 - App Service Plan and Web App
 - Application Insights
 - Cosmos DB (optional, for chat history)
+
+>>>>>>> e205b059f317d80e0fca8d163b06b733a831cfd0
