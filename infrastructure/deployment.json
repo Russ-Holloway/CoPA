@@ -718,7 +718,7 @@
                 "model": {
                     "format": "OpenAI",
                     "name": "[parameters('AzureOpenAIModelName')]",
-                    "version": "2023-09-01-preview"
+                    "version": "2024-11-20"
                 },
                 "scaleSettings": {
                     "scaleType": "Standard",
