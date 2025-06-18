@@ -5,6 +5,7 @@ import logging
 import uuid
 import httpx
 import asyncio
+import threading
 from quart import (
     Blueprint,
     Quart,
@@ -28,6 +29,9 @@ from backend.settings import (
     app_settings,
     MINIMUM_SUPPORTED_AZURE_OPENAI_PREVIEW_API_VERSION
 )
+
+# Import search setup module for automatic configuration
+from backend.search_setup import setup_search_components
 from backend.utils import (
     format_as_ndjson,
     format_stream_response,
@@ -54,6 +58,19 @@ def create_app():
         except Exception as e:
             logging.exception("Failed to initialize CosmosDB client")
             app.cosmos_conversation_client = None
+            
+        # Run search components setup in a background thread to avoid blocking app startup
+        def run_search_setup():
+            try:
+                setup_search_components()
+                logging.info("Search components setup completed successfully")
+            except Exception as e:
+                logging.exception("Failed to set up search components")
+                
+        # Start the setup process in a background thread
+        search_setup_thread = threading.Thread(target=run_search_setup)
+        search_setup_thread.daemon = True
+        search_setup_thread.start()
             raise e
     
     return app

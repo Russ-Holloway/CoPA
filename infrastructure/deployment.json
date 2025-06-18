@@ -229,6 +229,13 @@
                 "description": "Azure OpenAI System Message"
             }
         },
+        "StorageAccountName": {
+            "type": "string",
+            "defaultValue": "[take(concat('st', uniqueString(resourceGroup().id)), 24)]",
+            "metadata": {
+                "description": "Name of the storage account for search data source"
+            }
+        },
         "AzureOpenAIStream": {
             "type": "bool",
             "defaultValue": true,
@@ -355,7 +362,7 @@
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "[guid(variables('roleDefinitionId'), parameters('WebsiteName'), resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name')))]",
-        "deploymentScriptUri": "[concat(parameters('GitRepoUrl'), '/raw/', parameters('GitBranch'), '/scripts/setup_search_components.ps1')]"
+        "storageRoleAssignmentId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), parameters('WebsiteName'), 'StorageBlobDataContributor')]"
     },
     "resources": [
         {
@@ -518,6 +525,38 @@
                         {
                             "name": "AZURE_COSMOSDB_CONVERSATIONS_CONTAINER",
                             "value": "[variables('cosmosdb_container_name')]"
+                        },
+                        {
+                            "name": "SETUP_STORAGE_ACCOUNT_NAME",
+                            "value": "[parameters('StorageAccountName')]"
+                        },
+                        {
+                            "name": "SETUP_STORAGE_ACCOUNT_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-04-01').keys[0].value]"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_DATA_SOURCE_NAME",
+                            "value": "[parameters('AzureSearchDataSourceName')]"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_INDEX_NAME",
+                            "value": "[parameters('AzureSearchIndexName')]"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_INDEXER_NAME",
+                            "value": "[parameters('AzureSearchIndexerName')]"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_SKILLSET1_NAME",
+                            "value": "[parameters('AzureSearchSkillset1Name')]"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_SKILLSET2_NAME",
+                            "value": "[parameters('AzureSearchSkillset2Name')]"
+                        },
+                        {
+                            "name": "AZURE_STORAGE_CONTAINER_NAME",
+                            "value": "[parameters('StorageContainerName')]"
                         },
                         {
                             "name": "UWSGI_PROCESSES",
@@ -772,6 +811,20 @@
             ],
             "properties": {
                 "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[variables('storageRoleAssignmentId')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
             }
         },
         {
