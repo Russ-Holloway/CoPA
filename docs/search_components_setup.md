@@ -16,7 +16,7 @@ The deployment has created the following Azure Cognitive Search components:
 
 3. **Skillsets**:
    - Text Processing Skillset: Handles document splitting, language detection, and key phrase extraction
-   - AI Enrichment Skillset: Generates embeddings and categorizes documents using Azure OpenAI
+   - AI Enrichment Skillset: Uses built-in Azure OpenAI skills for generating embeddings and categorizing documents
 
 4. **Indexer**: Coordinates the ingestion and enrichment pipeline
    - Runs automatically every 12 hours

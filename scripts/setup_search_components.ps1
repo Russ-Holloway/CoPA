@@ -295,17 +295,14 @@ Write-Output "Creating AI enrichment skillset..."
 $aiSkillset = @{
     name = $skillset2Name
     description = "AI enrichment skillset using Azure OpenAI"
-    skills = @(
-        @{
-            "@odata.type" = "#Microsoft.Skills.Custom.WebApiSkill"
+    skills = @(        @{
+            "@odata.type" = "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill"
             name = "text-embedding"
             description = "Generate embeddings for the document content"
             context = "/document"
-            uri = "$openAIEndpoint/openai/deployments/$openAIEmbeddingDeployment/embeddings?api-version=2023-05-15"
-            httpMethod = "POST"
-            timeout = "PT30S"
-            batchSize = 1
-            degreeOfParallelism = 1
+            resourceUri = $openAIEndpoint
+            apiKey = $openAIKey
+            deploymentId = $openAIEmbeddingDeployment
             inputs = @(
                 @{
                     name = "text"
@@ -318,83 +315,60 @@ $aiSkillset = @{
                     targetName = "contentVector"
                 }
             )
-            httpHeaders = @{
-                "api-key" = $openAIKey
-            }
-            requestSchema = @{
-                type = "object"
-                properties = @{
-                    input = @{
-                        type = "string"
-                    }
-                    model = @{
-                        type = "string"
-                        default = "text-embedding-ada-002"
-                    }
-                }
-                required = @("input")
-            }
-        },
-        @{
-            "@odata.type" = "#Microsoft.Skills.Custom.WebApiSkill"
+        },        @{
+            "@odata.type" = "#Microsoft.Skills.Text.AzureOpenAISkill"
             name = "document-categorizer"
             description = "Categorize documents into policing categories"
             context = "/document"
-            uri = "$openAIEndpoint/openai/deployments/gpt-4/completions?api-version=2023-05-15"
-            httpMethod = "POST"
-            timeout = "PT30S"
-            batchSize = 1
-            degreeOfParallelism = 1
+            resourceUri = $openAIEndpoint
+            apiKey = $openAIKey
+            deploymentId = "gpt-4"
+            modelVersion = "1106"
+            apiVersion = "2023-05-15"
+            completionOptions = @{
+                temperature = 0
+                maxTokens = 50
+            }
             inputs = @(
                 @{
-                    name = "prompt"
-                    source = "/document/content"
-                    sourceContext = null
-                    inputs = $null
+                    name = "messages"
+                    sourceContext = "/document"
+                    inputs = @(
+                        @{
+                            name = "item"
+                            inputs = @(
+                                @{
+                                    name = "role"
+                                    value = "system"
+                                },
+                                @{
+                                    name = "content"
+                                    value = "You are a law enforcement document classifier. Analyze the document content and assign a single category from this list: 'Investigation', 'Patrol', 'Community', 'Evidence', 'Training', 'Legal', 'Administration', 'Intelligence', 'Emergency'. Respond with ONLY the category name."
+                                }
+                            )
+                        },
+                        @{
+                            name = "item"
+                            inputs = @(
+                                @{
+                                    name = "role"
+                                    value = "user"
+                                },
+                                @{
+                                    name = "content"
+                                    source = "/document/content"
+                                }
+                            )
+                        }
+                    )
                 }
             )
             outputs = @(
                 @{
-                    name = "category"
+                    name = "output"
                     targetName = "category"
                 }
             )
-            httpHeaders = @{
-                "api-key" = $openAIKey
-            }
-            requestSchema = @{
-                type = "object"
-                properties = @{
-                    messages = @{
-                        type = "array"
-                        items = @{
-                            type = "object"
-                            properties = @{
-                                role = @{
-                                    type = "string"
-                                    enum = @("system", "user", "assistant")
-                                }
-                                content = @{
-                                    type = "string"
-                                }
-                            }
-                            required = @("role", "content")
-                        }
-                    }
-                    temperature = @{
-                        type = "number"
-                        minimum = 0
-                        maximum = 2
-                        default = 0
-                    }
-                    max_tokens = @{
-                        type = "integer"
-                        minimum = 1
-                        default = 50
-                    }
-                }
-                required = @("messages")
-            }
         }
     )
 }
