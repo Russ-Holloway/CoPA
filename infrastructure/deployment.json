@@ -22,7 +22,17 @@
                 "S2",
                 "S3",
                 "P1",
-                "P2",
+            "properties": {
+                "model": {
+                    "format": "OpenAI",
+                    "name": "[parameters('AzureOpenAIModelName')]",
+                    "version": "2023-09-01-preview"
+                },
+                "scaleSettings": {
+                    "scaleType": "Standard",
+                    "capacity": "[parameters('AzureOpenAICapacity')]"
+                }
+            }      "P2",
                 "P3",
                 "P4"
             ],
@@ -144,14 +154,14 @@
         },
         "AzureOpenAIModel": {
             "type": "string",
-            "defaultValue": "gpt-4",
+            "defaultValue": "gpt-4o",
             "metadata": {
                 "description": "Azure OpenAI Model Deployment Name"
             }
         },
         "AzureOpenAIModelName": {
             "type": "string",
-            "defaultValue": "gpt-4",
+            "defaultValue": "gpt-4o",
             "metadata": {
                 "description": "Azure OpenAI Model Name"
             }
@@ -214,7 +224,7 @@
         },
         "AzureOpenAISystemMessage": {
             "type": "string",
-            "defaultValue": "You are an AI assistant that helps people find information.",
+            "defaultValue": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
             "metadata": {
                 "description": "Azure OpenAI System Message"
             }
@@ -326,7 +336,7 @@
         },
         "StorageAccountName": {
             "type": "string",
-            "defaultValue": "[format('stor{0}', uniqueString(resourceGroup().id))]",
+            "defaultValue": "[take(concat('st', uniqueString(resourceGroup().id)), 24)]",
             "metadata": {
                 "description": "Name of the storage account for data source"
             }
@@ -345,8 +355,7 @@
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "[guid(variables('roleDefinitionId'), parameters('WebsiteName'), resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name')))]",
-        "deploymentScriptUri": "[concat(parameters('GitRepoUrl'), '/raw/', parameters('GitBranch'), '/scripts/setup_search_components.ps1')]",
-        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+        "deploymentScriptUri": "[concat(parameters('GitRepoUrl'), '/raw/', parameters('GitBranch'), '/scripts/setup_search_components.ps1')]"
     },
     "resources": [
         {
@@ -683,7 +692,8 @@
             "properties": {
                 "model": {
                     "format": "OpenAI",
-                    "name": "[parameters('AzureOpenAIModelName')]"
+                    "name": "[parameters('AzureOpenAIModelName')]",
+                    "version": "2023-09-01-preview"
                 },
                 "scaleSettings": {
                     "scaleType": "Standard",
@@ -701,7 +711,8 @@
             "properties": {
                 "model": {
                     "format": "OpenAI",
-                    "name": "[parameters('AzureOpenAIEmbeddingModelName')]"
+                    "name": "[parameters('AzureOpenAIEmbeddingModelName')]",
+                    "version": "2"
                 },
                 "scaleSettings": {
                     "scaleType": "Standard",
@@ -771,42 +782,19 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parameters('StorageAccountName'), 'default', parameters('StorageContainerName'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]"
             ],
             "kind": "AzurePowerShell",
             "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'SearchSetupIdentity')]": {}
-                }
+                "type": "None"
             },
             "properties": {
                 "azPowerShellVersion": "6.4",
                 "timeout": "PT30M",
-                "arguments": "[concat('-searchServiceName \"', parameters('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', parameters('AzureSearchDataSourceName'), '\" -indexName \"', parameters('AzureSearchIndexName'), '\" -indexerName \"', parameters('AzureSearchIndexerName'), '\" -skillset1Name \"', parameters('AzureSearchSkillset1Name'), '\" -skillset2Name \"', parameters('AzureSearchSkillset2Name'), '\" -storageAccountName \"', parameters('StorageAccountName'), '\" -storageAccountKey \"', listKeys(variables('storageAccountId'), '2021-04-01').keys[0].value, '\" -storageContainerName \"', parameters('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\"')]",
+                "arguments": "[concat('-searchServiceName \"', parameters('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', parameters('AzureSearchDataSourceName'), '\" -indexName \"', parameters('AzureSearchIndexName'), '\" -indexerName \"', parameters('AzureSearchIndexerName'), '\" -skillset1Name \"', parameters('AzureSearchSkillset1Name'), '\" -skillset2Name \"', parameters('AzureSearchSkillset2Name'), '\" -storageAccountName \"', parameters('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', parameters('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\"')]",
                 "primaryScriptUri": "[variables('deploymentScriptUri')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
-            }
-        },
-        {
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "apiVersion": "2018-11-30",
-            "name": "SearchSetupIdentity",
-            "location": "[resourceGroup().location]"
-        },
-        {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2020-04-01-preview",
-            "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'SearchSetupIdentity'), resourceGroup().id, 'Contributor')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'SearchSetupIdentity')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'SearchSetupIdentity')).principalId]",
-                "principalType": "ServicePrincipal"
             }
         }
     ]

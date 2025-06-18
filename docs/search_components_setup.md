@@ -1,52 +1,164 @@
-# Search Components Setup Guide
+# Azure Cognitive Search Setup Guide
 
-This document provides information about the search components that have been automatically set up during deployment.
+This guide will help you set up the Azure Cognitive Search components needed for the Policing Assistant application after the main ARM template deployment completes.
 
-## Components Created
+## Prerequisites
 
-The deployment has created the following Azure Cognitive Search components:
+- The ARM template has been deployed successfully
+- You have access to the Azure Portal
+- You have the necessary permissions to create resources in the resource group
 
-1. **Data Source**: Connected to Azure Blob Storage for document ingestion
-   - Name: `policingdata` (or custom name if specified)
-   - Container: `documents`
+## Setting Up Azure Cognitive Search Components
 
-2. **Index**: Schema optimized for policing document search
-   - Name: `policingindex` (or custom name if specified)
-   - Features: Vector search, semantic search, and filtering capabilities
+Follow these steps to configure Azure Cognitive Search with data sources, indexes, skillsets, and indexers:
 
-3. **Skillsets**:
-   - Text Processing Skillset: Handles document splitting, language detection, and key phrase extraction
-   - AI Enrichment Skillset: Uses built-in Azure OpenAI skills for generating embeddings and categorizing documents
+### 1. Create a Storage Account for Document Storage
 
-4. **Indexer**: Coordinates the ingestion and enrichment pipeline
-   - Runs automatically every 12 hours
-   - Maps metadata and content fields appropriately
+1. Go to the Azure Portal and navigate to your resource group
+2. Click "Create" and search for "Storage account"
+3. Create a new storage account with the following settings:
+   - Name: Choose a unique name (must be globally unique)
+   - Performance: Standard
+   - Redundancy: Locally-redundant storage (LRS)
+   - Other settings: Default
+4. Once created, navigate to the storage account
+5. Go to "Containers" and create a new container named "documents"
+6. Set the access level to "Private"
 
-## Adding Documents
+### 2. Upload Documents
 
-To add documents to the search index:
+1. In the "documents" container, upload your policing-related documents
+2. These can be PDF, Word, PowerPoint, text files, etc.
 
-1. Upload PDF, Word, or text files to the `documents` container in the Azure Storage account created during deployment.
-2. The indexer will automatically process these documents on its next run (or you can manually run the indexer).
+### 3. Create a Search Index
 
-## Customizing Search Components
+1. Navigate to your Azure Cognitive Search service that was created by the ARM template
+2. Go to "Indexes" and click "Add index"
+3. Use the following configuration:
+   - Index name: policingindex
+   - Configure your fields as follows:
+     - id (Key, Retrievable)
+     - content (Retrievable, Searchable)
+     - title (Retrievable, Searchable, Sortable)
+     - url (Retrievable)
+     - filename (Retrievable, Searchable, Sortable)
+     - metadata_author (Retrievable, Searchable, Filterable)
+     - metadata_creation_date (Retrievable, Filterable, Sortable)
+     - category (Retrievable, Searchable, Filterable, Facetable)
+     - contentVector (Collection(Edm.Single), Searchable, Vector dimensions: 1536, Vector search config: vectorConfig)
+   - Configure vector search settings:
+     - Name: vectorConfig
+     - Algorithm: HNSW
+     - Parameters: m=4, efConstruction=400, efSearch=500, metric=cosine
+   - Configure semantic search settings:
+     - Configuration name: default
+     - Title field: title
+     - Content fields: content
+     - Keyword fields: category
 
-If you need to customize the search components:
+### 4. Create a Data Source
 
-1. Use the Azure Portal to navigate to your Azure Cognitive Search service
-2. Select the appropriate component (index, indexer, or skillset)
-3. Use the editor to modify the component's definition
+1. In your search service, go to "Data sources" and click "New data source"
+2. Configure as follows:
+   - Name: policingdata
+   - Source: Azure Blob Storage
+   - Connection string: Use the connection string from your storage account
+   - Container: documents
+   - Blob folder: Leave empty to include all documents
+   - Description: Policing documents data source
 
-For more advanced customization, refer to the Azure Cognitive Search documentation.
+### 5. Create the Text Processing Skillset
 
-## Verifying Setup
+1. Go to "Skillsets" and click "New skillset"
+2. Configure as follows:
+   - Name: policing-text-skillset
+   - Description: Text processing skillset for policing documents
+   - Add the following skills:
+     - **Split Skill**:
+       - Source field: /document/content
+       - Maximum page length: 5000
+       - Output field name: pages
+     - **Language Detection Skill**:
+       - Source field: /document/content
+       - Output field name: languageCode
+     - **Key Phrase Extraction Skill**:
+       - Source fields: /document/pages/*, /document/languageCode
+       - Default language: en
+       - Output field name: keyPhrases
 
-To verify the search components are working correctly:
+### 6. Create the AI Enrichment Skillset
 
-1. Upload a test document to the blob storage container
-2. Navigate to the Azure Cognitive Search service in the Azure Portal
-3. Manually run the indexer
-4. Check the indexer status and verify the document was indexed successfully
-5. Use the Search explorer to perform a test query
+1. Create another skillset named "policing-enrichment-skillset"
+2. Add the following skills:
+   - **Azure OpenAI Embedding Skill**:
+     - Resource URI: Your Azure OpenAI service endpoint
+     - API Key: Your Azure OpenAI key
+     - Deployment ID: Your embedding model deployment name
+     - Source field: /document/content
+     - Output field name: contentVector
+   - **Azure OpenAI Skill**:
+     - Resource URI: Your Azure OpenAI service endpoint
+     - API Key: Your Azure OpenAI key
+     - Deployment ID: gpt-4o
+     - API Version: 2023-05-15
+     - Configure messages:
+       - System message: "You are a law enforcement document classifier. Analyze the document content and assign a single category from this list: 'Investigation', 'Patrol', 'Community', 'Evidence', 'Training', 'Legal', 'Administration', 'Intelligence', 'Emergency'. Respond with ONLY the category name."
+       - User message: /document/content
+     - Output field name: category
 
-If you encounter any issues, check the indexer execution history for error details.
+### 7. Create an Indexer
+
+1. Go to "Indexers" and click "New indexer"
+2. Configure as follows:
+   - Name: policingindexer
+   - Data source: policingdata
+   - Target index: policingindex
+   - Skillset: policing-text-skillset (primary skillset)
+   - Schedule: Run every 12 hours
+   - Field mappings:
+     - metadata_storage_name → filename
+     - metadata_storage_path → url
+     - metadata_title → title
+     - metadata_author → metadata_author
+     - metadata_creation_date → metadata_creation_date
+   - Output field mappings:
+     - /document/pages/* → content (Use the merge mapping function)
+     - /document/contentVector → contentVector
+     - /document/category → category
+   - Indexer parameters:
+     - Configuration > Data to extract: Content and metadata
+     - Configuration > Parsing mode: Default
+
+### 8. Run the Indexer
+
+1. Select your newly created indexer
+2. Click "Run" to start the indexing process
+3. Monitor the progress in the indexer status
+
+### 9. Update App Configuration
+
+1. Navigate to your Web App in the Azure Portal
+2. Go to Configuration > Application settings
+3. Update the following settings:
+   - AZURE_SEARCH_INDEX: policingindex
+   - AZURE_SEARCH_QUERY_TYPE: vector or vectorSemanticHybrid (depending on your preference)
+   - AZURE_SEARCH_VECTOR_COLUMNS: contentVector
+   - AZURE_SEARCH_USE_SEMANTIC_SEARCH: true (if using semantic search)
+
+## Verification
+
+1. Once the indexer has finished running, go to your search service
+2. Select "Search explorer"
+3. Run a test query to verify your documents are being indexed properly
+4. Try the search functionality in your Policing Assistant application
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. Check the indexer status for error messages
+2. Verify all connection strings and keys are correct
+3. Ensure your documents can be parsed properly
+4. Check that the field mappings are configured correctly
+
+For more detailed guidance, refer to the [Azure Cognitive Search documentation](https://learn.microsoft.com/en-us/azure/search/).

@@ -319,11 +319,10 @@ $aiSkillset = @{
             "@odata.type" = "#Microsoft.Skills.Text.AzureOpenAISkill"
             name = "document-categorizer"
             description = "Categorize documents into policing categories"
-            context = "/document"
-            resourceUri = $openAIEndpoint
+            context = "/document"            resourceUri = $openAIEndpoint
             apiKey = $openAIKey
-            deploymentId = "gpt-4"
-            modelVersion = "1106"
+            deploymentId = "gpt-4o"
+            modelVersion = "2023-09-01-preview"
             apiVersion = "2023-05-15"
             completionOptions = @{
                 temperature = 0
