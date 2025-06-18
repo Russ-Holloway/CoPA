@@ -22,17 +22,7 @@
                 "S2",
                 "S3",
                 "P1",
-            "properties": {
-                "model": {
-                    "format": "OpenAI",
-                    "name": "[parameters('AzureOpenAIModelName')]",
-                    "version": "2023-09-01-preview"
-                },
-                "scaleSettings": {
-                    "scaleType": "Standard",
-                    "capacity": "[parameters('AzureOpenAICapacity')]"
-                }
-            }      "P2",
+                "P2",
                 "P3",
                 "P4"
             ],
@@ -229,13 +219,6 @@
                 "description": "Azure OpenAI System Message"
             }
         },
-        "StorageAccountName": {
-            "type": "string",
-            "defaultValue": "[take(concat('st', uniqueString(resourceGroup().id)), 24)]",
-            "metadata": {
-                "description": "Name of the storage account for search data source"
-            }
-        },
         "AzureOpenAIStream": {
             "type": "bool",
             "defaultValue": true,
@@ -343,14 +326,15 @@
         },
         "StorageAccountName": {
             "type": "string",
-            "defaultValue": "[take(concat('st', uniqueString(resourceGroup().id)), 24)]",
+            "defaultValue": "policing[uniqueString(subscription().subscriptionId)]",
+            "maxLength": 24,
             "metadata": {
                 "description": "Name of the storage account for data source"
             }
         },
         "StorageContainerName": {
             "type": "string",
-            "defaultValue": "documents",
+            "defaultValue": "docs",
             "metadata": {
                 "description": "Name of the blob container for data source"
             }
@@ -362,7 +346,9 @@
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "[guid(variables('roleDefinitionId'), parameters('WebsiteName'), resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name')))]",
-        "storageRoleAssignmentId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), parameters('WebsiteName'), 'StorageBlobDataContributor')]"
+        "storageRoleAssignmentId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), parameters('WebsiteName'), 'StorageBlobDataContributor')]",
+        "deploymentScriptUri": "https://raw.githubusercontent.com/Russ-Holloway/Policing-Assistant/main/scripts/setup_search_components.ps1",
+        "deployScriptIdentityName": "deployScriptIdentity"
     },
     "resources": [
         {
@@ -532,7 +518,7 @@
                         },
                         {
                             "name": "SETUP_STORAGE_ACCOUNT_KEY",
-                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-04-01').keys[0].value]"
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'policingstorage'), '2021-04-01').keys[0].value]"
                         },
                         {
                             "name": "AZURE_SEARCH_DATA_SOURCE_NAME",
@@ -762,7 +748,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-04-01",
-            "name": "[parameters('StorageAccountName')]",
+            "name": "policingstorage",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS"
@@ -804,7 +790,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2021-04-01",
-            "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('StorageContainerName'))]",
+            "name": "policingstorage/default/docs",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('StorageAccountName'), 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
@@ -814,17 +800,51 @@
             }
         },
         {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2022-04-01",
-            "name": "[variables('storageRoleAssignmentId')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "name": "storageRoleAssignment",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
             ],
             "properties": {
-                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
-                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
-                "principalType": "ServicePrincipal"
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
+                            "apiVersion": "2022-04-01",
+                            "name": "[concat(parameters('StorageAccountName'), '/Microsoft.Authorization/', variables('storageRoleAssignmentId'))]",
+                            "properties": {
+                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+                                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
+                                "principalType": "ServicePrincipal"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "name": "managedIdentityDeployment",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                            "apiVersion": "2018-11-30",
+                            "name": "[variables('deployScriptIdentityName')]",
+                            "location": "[resourceGroup().location]"
+                        }
+                    ]
+                }
             }
         },
         {
@@ -835,11 +855,15 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]",
+                "managedIdentityDeployment"
             ],
             "kind": "AzurePowerShell",
             "identity": {
-                "type": "None"
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
+                }
             },
             "properties": {
                 "azPowerShellVersion": "6.4",
