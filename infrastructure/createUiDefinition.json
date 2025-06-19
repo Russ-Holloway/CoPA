@@ -79,7 +79,9 @@
             "AzureSearchIndexerName": "policingindexer",
             "AzureSearchSkillset1Name": "policing-text-skillset",
             "AzureSearchSkillset2Name": "policing-enrichment-skillset",
-            "StorageContainerName": "docs"
+            "StorageContainerName": "docs",
+            "SubscriptionId": "[parameters('SubscriptionId')]",
+            "ResourceGroupName": "[parameters('ResourceGroupName')]"
         }
     }
 }
