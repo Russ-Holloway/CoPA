@@ -86,7 +86,7 @@
                 "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
                 "openaiModelDeployment",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]"
+                "embeddingModelDeployment"
             ],
             "identity": {
                 "type": "SystemAssigned"
@@ -452,19 +452,33 @@
             }
         },
         {
-            "type": "Microsoft.CognitiveServices/accounts/deployments",
-            "apiVersion": "2021-10-01",
-            "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "embeddingModelDeployment",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]"
             ],
             "properties": {
-                "model": {
-                    "format": "OpenAI",
-                    "name": "[variables('AzureOpenAIEmbeddingName')]",
-                    "version": "2"
-                },
-                "raiPolicyName": "Microsoft.Default"
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.CognitiveServices/accounts/deployments",
+                            "apiVersion": "2021-10-01",
+                            "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
+                            "properties": {
+                                "model": {
+                                    "format": "OpenAI",
+                                    "name": "[variables('AzureOpenAIEmbeddingName')]",
+                                    "version": "2"
+                                },
+                                "raiPolicyName": "Microsoft.Default"
+                            }
+                        }
+                    ]
+                }
             }
         },
         {
@@ -577,7 +591,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
+                "embeddingModelDeployment",
                 "openaiModelDeployment",
                 "managedIdentityDeployment"
             ],
