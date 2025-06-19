@@ -462,12 +462,9 @@
                 "model": {
                     "format": "OpenAI",
                     "name": "[variables('AzureOpenAIEmbeddingName')]",
-                    "version": "1"
+                    "version": "2"
                 },
-                "raiPolicyName": "Microsoft.Default",
-                "scaleSettings": {
-                    "capacity": 1
-                }
+                "raiPolicyName": "Microsoft.Default"
             }
         },
         {
