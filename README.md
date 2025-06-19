@@ -29,11 +29,11 @@
 
 ### One-Click Azure Deployment
 
-Click the button below to deploy directly to Azure:
+Click the button below to deploy directly to Azure with the correct GPT-4o model:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-17T17%3A37%3A38Z%26se%3D2026-06-17T01%3A37%3A38Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Db%26sig%3DUda77qHOroJlcDc1%252BxBcZihUuY72WBqX3h7UsnU2oTo%253D)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FRuss-Holloway%2FPolicing-Assistant%2Fmain%2Finfrastructure%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FRuss-Holloway%2FPolicing-Assistant%2Fmain%2Finfrastructure%2FcreateUiDefinition.json)
 
-> **Note:** The deployment button provides a simple one-click experience. Just select your resource group (or create a new one), then click "Review + create" to deploy. All parameters are pre-configured for optimal performance.
+> **Note:** The deployment button provides a simple one-click experience. Just select your resource group (or create a new one), provide a name for your Web App, then click "Review + create" to deploy. All parameters are pre-configured for optimal performance with GPT-4o. No need to modify any parameters - the deployment uses the latest GPT-4o model with appropriate settings automatically.
 
 ---
 

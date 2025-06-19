@@ -1,0 +1,85 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "basics": [],
+        "steps": [
+            {
+                "name": "deployment",
+                "label": "Deployment Settings",
+                "elements": [
+                    {
+                        "name": "infoBox",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "All parameters are pre-configured for optimal performance with GPT-4o. You can simply proceed to Review + Create.",
+                            "uri": "https://github.com/Russ-Holloway/Policing-Assistant"
+                        }
+                    },
+                    {
+                        "name": "webAppName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Web App Name",
+                        "defaultValue": "[concat('policing-', take(replace(guid(), '-', ''), 6))]",
+                        "toolTip": "Name of the Web App",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[a-z0-9A-Z-]{3,24}$",
+                            "validationMessage": "The Web App Name must be between 3 and 24 characters long and can contain alphanumeric characters and hyphens."
+                        },
+                        "visible": true
+                    }
+                ]
+            }
+        ],
+        "outputs": {
+            "AzureOpenAIModel": "unused-parameter",
+            "AzureOpenAIModelName": "unused-parameter",
+            "WebsiteName": "[steps('deployment').webAppName]",
+            "location": "[location()]",
+            "HostingPlanName": "[concat(steps('deployment').webAppName, '-plan')]",
+            "HostingPlanSku": "B3",
+            "ApplicationInsightsName": "[concat(steps('deployment').webAppName, '-insights')]",
+            "AzureSearchService": "[format('search-{0}', uniqueString(resourceGroup().id))]",
+            "AzureSearchSku": "standard",
+            "AzureSearchIndex": "",
+            "AzureSearchUseSemanticSearch": false,
+            "AzureSearchSemanticSearchConfig": "default",
+            "AzureSearchIndexIsPrechunked": false,
+            "AzureSearchTopK": 5,
+            "AzureSearchEnableInDomain": false,
+            "AzureSearchContentColumns": "content",
+            "AzureSearchFilenameColumn": "filename",
+            "AzureSearchTitleColumn": "title",
+            "AzureSearchUrlColumn": "url",
+            "AzureOpenAIResource": "[format('oai-{0}', uniqueString(resourceGroup().id))]",
+            "AzureOpenAIEmbeddingModelName": "text-embedding-ada-002",
+            "AzureOpenAIEmbeddingName": "embedding",
+            "AzureOpenAICapacity": 10,
+            "AzureOpenAISku": "S0",
+            "AzureOpenAITemperature": 0,
+            "AzureOpenAITopP": 1,
+            "AzureOpenAIMaxTokens": 1000,
+            "AzureOpenAIStopSequence": "\n",
+            "AzureOpenAISystemMessage": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
+            "StorageAccountName": "[take(toLower(concat('st', uniqueString(resourceGroup().id))), 24)]",
+            "AzureOpenAIStream": true,
+            "AzureSearchQueryType": "simple",
+            "AzureSearchVectorFields": "",
+            "AzureSearchPermittedGroupsField": "",
+            "AzureSearchStrictness": 3,
+            "WebAppEnableChatHistory": false,
+            "GitRepoUrl": "https://github.com/Russ-Holloway/Policing-Assistant",
+            "GitBranch": "main",
+            "AzureSearchDataSourceName": "policingdata",
+            "AzureSearchIndexName": "policingindex",
+            "AzureSearchIndexerName": "policingindexer",
+            "AzureSearchSkillset1Name": "policing-text-skillset",
+            "AzureSearchSkillset2Name": "policing-enrichment-skillset",
+            "StorageContainerName": "docs"
+        }
+    }
+}

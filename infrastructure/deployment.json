@@ -146,14 +146,14 @@
             "type": "string",
             "defaultValue": "unused-parameter",
             "metadata": {
-                "description": "Unused Parameter - Deployment Created Automatically"
+                "description": "Unused Parameter - Deployment Created Automatically with GPT-4o"
             }
         },
         "AzureOpenAIModelName": {
             "type": "string",
             "defaultValue": "unused-parameter",
             "metadata": {
-                "description": "Unused Parameter - Deployment Created Automatically"
+                "description": "Unused Parameter - Deployment Created Automatically with GPT-4o"
             }
         },
         "AzureOpenAIEmbeddingModelName": {
@@ -728,7 +728,7 @@
                                 "model": {
                                     "format": "OpenAI",
                                     "name": "gpt-4o",
-                                    "version": "2024-05-01"
+                                    "version": "2024-11-20"
                                 },
                                 "raiPolicyName": "Microsoft.Default",
                                 "scaleSettings": {
