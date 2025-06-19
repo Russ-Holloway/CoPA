@@ -11,22 +11,44 @@
         }
     },
     "variables": {
-        "HostingPlanName": "hardcoded-hosting-plan",
+        "HostingPlanName": "policing-app-plan",
         "HostingPlanSku": "B3",
-        "WebsiteName": "hardcoded-web-app",
-        "ApplicationInsightsName": "hardcoded-insights",
-        "AzureSearchService": "hardcoded-search-service",
-        "AzureOpenAIResource": "hardcoded-openai-resource",
-        "StorageAccountName": "hardcodedstorageacct",
+        "WebsiteName": "policing-app",
+        "ApplicationInsightsName": "policing-app-insights",
+        "AzureSearchService": "policing-search-service",
+        "AzureOpenAIResource": "policing-openai-resource",
+        "StorageAccountName": "policingstorage",
         "StorageContainerName": "docs",
-        "cosmosdb_account_name": "[format('db-{0}', parameters('WebsiteName'))]",
+        "cosmosdb_account_name": "[format('db-{0}', variables('WebsiteName'))]",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "hardcoded-role-assignment-id",
         "storageRoleAssignmentId": "hardcoded-storage-role-assignment-id",
         "deploymentScriptUri": "https://raw.githubusercontent.com/Russ-Holloway/Policing-Assistant/main/scripts/setup_search_components.ps1",
-        "deployScriptIdentityName": "deployScriptIdentity"
+        "deployScriptIdentityName": "deployScriptIdentity",
+        "AzureOpenAIEmbeddingName": "text-embedding-ada-002",
+        "AzureSearchDataSourceName": "police-data-source",
+        "AzureSearchIndexName": "police-index",
+        "AzureSearchIndexerName": "police-indexer",
+        "AzureSearchSkillset1Name": "police-skillset-1",
+        "AzureSearchSkillset2Name": "police-skillset-2",
+        "AzureSearchUseSemanticSearch": "true",
+        "AzureSearchSemanticSearchConfig": "default",
+        "AzureSearchIndexIsPrechunked": "false",
+        "AzureSearchTopK": "5",
+        "AzureSearchEnableInDomain": "false",
+        "AzureSearchContentColumns": "content",
+        "AzureSearchFilenameColumn": "filename",
+        "AzureSearchTitleColumn": "title",
+        "AzureSearchUrlColumn": "url",
+        "AzureOpenAITemperature": "0",
+        "AzureOpenAITopP": "1.0",
+        "AzureOpenAIMaxTokens": "1000",
+        "AzureOpenAIStopSequence": "",
+        "WebAppEnableChatHistory": true,
+        "GitRepoUrl": "https://github.com/Russ-Holloway/Policing-Assistant",
+        "GitBranch": "main"
     },
     "resources": [
         {
@@ -180,7 +202,7 @@
                         },
                         {
                             "name": "AZURE_COSMOSDB_ACCOUNT",
-                            "value": "[if(parameters('WebAppEnableChatHistory'), variables('cosmosdb_account_name'), '')]"
+                            "value": "[if(variables('WebAppEnableChatHistory'), variables('cosmosdb_account_name'), '')]"
                         },
                         {
                             "name": "AZURE_COSMOSDB_DATABASE",
@@ -248,8 +270,8 @@
                         "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
                     ],
                     "properties": {
-                        "repoUrl": "[parameters('GitRepoUrl')]",
-                        "branch": "[parameters('GitBranch')]",
+                        "repoUrl": "[variables('GitRepoUrl')]",
+                        "branch": "[variables('GitBranch')]",
                         "isManualIntegration": true
                     }
                 }
@@ -269,7 +291,7 @@
             "kind": "web"
         },
         {
-            "condition": "[parameters('WebAppEnableChatHistory')]",
+            "condition": "[variables('WebAppEnableChatHistory')]",
             "type": "Microsoft.DocumentDB/databaseAccounts",
             "apiVersion": "2021-01-15",
             "name": "[variables('cosmosdb_account_name')]",
@@ -295,7 +317,7 @@
             }
         },
         {
-            "condition": "[parameters('WebAppEnableChatHistory')]",
+            "condition": "[variables('WebAppEnableChatHistory')]",
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
             "apiVersion": "2021-01-15",
             "name": "[concat(variables('cosmosdb_account_name'), '/', variables('cosmosdb_database_name'))]",
@@ -309,7 +331,7 @@
             }
         },
         {
-            "condition": "[parameters('WebAppEnableChatHistory')]",
+            "condition": "[variables('WebAppEnableChatHistory')]",
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2021-01-15",
             "name": "[concat(variables('cosmosdb_account_name'), '/', variables('cosmosdb_database_name'), '/conversations')]",
@@ -344,13 +366,13 @@
             }
         },
         {
-            "condition": "[parameters('WebAppEnableChatHistory')]",
+            "condition": "[variables('WebAppEnableChatHistory')]",
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
             "apiVersion": "2021-04-15",
             "name": "[format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleAssignmentId'))]",
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', split(format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleDefinitionId')), '/')[0], split(format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleDefinitionId')), '/')[1])]",
-                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
                 "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name'))]"
             },
             "dependsOn": [
@@ -467,9 +489,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2021-04-01",
-            "name": "[concat(parameters('StorageAccountName'), '/default')]",
+            "name": "[concat(variables('StorageAccountName'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
                 "cors": {
@@ -485,8 +507,8 @@
             "apiVersion": "2021-04-01",
             "name": "policingstorage/default/docs",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('StorageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('StorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
                 "publicAccess": "None"
@@ -497,8 +519,8 @@
             "apiVersion": "2015-01-01",
             "name": "storageRoleAssignment",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -509,10 +531,10 @@
                         {
                             "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
                             "apiVersion": "2022-04-01",
-                            "name": "[concat(parameters('StorageAccountName'), '/Microsoft.Authorization/', variables('storageRoleAssignmentId'))]",
+                            "name": "[concat(variables('StorageAccountName'), '/Microsoft.Authorization/', variables('storageRoleAssignmentId'))]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
-                                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
+                                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
                                 "principalType": "ServicePrincipal"
                             }
                         }
@@ -546,9 +568,9 @@
             "name": "setupSearchComponents",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]",
+                "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
                 "openaiModelDeployment",
                 "managedIdentityDeployment"
             ],
@@ -562,7 +584,7 @@
             "properties": {
                 "azPowerShellVersion": "6.4",
                 "timeout": "PT30M",
-                "arguments": "[concat('-searchServiceName \"', parameters('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', parameters('AzureSearchDataSourceName'), '\" -indexName \"', parameters('AzureSearchIndexName'), '\" -indexerName \"', parameters('AzureSearchIndexerName'), '\" -skillset1Name \"', parameters('AzureSearchSkillset1Name'), '\" -skillset2Name \"', parameters('AzureSearchSkillset2Name'), '\" -storageAccountName \"', parameters('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', parameters('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\"')]",
+                "arguments": "[concat('-searchServiceName \"', variables('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', variables('AzureSearchDataSourceName'), '\" -indexName \"', variables('AzureSearchIndexName'), '\" -indexerName \"', variables('AzureSearchIndexerName'), '\" -skillset1Name \"', variables('AzureSearchSkillset1Name'), '\" -skillset2Name \"', variables('AzureSearchSkillset2Name'), '\" -storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', variables('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', variables('AzureOpenAIEmbeddingName'), '\"')]",
                 "primaryScriptUri": "[variables('deploymentScriptUri')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
