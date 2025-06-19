@@ -443,8 +443,7 @@
                                 },
                                 "raiPolicyName": "Microsoft.Default",
                                 "scaleSettings": {
-                                    "scaleType": "Standard",
-                                    "capacity": "[variables('AzureOpenAICapacity')]"
+                                    "scaleType": "Standard"
                                 }
                             }
                         }
@@ -466,8 +465,7 @@
                     "version": "1"
                 },
                 "scaleSettings": {
-                    "scaleType": "Standard",
-                    "capacity": "[variables('AzureOpenAICapacity')]"
+                    "scaleType": "Standard"
                 }
             }
         },
