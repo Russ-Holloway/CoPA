@@ -51,8 +51,8 @@
         "AzureOpenAIModelDeploymentName": "policingGptDeployment",
         "AzureOpenAISystemMessage": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
         "AzureOpenAIStream": true,
-        "AzureOpenAISku": "S1",
-        "AzureOpenAICapacity": 10,
+        "AzureOpenAISku": "S0",
+        "AzureOpenAICapacity": 30,
         "AzureSearchQueryType": "simple",
         "AzureSearchVectorFields": "",
         "AzureSearchPermittedGroupsField": "",
@@ -406,7 +406,7 @@
         },
         {
             "type": "Microsoft.CognitiveServices/accounts",
-            "apiVersion": "2023-05-01",
+            "apiVersion": "2021-10-01",
             "name": "[variables('AzureOpenAIResource')]",
             "location": "uksouth",
             "kind": "OpenAI",
@@ -420,7 +420,7 @@
         },
         {
             "type": "Microsoft.CognitiveServices/accounts/deployments",
-            "apiVersion": "2023-10-01-preview",
+            "apiVersion": "2021-10-01",
             "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]"
@@ -430,16 +430,16 @@
                     "format": "OpenAI",
                     "name": "[variables('AzureOpenAIModelName')]",
                     "version": "2024-11-20"
+                },
+                "sku": {
+                    "name": "Standard",
+                    "capacity": 30
                 }
-            },
-            "sku": {
-                "name": "Standard",
-                "capacity": 30
             }
         },
         {
             "type": "Microsoft.CognitiveServices/accounts/deployments",
-            "apiVersion": "2023-05-01",
+            "apiVersion": "2021-10-01",
             "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
@@ -450,11 +450,11 @@
                     "format": "OpenAI",
                     "name": "text-embedding-ada-002",
                     "version": "2"
+                },
+                "sku": {
+                    "name": "Standard",
+                    "capacity": 30
                 }
-            },
-            "sku": {
-                "name": "Standard",
-                "capacity": 30
             }
         },
         {
