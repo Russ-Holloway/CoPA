@@ -2,17 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "SubscriptionId": {
-            "type": "string",
-            "metadata": {
-                "description": "The subscription ID where the resources will be deployed."
-            }
-        },
         "ResourceGroupName": {
             "type": "string",
             "metadata": {
                 "description": "The name of the resource group where the resources will be deployed."
-            }
+            },
+            "defaultValue": "[resourceGroup().name]"
         }
     },
     "variables": {
