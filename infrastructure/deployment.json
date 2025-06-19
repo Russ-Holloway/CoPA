@@ -439,7 +439,7 @@
                                 "model": {
                                     "format": "OpenAI",
                                     "name": "[variables('AzureOpenAIModelName')]",
-                                    "version": "2023-11-06"
+                                    "version": "2024-11-20"
                                 },
                                 "raiPolicyName": "Microsoft.Default",
                                 "scaleSettings": {
