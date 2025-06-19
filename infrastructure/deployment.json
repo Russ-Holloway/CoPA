@@ -463,6 +463,10 @@
                     "format": "OpenAI",
                     "name": "[variables('AzureOpenAIEmbeddingName')]",
                     "version": "1"
+                },
+                "raiPolicyName": "Microsoft.Default",
+                "scaleSettings": {
+                    "capacity": 1
                 }
             }
         },
