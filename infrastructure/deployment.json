@@ -144,14 +144,14 @@
         },
         "AzureOpenAIModel": {
             "type": "string",
-            "defaultValue": "gpt4o-deployment",
+            "defaultValue": "policingGptDeployment",
             "metadata": {
                 "description": "Azure OpenAI Model Deployment Name"
             }
         },
         "AzureOpenAIModelName": {
             "type": "string",
-            "defaultValue": "gpt-4o",
+            "defaultValue": "gpt-4",
             "metadata": {
                 "description": "Azure OpenAI Model Name"
             }
@@ -442,7 +442,7 @@
                         },
                         {
                             "name": "AZURE_OPENAI_MODEL",
-                            "value": "[parameters('AzureOpenAIModel')]"
+                            "value": "policingGptDeployment"
                         },
                         {
                             "name": "AZURE_OPENAI_KEY",
@@ -450,7 +450,7 @@
                         },
                         {
                             "name": "AZURE_OPENAI_MODEL_NAME",
-                            "value": "[parameters('AzureOpenAIModelName')]"
+                            "value": "gpt-4o"
                         },
                         {
                             "name": "AZURE_OPENAI_TEMPERATURE",
@@ -717,8 +717,8 @@
             "properties": {
                 "model": {
                     "format": "OpenAI",
-                    "name": "[parameters('AzureOpenAIModelName')]",
-                    "version": "[if(equals(parameters('AzureOpenAIModelName'), 'gpt-4'), '2024-11-20', '2024-05-01')]"
+                    "name": "gpt-4o",
+                    "version": "2024-05-01"
                 },
                 "raiPolicyName": "Microsoft.Default",
                 "scaleSettings": {

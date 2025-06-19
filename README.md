@@ -33,13 +33,9 @@ Click the button below to deploy directly to Azure:
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-17T17%3A37%3A38Z%26se%3D2026-06-17T01%3A37%3A38Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Db%26sig%3DUda77qHOroJlcDc1%252BxBcZihUuY72WBqX3h7UsnU2oTo%253D)
 
-> **Note:** The deployment button requires you to be signed into Azure. The template is hosted in a secure Azure Storage account with proper CORS configuration.
+> **Note:** The deployment button requires you to be signed into Azure. Simply select your resource group (or create a new one), then click "Review + create" to deploy.
 
-> **Important:** When deploying through the Azure portal, make sure to set the following parameters:
-> - Set "Azure Open AI Model Name" to "gpt-4o" instead of the default "gpt-4"
-> - Set "Azure Open AI Model" to "gpt4o-deployment" or your preferred deployment name
-
-### CLI Deployment (Recommended)
+### CLI Deployment (Alternative)
 
 For more control over the deployment, use the provided deployment scripts:
 
@@ -65,8 +61,6 @@ chmod +x deploy.sh
 # Run the deployment script
 ./deploy.sh
 ```
-
-The CLI deployment will prompt you for all necessary parameters and ensure the correct model is deployed.
 
 ---
 
