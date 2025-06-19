@@ -1,9 +1,9 @@
 # Update this with your resource group and storage account names
 # IMPORTANT: Make sure this resource group exists or will be created
 # The storage account name must be globally unique (only lowercase letters and numbers, 3-24 characters)
-$resourceGroup = "PoliceAssistantResources"
-$storageAccount = "policeassisttemplate"
-$location = "westeurope" # Change to your preferred Azure region
+$resourceGroup = "rg-btp-prod-sand-openai"
+$storageAccount = "stbtpukssandopenai"
+$location = "uksouth" # Change to your preferred Azure region
 
 # Create resource group if it doesn't exist
 $rgExists = az group exists --name $resourceGroup | ConvertFrom-Json
