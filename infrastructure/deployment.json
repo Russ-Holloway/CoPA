@@ -2,345 +2,28 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "HostingPlanName": {
+        "SubscriptionId": {
             "type": "string",
-            "defaultValue": "[guid(resourceGroup().id)]",
             "metadata": {
-                "description": "Name of App Service plan"
+                "description": "The subscription ID where the resources will be deployed."
             }
         },
-        "HostingPlanSku": {
+        "ResourceGroupName": {
             "type": "string",
-            "defaultValue": "B3",
-            "allowedValues": [
-                "F1",
-                "D1",
-                "B1",
-                "B2",
-                "B3",
-                "S1",
-                "S2",
-                "S3",
-                "P1",
-                "P2",
-                "P3",
-                "P4"
-            ],
             "metadata": {
-                "description": "The pricing tier for the App Service plan"
-            }
-        },
-        "WebsiteName": {
-            "type": "string",
-            "defaultValue": "[guid(resourceGroup().id)]",
-            "metadata": {
-                "description": "Name of Web App"
-            }
-        },
-        "ApplicationInsightsName": {
-            "type": "string",
-            "defaultValue": "[guid(resourceGroup().id)]",
-            "metadata": {
-                "description": "Name of Application Insights"
-            }
-        },
-        "AzureSearchService": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Name of Azure Search Service (e.g., search-service-name)"
-            }
-        },
-        "AzureSearchSku": {
-            "type": "string",
-            "defaultValue": "standard",
-            "allowedValues": [
-                "free",
-                "basic",
-                "standard",
-                "standard2",
-                "standard3"
-            ],
-            "metadata": {
-                "description": "The pricing tier for the Azure Search Service"
-            }
-        },
-        "AzureSearchIndex": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Name of Azure Search Index"
-            }
-        },
-        "AzureSearchUseSemanticSearch": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Use semantic search"
-            }
-        },
-        "AzureSearchSemanticSearchConfig": {
-            "type": "string",
-            "defaultValue": "default",
-            "metadata": {
-                "description": "Semantic search config"
-            }
-        },
-        "AzureSearchIndexIsPrechunked": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Is the index prechunked"
-            }
-        },
-        "AzureSearchTopK": {
-            "type": "int",
-            "defaultValue": 5,
-            "metadata": {
-                "description": "Top K results"
-            }
-        },
-        "AzureSearchEnableInDomain": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Enable in domain"
-            }
-        },
-        "AzureSearchContentColumns": {
-            "type": "string",
-            "defaultValue": "content",
-            "metadata": {
-                "description": "Content columns"
-            }
-        },
-        "AzureSearchFilenameColumn": {
-            "type": "string",
-            "defaultValue": "filename",
-            "metadata": {
-                "description": "Filename column"
-            }
-        },
-        "AzureSearchTitleColumn": {
-            "type": "string",
-            "defaultValue": "title",
-            "metadata": {
-                "description": "Title column"
-            }
-        },
-        "AzureSearchUrlColumn": {
-            "type": "string",
-            "defaultValue": "url",
-            "metadata": {
-                "description": "Url column"
-            }
-        },
-        "AzureOpenAIResource": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Name of Azure OpenAI Resource (e.g., openai-resource-name)"
-            }
-        },
-        "AzureOpenAIModel": {
-            "type": "string",
-            "defaultValue": "unused-parameter",
-            "metadata": {
-                "description": "Unused Parameter - Deployment Created Automatically with GPT-4o"
-            }
-        },
-        "AzureOpenAIModelName": {
-            "type": "string",
-            "defaultValue": "unused-parameter",
-            "metadata": {
-                "description": "Unused Parameter - Deployment Created Automatically with GPT-4o"
-            }
-        },
-        "AzureOpenAIEmbeddingModelName": {
-            "type": "string",
-            "defaultValue": "text-embedding-ada-002",
-            "metadata": {
-                "description": "Azure OpenAI Embedding Model Name"
-            }
-        },
-        "AzureOpenAIEmbeddingName": {
-            "type": "string",
-            "defaultValue": "embedding",
-            "metadata": {
-                "description": "Azure OpenAI Embedding Deployment Name"
-            }
-        },
-        "AzureOpenAICapacity": {
-            "type": "int",
-            "defaultValue": 10,
-            "metadata": {
-                "description": "Azure OpenAI TPM Capacity"
-            }
-        },
-        "AzureOpenAISku": {
-            "type": "string",
-            "defaultValue": "S0",
-            "metadata": {
-                "description": "Azure OpenAI SKU"
-            }
-        },
-        "AzureOpenAITemperature": {
-            "type": "int",
-            "defaultValue": 0,
-            "metadata": {
-                "description": "Azure OpenAI Temperature"
-            }
-        },
-        "AzureOpenAITopP": {
-            "type": "int",
-            "defaultValue": 1,
-            "metadata": {
-                "description": "Azure OpenAI Top P"
-            }
-        },
-        "AzureOpenAIMaxTokens": {
-            "type": "int",
-            "defaultValue": 1000,
-            "metadata": {
-                "description": "Azure OpenAI Max Tokens"
-            }
-        },
-        "AzureOpenAIStopSequence": {
-            "type": "string",
-            "defaultValue": "\n",
-            "metadata": {
-                "description": "Azure OpenAI Stop Sequence"
-            }
-        },
-        "AzureOpenAISystemMessage": {
-            "type": "string",
-            "defaultValue": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
-            "metadata": {
-                "description": "Azure OpenAI System Message"
-            }
-        },
-        "AzureOpenAIStream": {
-            "type": "bool",
-            "defaultValue": true,
-            "metadata": {
-                "description": "Whether or not to stream responses from Azure OpenAI"
-            }
-        },
-        "AzureSearchQueryType": {
-            "type": "string",
-            "defaultValue": "simple",
-            "allowedValues": [
-                "simple",
-                "semantic",
-                "vector",
-                "vectorSimpleHybrid",
-                "vectorSemanticHybrid"
-            ],
-            "metadata": {
-                "description": "Azure Search Query Type"
-            }
-        },
-        "AzureSearchVectorFields": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Azure Search Vector Fields"
-            }
-        },
-        "AzureSearchPermittedGroupsField": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Azure Search Permitted Groups Field"
-            }
-        },
-        "AzureSearchStrictness": {
-            "type": "int",
-            "defaultValue": 3,
-            "allowedValues": [
-                1,
-                2,
-                3,
-                4,
-                5
-            ],
-            "metadata": {
-                "description": "Azure Search Strictness"
-            }
-        },
-        "WebAppEnableChatHistory": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Enable chat history by deploying a Cosmos DB instance"
-            }
-        },
-        "GitRepoUrl": {
-            "type": "string",
-            "defaultValue": "https://github.com/Russ-Holloway/Policing-Assistant",
-            "metadata": {
-                "description": "GitHub repository URL containing the application code"
-            }
-        },
-        "GitBranch": {
-            "type": "string",
-            "defaultValue": "main",
-            "metadata": {
-                "description": "GitHub branch to deploy"
-            }
-        },
-        "AzureSearchDataSourceName": {
-            "type": "string",
-            "defaultValue": "policingdata",
-            "metadata": {
-                "description": "Name of the data source for Azure Search"
-            }
-        },
-        "AzureSearchIndexName": {
-            "type": "string",
-            "defaultValue": "policingindex",
-            "metadata": {
-                "description": "Name of the index for Azure Search"
-            }
-        },
-        "AzureSearchIndexerName": {
-            "type": "string",
-            "defaultValue": "policingindexer",
-            "metadata": {
-                "description": "Name of the indexer for Azure Search"
-            }
-        },
-        "AzureSearchSkillset1Name": {
-            "type": "string",
-            "defaultValue": "policing-text-skillset",
-            "metadata": {
-                "description": "Name of the first skillset for Azure Search"
-            }
-        },
-        "AzureSearchSkillset2Name": {
-            "type": "string",
-            "defaultValue": "policing-enrichment-skillset",
-            "metadata": {
-                "description": "Name of the second skillset for Azure Search"
-            }
-        },
-        "StorageAccountName": {
-            "type": "string",
-            "defaultValue": "",
-            "maxLength": 24,
-            "metadata": {
-                "description": "Name of the storage account for data source (e.g., storageaccountname)"
-            }
-        },
-        "StorageContainerName": {
-            "type": "string",
-            "defaultValue": "docs",
-            "metadata": {
-                "description": "Name of the blob container for data source"
+                "description": "The name of the resource group where the resources will be deployed."
             }
         }
     },
     "variables": {
+        "HostingPlanName": "hardcoded-hosting-plan",
+        "HostingPlanSku": "B3",
+        "WebsiteName": "hardcoded-web-app",
+        "ApplicationInsightsName": "hardcoded-insights",
+        "AzureSearchService": "hardcoded-search-service",
+        "AzureOpenAIResource": "hardcoded-openai-resource",
+        "StorageAccountName": "hardcodedstorageacct",
+        "StorageContainerName": "docs",
         "cosmosdb_account_name": "[format('db-{0}', parameters('WebsiteName'))]",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
@@ -353,92 +36,92 @@
     "resources": [
         {
             "apiVersion": "2020-06-01",
-            "name": "[parameters('HostingPlanName')]",
+            "name": "[variables('HostingPlanName')]",
             "type": "Microsoft.Web/serverfarms",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "[parameters('HostingPlanSku')]"
+                "name": "[variables('HostingPlanSku')]"
             },
             "properties": {
-                "name": "[parameters('HostingPlanName')]",
+                "name": "[variables('HostingPlanName')]",
                 "reserved": true
             },
             "kind": "linux"
         },
         {
             "apiVersion": "2020-06-01",
-            "name": "[parameters('WebsiteName')]",
+            "name": "[variables('WebsiteName')]",
             "type": "Microsoft.Web/sites",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('HostingPlanName'))]",
-                "[resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
+                "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
                 "openaiModelDeployment",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]"
             ],
             "identity": {
                 "type": "SystemAssigned"
             },
             "properties": {
-                "serverFarmId": "[parameters('HostingPlanName')]",
+                "serverFarmId": "[variables('HostingPlanName')]",
                 "siteConfig": {
                     "appSettings": [
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference(resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                            "value": "[reference(resourceId('Microsoft.Insights/components', variables('ApplicationInsightsName')), '2015-05-01').InstrumentationKey]"
                         },
                         {
                             "name": "AZURE_SEARCH_SERVICE",
-                            "value": "[parameters('AzureSearchService')]"
+                            "value": "[variables('AzureSearchService')]"
                         },
                         {
                             "name": "AZURE_SEARCH_INDEX",
-                            "value": "[parameters('AzureSearchIndexName')]"
+                            "value": "[variables('AzureSearchIndexName')]"
                         },
                         {
                             "name": "AZURE_SEARCH_KEY",
-                            "value": "[listAdminKeys(resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService')), '2020-08-01').primaryKey]"
+                            "value": "[listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey]"
                         },
                         {
                             "name": "AZURE_SEARCH_USE_SEMANTIC_SEARCH",
-                            "value": "[parameters('AzureSearchUseSemanticSearch')]"
+                            "value": "[variables('AzureSearchUseSemanticSearch')]"
                         },
                         {
                             "name": "AZURE_SEARCH_SEMANTIC_SEARCH_CONFIG",
-                            "value": "[parameters('AzureSearchSemanticSearchConfig')]"
+                            "value": "[variables('AzureSearchSemanticSearchConfig')]"
                         },
                         {
                             "name": "AZURE_SEARCH_INDEX_IS_PRECHUNKED",
-                            "value": "[parameters('AzureSearchIndexIsPrechunked')]"
+                            "value": "[variables('AzureSearchIndexIsPrechunked')]"
                         },
                         {
                             "name": "AZURE_SEARCH_TOP_K",
-                            "value": "[parameters('AzureSearchTopK')]"
+                            "value": "[variables('AzureSearchTopK')]"
                         },
                         {
                             "name": "AZURE_SEARCH_ENABLE_IN_DOMAIN",
-                            "value": "[parameters('AzureSearchEnableInDomain')]"
+                            "value": "[variables('AzureSearchEnableInDomain')]"
                         },
                         {
                             "name": "AZURE_SEARCH_CONTENT_COLUMNS",
-                            "value": "[parameters('AzureSearchContentColumns')]"
+                            "value": "[variables('AzureSearchContentColumns')]"
                         },
                         {
                             "name": "AZURE_SEARCH_FILENAME_COLUMN",
-                            "value": "[parameters('AzureSearchFilenameColumn')]"
+                            "value": "[variables('AzureSearchFilenameColumn')]"
                         },
                         {
                             "name": "AZURE_SEARCH_TITLE_COLUMN",
-                            "value": "[parameters('AzureSearchTitleColumn')]"
+                            "value": "[variables('AzureSearchTitleColumn')]"
                         },
                         {
                             "name": "AZURE_SEARCH_URL_COLUMN",
-                            "value": "[parameters('AzureSearchUrlColumn')]"
+                            "value": "[variables('AzureSearchUrlColumn')]"
                         },
                         {
                             "name": "AZURE_OPENAI_RESOURCE",
-                            "value": "[parameters('AzureOpenAIResource')]"
+                            "value": "[variables('AzureOpenAIResource')]"
                         },
                         {
                             "name": "AZURE_OPENAI_MODEL",
@@ -446,7 +129,7 @@
                         },
                         {
                             "name": "AZURE_OPENAI_KEY",
-                            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource')), '2021-10-01').key1]"
+                            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1]"
                         },
                         {
                             "name": "AZURE_OPENAI_MODEL_NAME",
@@ -454,47 +137,47 @@
                         },
                         {
                             "name": "AZURE_OPENAI_TEMPERATURE",
-                            "value": "[parameters('AzureOpenAITemperature')]"
+                            "value": "[variables('AzureOpenAITemperature')]"
                         },
                         {
                             "name": "AZURE_OPENAI_TOP_P",
-                            "value": "[parameters('AzureOpenAITopP')]"
+                            "value": "[variables('AzureOpenAITopP')]"
                         },
                         {
                             "name": "AZURE_OPENAI_MAX_TOKENS",
-                            "value": "[parameters('AzureOpenAIMaxTokens')]"
+                            "value": "[variables('AzureOpenAIMaxTokens')]"
                         },
                         {
                             "name": "AZURE_OPENAI_STOP_SEQUENCE",
-                            "value": "[parameters('AzureOpenAIStopSequence')]"
+                            "value": "[variables('AzureOpenAIStopSequence')]"
                         },
                         {
                             "name": "AZURE_OPENAI_SYSTEM_MESSAGE",
-                            "value": "[parameters('AzureOpenAISystemMessage')]"
+                            "value": "[variables('AzureOpenAISystemMessage')]"
                         },
                         {
                             "name": "AZURE_OPENAI_STREAM",
-                            "value": "[parameters('AzureOpenAIStream')]"
+                            "value": "[variables('AzureOpenAIStream')]"
                         },
                         {
                             "name": "AZURE_SEARCH_QUERY_TYPE",
-                            "value": "[parameters('AzureSearchQueryType')]"
+                            "value": "[variables('AzureSearchQueryType')]"
                         },
                         {
                             "name": "AZURE_SEARCH_VECTOR_COLUMNS",
-                            "value": "[parameters('AzureSearchVectorFields')]"
+                            "value": "[variables('AzureSearchVectorFields')]"
                         },
                         {
                             "name": "AZURE_SEARCH_PERMITTED_GROUPS_COLUMN",
-                            "value": "[parameters('AzureSearchPermittedGroupsField')]"
+                            "value": "[variables('AzureSearchPermittedGroupsField')]"
                         },
                         {
                             "name": "AZURE_SEARCH_STRICTNESS",
-                            "value": "[parameters('AzureSearchStrictness')]"
+                            "value": "[variables('AzureSearchStrictness')]"
                         },
                         {
                             "name": "AZURE_OPENAI_EMBEDDING_NAME",
-                            "value": "[parameters('AzureOpenAIEmbeddingName')]"
+                            "value": "[variables('AzureOpenAIEmbeddingName')]"
                         },
                         {
                             "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
@@ -514,7 +197,7 @@
                         },
                         {
                             "name": "SETUP_STORAGE_ACCOUNT_NAME",
-                            "value": "[parameters('StorageAccountName')]"
+                            "value": "[variables('StorageAccountName')]"
                         },
                         {
                             "name": "SETUP_STORAGE_ACCOUNT_KEY",
@@ -522,27 +205,27 @@
                         },
                         {
                             "name": "AZURE_SEARCH_DATA_SOURCE_NAME",
-                            "value": "[parameters('AzureSearchDataSourceName')]"
+                            "value": "[variables('AzureSearchDataSourceName')]"
                         },
                         {
                             "name": "AZURE_SEARCH_INDEX_NAME",
-                            "value": "[parameters('AzureSearchIndexName')]"
+                            "value": "[variables('AzureSearchIndexName')]"
                         },
                         {
                             "name": "AZURE_SEARCH_INDEXER_NAME",
-                            "value": "[parameters('AzureSearchIndexerName')]"
+                            "value": "[variables('AzureSearchIndexerName')]"
                         },
                         {
                             "name": "AZURE_SEARCH_SKILLSET1_NAME",
-                            "value": "[parameters('AzureSearchSkillset1Name')]"
+                            "value": "[variables('AzureSearchSkillset1Name')]"
                         },
                         {
                             "name": "AZURE_SEARCH_SKILLSET2_NAME",
-                            "value": "[parameters('AzureSearchSkillset2Name')]"
+                            "value": "[variables('AzureSearchSkillset2Name')]"
                         },
                         {
                             "name": "AZURE_STORAGE_CONTAINER_NAME",
-                            "value": "[parameters('StorageContainerName')]"
+                            "value": "[variables('StorageContainerName')]"
                         },
                         {
                             "name": "UWSGI_PROCESSES",
@@ -567,7 +250,7 @@
                     "apiVersion": "2020-06-01",
                     "name": "web",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
+                        "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
                     ],
                     "properties": {
                         "repoUrl": "[parameters('GitRepoUrl')]",
@@ -580,10 +263,10 @@
         {
             "type": "Microsoft.Insights/components",
             "apiVersion": "2020-02-02",
-            "name": "[parameters('ApplicationInsightsName')]",
+            "name": "[variables('ApplicationInsightsName')]",
             "location": "[resourceGroup().location]",
             "tags": {
-                "[concat('hidden-link:', resourceId('Microsoft.Web/sites', parameters('ApplicationInsightsName')))]": "Resource"
+                "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('ApplicationInsightsName')))]": "Resource"
             },
             "properties": {
                 "Application_Type": "web"
@@ -682,10 +365,10 @@
         {
             "type": "Microsoft.Search/searchServices",
             "apiVersion": "2020-08-01",
-            "name": "[parameters('AzureSearchService')]",
+            "name": "[variables('AzureSearchService')]",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "[parameters('AzureSearchSku')]"
+                "name": "[variables('AzureSearchSku')]"
             },
             "properties": {
                 "replicaCount": 1,
@@ -696,14 +379,14 @@
         {
             "type": "Microsoft.CognitiveServices/accounts",
             "apiVersion": "2021-10-01",
-            "name": "[parameters('AzureOpenAIResource')]",
+            "name": "[variables('AzureOpenAIResource')]",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "[parameters('AzureOpenAISku')]"
+                "name": "[variables('AzureOpenAISku')]"
             },
             "kind": "OpenAI",
             "properties": {
-                "customSubDomainName": "[parameters('AzureOpenAIResource')]",
+                "customSubDomainName": "[variables('AzureOpenAIResource')]",
                 "publicNetworkAccess": "Enabled"
             }
         },
@@ -712,7 +395,7 @@
             "apiVersion": "2021-04-01",
             "name": "openaiModelDeployment",
             "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -723,7 +406,7 @@
                         {
                             "type": "Microsoft.CognitiveServices/accounts/deployments",
                             "apiVersion": "2021-10-01",
-                            "name": "[format('{0}/policingGptDeployment', parameters('AzureOpenAIResource'))]",
+                            "name": "[format('{0}/policingGptDeployment', variables('AzureOpenAIResource'))]",
                             "properties": {
                                 "model": {
                                     "format": "OpenAI",
@@ -733,7 +416,7 @@
                                 "raiPolicyName": "Microsoft.Default",
                                 "scaleSettings": {
                                     "scaleType": "Standard",
-                                    "capacity": "[parameters('AzureOpenAICapacity')]"
+                                    "capacity": "[variables('AzureOpenAICapacity')]"
                                 }
                             }
                         }
@@ -744,19 +427,19 @@
         {
             "type": "Microsoft.CognitiveServices/accounts/deployments",
             "apiVersion": "2021-10-01",
-            "name": "[format('{0}/{1}', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]",
+            "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]"
             ],
             "properties": {
                 "model": {
                     "format": "OpenAI",
-                    "name": "[parameters('AzureOpenAIEmbeddingModelName')]",
+                    "name": "[variables('AzureOpenAIEmbeddingModelName')]",
                     "version": "2"
                 },
                 "scaleSettings": {
                     "scaleType": "Standard",
-                    "capacity": "[parameters('AzureOpenAICapacity')]"
+                    "capacity": "[variables('AzureOpenAICapacity')]"
                 }
             }
         },
