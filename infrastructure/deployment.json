@@ -17,6 +17,7 @@
         "ApplicationInsightsName": "policing-assistant-app-insights",
         "AzureSearchService": "policing-assistant-search-service",
         "AzureOpenAIResource": "policing-assistant-openai-resource",
+        "AzureSearchSku": "standard",
         "StorageAccountName": "stcopuksopenai",
         "StorageContainerName": "policing-assistant-library",
         "cosmosdb_account_name": "policingassistant-cosmos-db",
