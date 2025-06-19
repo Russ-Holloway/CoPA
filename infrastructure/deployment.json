@@ -406,21 +406,21 @@
         },
         {
             "type": "Microsoft.CognitiveServices/accounts",
-            "apiVersion": "2021-10-01",
+            "apiVersion": "2023-05-01",
             "name": "[variables('AzureOpenAIResource')]",
             "location": "uksouth",
-            "sku": {
-                "name": "[variables('AzureOpenAISku')]"
-            },
             "kind": "OpenAI",
             "properties": {
                 "customSubDomainName": "[variables('AzureOpenAIResource')]",
                 "publicNetworkAccess": "Enabled"
+            },
+            "sku": {
+                "name": "S0"
             }
         },
         {
             "type": "Microsoft.CognitiveServices/accounts/deployments",
-            "apiVersion": "2021-10-01",
+            "apiVersion": "2023-10-01-preview",
             "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]"
@@ -430,32 +430,31 @@
                     "format": "OpenAI",
                     "name": "[variables('AzureOpenAIModelName')]",
                     "version": "2024-11-20"
-                },
-                "raiPolicyName": "Microsoft.Default",
-                "scaleSettings": {
-                    "scaleType": "Standard",
-                    "capacity": 10
                 }
+            },
+            "sku": {
+                "name": "Standard",
+                "capacity": 30
             }
         },
         {
             "type": "Microsoft.CognitiveServices/accounts/deployments",
-            "apiVersion": "2021-10-01",
+            "apiVersion": "2023-05-01",
             "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]"
             ],
             "properties": {
                 "model": {
                     "format": "OpenAI",
                     "name": "text-embedding-ada-002",
                     "version": "2"
-                },
-                "raiPolicyName": "Microsoft.Default",
-                "scaleSettings": {
-                    "scaleType": "Standard",
-                    "capacity": 10
                 }
+            },
+            "sku": {
+                "name": "Standard",
+                "capacity": 30
             }
         },
         {
