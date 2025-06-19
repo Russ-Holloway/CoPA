@@ -46,9 +46,9 @@
         },
         "AzureSearchService": {
             "type": "string",
-            "defaultValue": "[format('search-{0}', uniqueString(resourceGroup().id))]",
+            "defaultValue": "",
             "metadata": {
-                "description": "Name of Azure Search Service"
+                "description": "Name of Azure Search Service (e.g., search-service-name)"
             }
         },
         "AzureSearchSku": {
@@ -137,9 +137,9 @@
         },
         "AzureOpenAIResource": {
             "type": "string",
-            "defaultValue": "[format('oai-{0}', uniqueString(resourceGroup().id))]",
+            "defaultValue": "",
             "metadata": {
-                "description": "Name of Azure OpenAI Resource"
+                "description": "Name of Azure OpenAI Resource (e.g., openai-resource-name)"
             }
         },
         "AzureOpenAIModel": {
@@ -326,10 +326,10 @@
         },
         "StorageAccountName": {
             "type": "string",
-            "defaultValue": "policing[uniqueString(subscription().subscriptionId)]",
+            "defaultValue": "",
             "maxLength": 24,
             "metadata": {
-                "description": "Name of the storage account for data source"
+                "description": "Name of the storage account for data source (e.g., storageaccountname)"
             }
         },
         "StorageContainerName": {
