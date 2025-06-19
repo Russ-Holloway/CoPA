@@ -3,9 +3,9 @@
 # and generates a new deployment URL using your storage account files
 
 # Fill in these variables with your existing storage account details
-$resourceGroup = "rg-btp-prod-sand-openai"  # Your resource group
-$storageAccount = "stbtpukssandopenai"  # Your storage account name
-$containerName = "policing-assistant-azure-deployment-template"  # Your container name
+$resourceGroup = "YourResourceGroupName"  # The resource group containing your storage account
+$storageAccount = "YourStorageAccountName"  # Your existing storage account name
+$containerName = "YourContainerName"  # Your existing container name
 
 # Check if Az.Storage module is installed
 if (-not (Get-Module -ListAvailable -Name Az.Storage)) {
@@ -29,21 +29,89 @@ catch {
     Connect-AzAccount
 }
 
-# Upload template files to the existing container
+# Get storage account context
+$storageAcct = Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageAccount -ErrorAction SilentlyContinue
+if (-not $storageAcct) {
+    Write-Error "Storage account '$storageAccount' not found in resource group '$resourceGroup'. Please check your settings."
+    exit 1
+}
+
+$ctx = $storageAcct.Context
+Write-Host "Connected to storage account: $storageAccount" -ForegroundColor Green
+
+# Verify the container exists
+$container = Get-AzStorageContainer -Name $containerName -Context $ctx -ErrorAction SilentlyContinue
+if (-not $container) {
+    Write-Error "Container '$containerName' not found in storage account '$storageAccount'. Please check your settings."
+    exit 1
+}
+
+Write-Host "Found container: $containerName" -ForegroundColor Green
+
+# Path to createUiDefinition.json file
+$createUiDefinitionPath = Join-Path (Get-Location).Path "infrastructure\createUiDefinition.json"
+
+# Verify createUiDefinition.json exists
+if (-not (Test-Path $createUiDefinitionPath)) {
+    Write-Error "File not found: $createUiDefinitionPath"
+    exit 1
+}
+
+# Upload createUiDefinition.json to the storage container
 Write-Host "Uploading createUiDefinition.json to storage..." -ForegroundColor Yellow
-Set-AzStorageBlobContent -File "infrastructure\createUiDefinition.json" -Container $containerName -Blob "createUiDefinition.json" -Context (Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageAccount).Context -Force -Properties @{"ContentType" = "application/json"}
+Set-AzStorageBlobContent -File $createUiDefinitionPath -Container $containerName -Blob "createUiDefinition.json" -Context $ctx -Force -Properties @{"ContentType" = "application/json"}
+Write-Host "Upload complete!" -ForegroundColor Green
 
-Write-Host "Uploading deployment.json to storage..." -ForegroundColor Yellow
-Set-AzStorageBlobContent -File "infrastructure\deployment.json" -Container $containerName -Blob "deployment.json" -Context (Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageAccount).Context -Force -Properties @{"ContentType" = "application/json"}
+# Check if deployment.json exists in the container
+$deploymentExists = Get-AzStorageBlob -Container $containerName -Blob "deployment.json" -Context $ctx -ErrorAction SilentlyContinue
+if (-not $deploymentExists) {
+    Write-Host "Note: deployment.json not found in container. If you need to upload it, run:" -ForegroundColor Yellow
+    Write-Host "Set-AzStorageBlobContent -File (Join-Path (Get-Location).Path 'infrastructure\deployment.json') -Container $containerName -Blob 'deployment.json' -Context `$ctx -Force -Properties @{'ContentType' = 'application/json'}" -ForegroundColor Cyan
+}
+else {
+    Write-Host "Found existing deployment.json in container" -ForegroundColor Green
+}
 
-# Generate deployment URL
-$blobEndpoint = (Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageAccount).PrimaryEndpoints.Blob.TrimEnd('/')
-$deploymentUrl = "$blobEndpoint/$containerName/deployment.json"
-$createUiDefinitionUrl = "$blobEndpoint/$containerName/createUiDefinition.json"
+# Set CORS rules to ensure Azure Portal can access the files
+Write-Host "Setting CORS rules for Azure Portal access..." -ForegroundColor Yellow
+$corsRules = @(
+    @{
+        AllowedOrigins = @("https://portal.azure.com", "https://ms.portal.azure.com", "https://*.portal.azure.com", 
+                          "https://portal.azure.us", "https://*.portal.azure.us", 
+                          "https://portal.azure.cn", "https://*.portal.azure.cn");
+        AllowedMethods = @("GET", "HEAD", "OPTIONS", "PUT", "POST");
+        AllowedHeaders = @("*");
+        ExposedHeaders = @("*");
+        MaxAgeInSeconds = 3600;
+    },
+    @{
+        AllowedOrigins = @("https://afd.hosting.portal.azure.net", "https://afd.hosting-ms.portal.azure.com", 
+                          "https://*.afd.hosting.portal.azure.net", "https://management.azure.com");
+        AllowedMethods = @("GET", "HEAD", "OPTIONS", "PUT", "POST");
+        AllowedHeaders = @("*");
+        ExposedHeaders = @("*");
+        MaxAgeInSeconds = 3600;
+    },
+    @{
+        AllowedOrigins = @("*");
+        AllowedMethods = @("GET", "HEAD", "OPTIONS");
+        AllowedHeaders = @("*");
+        ExposedHeaders = @("*");
+        MaxAgeInSeconds = 3600;
+    }
+)
+Set-AzStorageCORSRule -ServiceType Blob -CorsRules $corsRules -Context $ctx
+Write-Host "CORS rules updated successfully" -ForegroundColor Green
 
+# Get URLs for the files
+$deploymentUrl = $ctx.BlobEndPoint + "$containerName/deployment.json"
+$createUiDefinitionUrl = $ctx.BlobEndPoint + "$containerName/createUiDefinition.json"
+
+# URL encode the URLs
 $encodedDeploymentUrl = [System.Web.HttpUtility]::UrlEncode($deploymentUrl)
 $encodedCreateUiDefinitionUrl = [System.Web.HttpUtility]::UrlEncode($createUiDefinitionUrl)
 
+# Generate the deployment URL
 $portalDeployUrl = "https://portal.azure.com/#create/Microsoft.Template/uri/$encodedDeploymentUrl/createUIDefinitionUri/$encodedCreateUiDefinitionUrl"
 
 # Output results
