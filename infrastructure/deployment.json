@@ -144,16 +144,16 @@
         },
         "AzureOpenAIModel": {
             "type": "string",
-            "defaultValue": "policingGptDeployment",
+            "defaultValue": "unused-parameter",
             "metadata": {
-                "description": "Azure OpenAI Model Deployment Name"
+                "description": "Unused Parameter - Deployment Created Automatically"
             }
         },
         "AzureOpenAIModelName": {
             "type": "string",
-            "defaultValue": "gpt-4",
+            "defaultValue": "unused-parameter",
             "metadata": {
-                "description": "Azure OpenAI Model Name"
+                "description": "Unused Parameter - Deployment Created Automatically"
             }
         },
         "AzureOpenAIEmbeddingModelName": {
@@ -374,7 +374,7 @@
                 "[resourceId('Microsoft.Web/serverfarms', parameters('HostingPlanName'))]",
                 "[resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIModel'))]",
+                "openaiModelDeployment",
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]"
             ],
             "identity": {
@@ -708,22 +708,36 @@
             }
         },
         {
-            "type": "Microsoft.CognitiveServices/accounts/deployments",
-            "apiVersion": "2021-10-01",
-            "name": "[format('{0}/{1}', parameters('AzureOpenAIResource'), parameters('AzureOpenAIModel'))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "openaiModelDeployment",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]"
             ],
             "properties": {
-                "model": {
-                    "format": "OpenAI",
-                    "name": "gpt-4o",
-                    "version": "2024-05-01"
-                },
-                "raiPolicyName": "Microsoft.Default",
-                "scaleSettings": {
-                    "scaleType": "Standard",
-                    "capacity": "[parameters('AzureOpenAICapacity')]"
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.CognitiveServices/accounts/deployments",
+                            "apiVersion": "2021-10-01",
+                            "name": "[format('{0}/policingGptDeployment', parameters('AzureOpenAIResource'))]",
+                            "properties": {
+                                "model": {
+                                    "format": "OpenAI",
+                                    "name": "gpt-4o",
+                                    "version": "2024-05-01"
+                                },
+                                "raiPolicyName": "Microsoft.Default",
+                                "scaleSettings": {
+                                    "scaleType": "Standard",
+                                    "capacity": "[parameters('AzureOpenAICapacity')]"
+                                }
+                            }
+                        }
+                    ]
                 }
             }
         },
@@ -857,6 +871,7 @@
                 "[resourceId('Microsoft.Search/searchServices', parameters('AzureSearchService'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('AzureOpenAIResource'), parameters('AzureOpenAIEmbeddingName'))]",
+                "openaiModelDeployment",
                 "managedIdentityDeployment"
             ],
             "kind": "AzurePowerShell",

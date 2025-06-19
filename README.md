@@ -33,34 +33,7 @@ Click the button below to deploy directly to Azure:
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-17T17%3A37%3A38Z%26se%3D2026-06-17T01%3A37%3A38Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Db%26sig%3DUda77qHOroJlcDc1%252BxBcZihUuY72WBqX3h7UsnU2oTo%253D)
 
-> **Note:** The deployment button requires you to be signed into Azure. Simply select your resource group (or create a new one), then click "Review + create" to deploy.
-
-### CLI Deployment (Alternative)
-
-For more control over the deployment, use the provided deployment scripts:
-
-**PowerShell:**
-```powershell
-# Clone the repository
-git clone https://github.com/Russ-Holloway/Policing-Assistant.git
-cd Policing-Assistant
-
-# Run the deployment script
-./deploy.ps1
-```
-
-**Bash:**
-```bash
-# Clone the repository
-git clone https://github.com/Russ-Holloway/Policing-Assistant.git
-cd Policing-Assistant
-
-# Make the script executable
-chmod +x deploy.sh
-
-# Run the deployment script
-./deploy.sh
-```
+> **Note:** The deployment button provides a simple one-click experience. Just select your resource group (or create a new one), then click "Review + create" to deploy. All parameters are pre-configured for optimal performance.
 
 ---
 
