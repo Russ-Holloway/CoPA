@@ -465,7 +465,8 @@
                     "version": "1"
                 },
                 "scaleSettings": {
-                    "scaleType": "Standard"
+                    "scaleType": "Manual",
+                    "capacity": 1
                 }
             }
         },
