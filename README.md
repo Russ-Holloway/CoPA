@@ -35,6 +35,39 @@ Click the button below to deploy directly to Azure:
 
 > **Note:** The deployment button requires you to be signed into Azure. The template is hosted in a secure Azure Storage account with proper CORS configuration.
 
+> **Important:** When deploying through the Azure portal, make sure to set the following parameters:
+> - Set "Azure Open AI Model Name" to "gpt-4o" instead of the default "gpt-4"
+> - Set "Azure Open AI Model" to "gpt4o-deployment" or your preferred deployment name
+
+### CLI Deployment (Recommended)
+
+For more control over the deployment, use the provided deployment scripts:
+
+**PowerShell:**
+```powershell
+# Clone the repository
+git clone https://github.com/Russ-Holloway/Policing-Assistant.git
+cd Policing-Assistant
+
+# Run the deployment script
+./deploy.ps1
+```
+
+**Bash:**
+```bash
+# Clone the repository
+git clone https://github.com/Russ-Holloway/Policing-Assistant.git
+cd Policing-Assistant
+
+# Make the script executable
+chmod +x deploy.sh
+
+# Run the deployment script
+./deploy.sh
+```
+
+The CLI deployment will prompt you for all necessary parameters and ensure the correct model is deployed.
+
 ---
 
 ## Vision & Purpose

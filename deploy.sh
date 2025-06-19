@@ -73,6 +73,13 @@ fi
 echo "Creating resource group if it doesn't exist..."
 az group create --name "$RESOURCE_GROUP" --location "$LOCATION"
 
+# Model deployment settings
+read -p "OpenAI Model Name (gpt-4o recommended) [gpt-4o]: " input
+MODEL_NAME=${input:-"gpt-4o"}
+
+read -p "OpenAI Model Deployment Name [$MODEL_NAME-deployment]: " input
+MODEL_DEPLOYMENT=${input:-"$MODEL_NAME-deployment"}
+
 # Start deployment
 echo "Starting deployment..."
 echo "This may take up to 15-20 minutes to complete..."
@@ -81,11 +88,12 @@ az deployment group create \
   --name "$DEPLOYMENT_NAME" \
   --resource-group "$RESOURCE_GROUP" \
   --template-file "infrastructure/deployment.json" \
-  --parameters @infrastructure/custom-parameters.json \
   --parameters \
     WebsiteName="$WEBSITE_NAME" \
     AzureSearchService="$SEARCH_NAME" \
     AzureOpenAIResource="$OPENAI_NAME" \
+    AzureOpenAIModel="$MODEL_DEPLOYMENT" \
+    AzureOpenAIModelName="$MODEL_NAME" \
     WebAppEnableChatHistory="$ENABLE_CHAT_HISTORY" \
   --verbose
 

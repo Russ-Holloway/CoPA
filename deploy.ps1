@@ -76,6 +76,13 @@ if ($CHAT_HISTORY -eq "y" -or $CHAT_HISTORY -eq "Y") {
 Write-Host "Creating resource group if it doesn't exist..."
 New-AzResourceGroup -Name $RESOURCE_GROUP -Location $LOCATION -Force
 
+# Model deployment settings
+$input = Read-Host "OpenAI Model Name (gpt-4o recommended) [gpt-4o]"
+if ($input) { $MODEL_NAME = $input } else { $MODEL_NAME = "gpt-4o" }
+
+$input = Read-Host "OpenAI Model Deployment Name [$MODEL_NAME-deployment]"
+if ($input) { $MODEL_DEPLOYMENT = $input } else { $MODEL_DEPLOYMENT = "$MODEL_NAME-deployment" }
+
 # Start deployment
 Write-Host "Starting deployment..."
 Write-Host "This may take up to 15-20 minutes to complete..."
@@ -84,10 +91,11 @@ New-AzResourceGroupDeployment `
   -Name $DEPLOYMENT_NAME `
   -ResourceGroupName $RESOURCE_GROUP `
   -TemplateFile "infrastructure/deployment.json" `
-  -TemplateParameterFile "infrastructure/custom-parameters.json" `
   -WebsiteName $WEBSITE_NAME `
   -AzureSearchService $SEARCH_NAME `
   -AzureOpenAIResource $OPENAI_NAME `
+  -AzureOpenAIModel $MODEL_DEPLOYMENT `
+  -AzureOpenAIModelName $MODEL_NAME `
   -WebAppEnableChatHistory $ENABLE_CHAT_HISTORY `
   -Verbose
 
