@@ -65,7 +65,7 @@
             "AzureOpenAIMaxTokens": 1000,
             "AzureOpenAIStopSequence": "\n",
             "AzureOpenAISystemMessage": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
-            "StorageAccountName": "[take(toLower(concat('st', uniqueString(resourceGroup().id))), 24)]",
+            "StorageAccountName": "hardcodedstorageacct",
             "AzureOpenAIStream": true,
             "AzureSearchQueryType": "simple",
             "AzureSearchVectorFields": "",

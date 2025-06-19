@@ -28,8 +28,8 @@
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
-        "roleAssignmentId": "[guid(variables('roleDefinitionId'), parameters('WebsiteName'), resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name')))]",
-        "storageRoleAssignmentId": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), parameters('WebsiteName'), 'StorageBlobDataContributor')]",
+        "roleAssignmentId": "hardcoded-role-assignment-id",
+        "storageRoleAssignmentId": "hardcoded-storage-role-assignment-id",
         "deploymentScriptUri": "https://raw.githubusercontent.com/Russ-Holloway/Policing-Assistant/main/scripts/setup_search_components.ps1",
         "deployScriptIdentityName": "deployScriptIdentity"
     },
@@ -52,7 +52,7 @@
             "apiVersion": "2020-06-01",
             "name": "[variables('WebsiteName')]",
             "type": "Microsoft.Web/sites",
-            "location": "[resourceGroup().location]",
+            "location": "uksouth",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
                 "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
