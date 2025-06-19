@@ -5,9 +5,10 @@
     "parameters": {
         "basics": [],
         "steps": [
-            {
-                "name": "deployment",
-                "label": "Deployment Settings",                "elements": [                    {
+            {                "name": "deployment",
+                "label": "Deployment Settings",
+                "elements": [
+                    {
                         "name": "infoBox",
                         "type": "Microsoft.Common.InfoBox",
                         "visible": true,
@@ -18,9 +19,9 @@
                         }
                     }
                 ]
-                ]
             }
-        ],        "outputs": {
+        ],
+        "outputs": {
             "WebsiteName": "policing-app",
             "location": "[location()]",
             "HostingPlanName": "policing-app-plan",
@@ -56,11 +57,11 @@
             "AzureSearchStrictness": 3,
             "WebAppEnableChatHistory": false,
             "GitRepoUrl": "https://github.com/Russ-Holloway/Policing-Assistant",
-            "GitBranch": "main",
-            "AzureSearchDataSourceName": "policingdata",
+            "GitBranch": "main",            "AzureSearchDataSourceName": "policingdata",
             "AzureSearchIndexName": "policingindex",
             "AzureSearchIndexerName": "policingindexer",
-            "AzureSearchSkillset1Name": "policing-text-skillset",            "AzureSearchSkillset2Name": "policing-enrichment-skillset",
+            "AzureSearchSkillset1Name": "policing-text-skillset",
+            "AzureSearchSkillset2Name": "policing-enrichment-skillset",
             "StorageContainerName": "docs",
             "ResourceGroupName": "[resourceGroup().name]"
         }
