@@ -66,7 +66,7 @@
         "AzureOpenAISystemMessage": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
         "AzureOpenAIStream": true,
         "AzureOpenAISku": "S0",
-        "AzureOpenAICapacity": 30,
+        "AzureOpenAICapacity": 10,
         "AzureSearchQueryType": "simple",
         "AzureSearchVectorFields": "",
         "AzureSearchPermittedGroupsField": "",
@@ -443,12 +443,12 @@
                 "model": {
                     "format": "OpenAI",
                     "name": "[parameters('AzureOpenAIModelName')]",
-                    "version": "2024-11-20"
+                    "version": "2024-08-06"
                 }
             },
             "sku": {
                 "name": "Standard",
-                "capacity": 30
+                "capacity": 10
             }
         },
         {
@@ -468,7 +468,7 @@
             },
             "sku": {
                 "name": "Standard",
-                "capacity": 30
+                "capacity": 10
             }
         },
         {
