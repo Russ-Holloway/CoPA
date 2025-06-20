@@ -33,7 +33,7 @@ Click the button below to deploy directly to Azure with the correct GPT-4o model
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-19T11%3A57%3A11Z%26se%3D2026-06-19T19%3A57%3A11Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Dc%26sig%3DQZ4ZQi9NqinJzhSNH69n9%252Fv9geabtrlXDaf86blN848%253D/createUIDefinitionUri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2FcreateUiDefinition.json%3Fsp%3Dr%26st%3D2025-06-19T11%3A57%3A11Z%26se%3D2026-06-19T19%3A57%3A11Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Dc%26sig%3DQZ4ZQi9NqinJzhSNH69n9%252Fv9geabtrlXDaf86blN848%253D)
 
-> **Note:** The deployment button provides a simple one-click experience. Just select your resource group (or create a new one), provide a name for your Web App, then click "Review + create" to deploy. All parameters are pre-configured for optimal performance with GPT-4o. No need to modify any parameters - the deployment uses the latest GPT-4o model with appropriate settings automatically.
+> **Note:** The deployment button provides a simple one-click experience. Just select your resource group (or create a new one), then click "Review + create" to deploy. All parameters are pre-configured for optimal performance with GPT-4o. No need to modify any parameters - the deployment uses the latest GPT-4o model with appropriate settings automatically.
 
 ---
 
