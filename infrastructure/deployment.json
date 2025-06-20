@@ -420,7 +420,7 @@
         },
         {
             "type": "Microsoft.CognitiveServices/accounts",
-            "apiVersion": "2021-10-01",
+            "apiVersion": "2023-05-01",
             "name": "[variables('AzureOpenAIResource')]",
             "location": "uksouth",
             "kind": "OpenAI",
@@ -434,7 +434,7 @@
         },
         {
             "type": "Microsoft.CognitiveServices/accounts/deployments",
-            "apiVersion": "2021-10-01",
+            "apiVersion": "2023-05-01",
             "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]"
@@ -453,7 +453,7 @@
         },
         {
             "type": "Microsoft.CognitiveServices/accounts/deployments",
-            "apiVersion": "2021-10-01",
+            "apiVersion": "2023-05-01",
             "name": "[format('{0}/{1}', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
@@ -468,7 +468,7 @@
             },
             "sku": {
                 "name": "Standard",
-                "capacity": 10
+                "capacity": 120
             }
         },
         {
