@@ -482,6 +482,7 @@
             "kind": "StorageV2",
             "properties": {
                 "supportsHttpsTrafficOnly": true,
+                "allowBlobPublicAccess": true,
                 "encryption": {
                     "services": {
                         "file": {
@@ -494,6 +495,12 @@
                         }
                     },
                     "keySource": "Microsoft.Storage"
+                },
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
                 }
             }
         },
@@ -505,11 +512,15 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
+                "deleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                },
+                "changeFeed": {
+                    "enabled": false
+                },
                 "cors": {
                     "corsRules": []
-                },
-                "deleteRetentionPolicy": {
-                    "enabled": false
                 }
             }
         },
@@ -522,7 +533,7 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
-                "publicAccess": "None"
+                "publicAccess": "Blob"
             }
         },
         {
@@ -576,6 +587,30 @@
         {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2020-10-01",
+            "name": "createSampleDocument",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('StorageAccountName'), 'default', variables('StorageContainerName'))]"
+            ],
+            "kind": "AzurePowerShell",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
+                }
+            },
+            "properties": {
+                "azPowerShellVersion": "6.4",
+                "timeout": "PT10M",
+                "arguments": "[concat('-storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -containerName \"', variables('StorageContainerName'), '\"')]",
+                "scriptContent": "param([string]$storageAccountName, [string]$storageAccountKey, [string]$containerName); $sampleContent = @'\n# Police Investigation Procedures\n\n## General Guidelines\n- Follow all departmental protocols\n- Document all evidence thoroughly\n- Maintain chain of custody\n- Interview witnesses promptly\n- Collaborate with other agencies when appropriate\n\n### Emergency Response\n- Assess scene safety first\n- Request backup when needed\n- Provide medical aid if qualified\n- Secure the scene\n\nThis document serves as a sample for the Policing Assistant search functionality.\n'@; $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey; Set-AzStorageBlobContent -Content $sampleContent -Container $containerName -Blob 'sample-police-procedures.txt' -Context $ctx -Force; Write-Output 'Sample document created successfully'",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2020-10-01",
             "name": "setupSearchComponents",
             "location": "[resourceGroup().location]",
             "dependsOn": [
@@ -584,6 +619,7 @@
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('StorageAccountName'), 'default', variables('StorageContainerName'))]",
+                "[resourceId('Microsoft.Resources/deploymentScripts', 'createSampleDocument')]",
                 "managedIdentityDeployment"
             ],
             "kind": "AzurePowerShell",
