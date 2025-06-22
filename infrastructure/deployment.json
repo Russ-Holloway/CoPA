@@ -41,6 +41,7 @@
         "roleAssignmentId": "00000000-0000-0000-0000-000000000003",
         "storageRoleAssignmentId": "00000000-0000-0000-0000-000000000004",
         "deploymentScriptUri": "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/setup_search_components.ps1",
+        "sampleDocumentScriptUri": "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/create_sample_document.ps1",
         "deployScriptIdentityName": "deployScriptIdentity",
         "AzureOpenAIEmbeddingName": "text-embedding-ada-002",
         "AzureSearchDataSourceName": "policing-assistant-data-source",
@@ -603,7 +604,7 @@
                 "azPowerShellVersion": "6.4",
                 "timeout": "PT10M",
                 "arguments": "[concat('-storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -containerName \"', variables('StorageContainerName'), '\"')]",
-                "scriptContent": "param([string]$storageAccountName, [string]$storageAccountKey, [string]$containerName); $sampleContent = @'\n# Police Investigation Procedures\n\n## General Guidelines\n- Follow all departmental protocols\n- Document all evidence thoroughly\n- Maintain chain of custody\n- Interview witnesses promptly\n- Collaborate with other agencies when appropriate\n\n### Emergency Response\n- Assess scene safety first\n- Request backup when needed\n- Provide medical aid if qualified\n- Secure the scene\n\nThis document serves as a sample for the Policing Assistant search functionality.\n'@; $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey; Set-AzStorageBlobContent -Content $sampleContent -Container $containerName -Blob 'sample-police-procedures.txt' -Context $ctx -Force; Write-Output 'Sample document created successfully'",
+                "primaryScriptUri": "[variables('sampleDocumentScriptUri')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
             }
@@ -619,7 +620,6 @@
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('StorageAccountName'), 'default', variables('StorageContainerName'))]",
-                "[resourceId('Microsoft.Resources/deploymentScripts', 'createSampleDocument')]",
                 "managedIdentityDeployment"
             ],
             "kind": "AzurePowerShell",
