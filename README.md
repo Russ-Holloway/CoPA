@@ -35,6 +35,18 @@ Click the button below to deploy directly to Azure with the correct GPT-4o model
 
 > **Note:** The deployment button provides a simple one-click experience. Just select your resource group (or create a new one), then click "Review + create" to deploy. All parameters are pre-configured for optimal performance with GPT-4o. No need to modify any parameters - the deployment uses the latest GPT-4o model with appropriate settings automatically.
 
+### Post-Deployment Setup
+
+After deployment completes, you need to configure authentication:
+
+**🚀 Quick Setup:** Run the automated authentication script:
+```powershell
+.\scripts\setup_azure_ad_auth.ps1 -WebAppName "your-web-app-name" -ResourceGroupName "your-resource-group"
+```
+
+**📋 Quick Reference:** [Azure AD Quick Reference](AZURE_AD_QUICK_REFERENCE.md)  
+**📖 Full Guide:** [Azure AD Setup Guide](AZURE_AD_SETUP_GUIDE.md)
+
 ---
 
 ## Vision & Purpose
@@ -135,8 +147,27 @@ After creating your `.env` file, use provided PowerShell or Bash commands to gen
 
 ## Authentication
 
+### Quick Setup (Recommended)
+
+After your Azure deployment completes, use our automated setup script:
+
+```powershell
+# Navigate to your project folder and run:
+.\scripts\setup_azure_ad_auth.ps1 -WebAppName "your-web-app-name" -ResourceGroupName "your-resource-group"
+```
+
+Then **grant admin consent** in Azure Portal (required manual step).
+
+**📋 Quick Reference:** See [Azure AD Quick Reference](AZURE_AD_QUICK_REFERENCE.md) for the essential steps.
+
+**📖 Detailed Guide:** See [Azure AD Setup Guide](AZURE_AD_SETUP_GUIDE.md) for complete instructions and troubleshooting.
+
+### Manual Setup (Alternative)
+
 - **Add an Identity Provider:**  
-  After deployment, add an identity provider (e.g., Microsoft Entra ID) for authentication. See [Azure App Service Authentication docs](https://learn.microsoft.com/en-us/azure/app-service/scenario-secure-app-authentication-app-service).
+  Manually configure Microsoft Entra ID authentication following the [Azure App Service Authentication docs](https://learn.microsoft.com/en-us/azure/app-service/scenario-secure-app-authentication-app-service).
+
+### Additional Options
 
 - **Access Control:**  
   To further restrict access, update logic in `frontend/src/pages/chat/Chat.tsx`.
