@@ -32,8 +32,8 @@
         "AzureSearchService": "policing-assistant-search-service",
         "AzureOpenAIResource": "policing-assistant-openai-resource",
         "AzureSearchSku": "standard",
-        "StorageAccountName": "stcopuksopenai",
-        "StorageContainerName": "policing-assistant-library",
+        "StorageAccountName": "[concat('policing', uniqueString(resourceGroup().id))]",
+        "StorageContainerName": "docs",
         "cosmosdb_account_name": "policingassistant-cosmos-db",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
@@ -239,11 +239,11 @@
                         },
                         {
                             "name": "SETUP_STORAGE_ACCOUNT_NAME",
-                            "value": "stcopuksopenai"
+                            "value": "[variables('StorageAccountName')]"
                         },
                         {
                             "name": "SETUP_STORAGE_ACCOUNT_KEY",
-                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'stcopuksopenai'), '2021-04-01').keys[0].value]"
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value]"
                         },
                         {
                             "name": "AZURE_SEARCH_DATA_SOURCE_NAME",
@@ -474,7 +474,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-04-01",
-            "name": "stcopuksopenai",
+            "name": "[variables('StorageAccountName')]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS"
@@ -500,9 +500,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2021-04-01",
-            "name": "stcopuksopenai/default",
+            "name": "[concat(variables('StorageAccountName'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', 'stcopuksopenai')]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
                 "cors": {
@@ -516,10 +516,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2021-04-01",
-            "name": "stcopuksopenai/default/docs",
+            "name": "[concat(variables('StorageAccountName'), '/default/', variables('StorageContainerName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', 'stcopuksopenai', 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', 'stcopuksopenai')]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('StorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
                 "publicAccess": "None"
@@ -531,7 +531,7 @@
             "name": "storageRoleAssignment",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', 'stcopuksopenai')]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -542,7 +542,7 @@
                         {
                             "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
                             "apiVersion": "2022-04-01",
-                            "name": "[concat('stcopuksopenai', '/Microsoft.Authorization/', variables('storageRoleAssignmentId'))]",
+                            "name": "[concat(variables('StorageAccountName'), '/Microsoft.Authorization/', variables('storageRoleAssignmentId'))]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
                                 "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
@@ -583,6 +583,7 @@
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('StorageAccountName'), 'default', variables('StorageContainerName'))]",
                 "managedIdentityDeployment"
             ],
             "kind": "AzurePowerShell",
@@ -594,8 +595,8 @@
             },
             "properties": {
                 "azPowerShellVersion": "6.4",
-                "timeout": "PT30M",
-                "arguments": "[concat('-searchServiceName \"', variables('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', variables('AzureSearchDataSourceName'), '\" -indexName \"', variables('AzureSearchIndexName'), '\" -indexerName \"', variables('AzureSearchIndexerName'), '\" -skillset1Name \"', variables('AzureSearchSkillset1Name'), '\" -skillset2Name \"', variables('AzureSearchSkillset2Name'), '\" -storageAccountName \"', 'stcopuksopenai', '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', 'stcopuksopenai'), '2021-04-01').keys[0].value, '\" -storageContainerName \"', variables('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\"')]",
+                "timeout": "PT60M",
+                "arguments": "[concat('-searchServiceName \"', variables('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', variables('AzureSearchDataSourceName'), '\" -indexName \"', variables('AzureSearchIndexName'), '\" -indexerName \"', variables('AzureSearchIndexerName'), '\" -skillset1Name \"', variables('AzureSearchSkillset1Name'), '\" -skillset2Name \"', variables('AzureSearchSkillset2Name'), '\" -storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', variables('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\" -openAIGptDeployment \"', variables('AzureOpenAIModelDeploymentName'), '\"')]",
                 "primaryScriptUri": "[variables('deploymentScriptUri')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
