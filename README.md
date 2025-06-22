@@ -285,3 +285,109 @@ The deployment template creates the following Azure resources:
 - Azure AI Search
 - Azure OpenAI
 - Cosmos DB (optional, for chat history)
+
+---
+
+## 🧪 Testing and Validation
+
+### ARM Template Validation
+
+Before deploying, always validate your ARM template to avoid costly deployment failures:
+
+#### Quick JSON Syntax Check
+```powershell
+# Check JSON syntax
+Get-Content "infrastructure\deployment.json" -Raw | ConvertFrom-Json
+```
+
+#### Azure PowerShell Validation
+```powershell
+# Ensure you're logged in
+Connect-AzAccount
+
+# Create a test resource group (or use existing)
+New-AzResourceGroup -Name "policing-test-rg" -Location "East US"
+
+# Validate the template
+Test-AzResourceGroupDeployment `
+  -ResourceGroupName "policing-test-rg" `
+  -TemplateFile "infrastructure\deployment.json"
+
+# What-if analysis (shows what will be deployed)
+Get-AzResourceGroupDeploymentWhatIf `
+  -ResourceGroupName "policing-test-rg" `
+  -TemplateFile "infrastructure\deployment.json"
+
+# Clean up test resource group
+Remove-AzResourceGroup -Name "policing-test-rg" -Force
+```
+
+#### Azure CLI Validation
+```bash
+# Login to Azure
+az login
+
+# Create test resource group
+az group create --name policing-test-rg --location eastus
+
+# Validate template
+az deployment group validate \
+  --resource-group policing-test-rg \
+  --template-file infrastructure/deployment.json
+
+# What-if analysis
+az deployment group what-if \
+  --resource-group policing-test-rg \
+  --template-file infrastructure/deployment.json
+
+# Clean up
+az group delete --name policing-test-rg --yes
+```
+
+#### Using Validation Scripts
+We provide automated validation scripts in the `scripts/` folder:
+
+```powershell
+# Quick validation
+cd scripts
+.\quick_arm_validation.ps1
+
+# Comprehensive validation with automatic cleanup
+.\validate_arm_template.ps1 -TemplateFile "..\infrastructure\deployment.json" -CreateTestResourceGroup -CleanupAfterValidation
+
+# Policing-specific template test
+.\test_policing_template.ps1
+```
+
+#### Validation Checklist
+- [ ] ✅ JSON syntax is valid
+- [ ] ✅ All required parameters are defined
+- [ ] ✅ Resource dependencies are correct
+- [ ] ✅ Storage account names are globally unique
+- [ ] ✅ API versions are current and supported
+- [ ] ✅ Resource names follow Azure naming conventions
+- [ ] ✅ All resources are available in target region
+- [ ] ✅ What-if analysis shows expected resources
+
+### Post-Deployment Testing
+
+After successful deployment:
+
+1. **Test Web Application**
+   - Access the deployed web app URL
+   - Verify authentication works
+   - Test document upload and search
+
+2. **Validate Azure Search**
+   - Check if search service is running
+   - Verify index, indexer, and skillset are created
+   - Test search functionality
+
+3. **Test Azure OpenAI Integration**
+   - Verify OpenAI resource is deployed
+   - Test model deployments
+   - Validate API connectivity
+
+4. **Check Application Insights**
+   - Verify telemetry is being collected
+   - Check for any errors or warnings
