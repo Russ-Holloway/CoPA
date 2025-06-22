@@ -30,7 +30,7 @@
         "WebsiteName": "policing-assistant",
         "ApplicationInsightsName": "policing-assistant-app-insights",
         "AzureSearchService": "policing-assistant-search-service",
-        "AzureOpenAIResource": "policing-assistant-openai-resource",
+        "AzureOpenAIResource": "[concat('policing-ai-', uniqueString(resourceGroup().id))]",
         "AzureSearchSku": "standard",
         "StorageAccountName": "stpolicing001",
         "StorageContainerName": "docs",
