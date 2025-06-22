@@ -15,7 +15,19 @@ param(
 Write-Output "=== Creating Sample Document ==="
 Write-Output "Storage Account: $storageAccountName"
 Write-Output "Container: $containerName"
+Write-Output "PowerShell Version: $($PSVersionTable.PSVersion)"
 Write-Output ""
+
+# Check if Az.Storage module is available
+Write-Output "Checking Azure PowerShell modules..."
+try {
+    Import-Module Az.Storage -Force
+    Write-Output "✅ Az.Storage module imported successfully"
+}
+catch {
+    Write-Output "⚠️ Az.Storage module import failed: $($_.Exception.Message)"
+    Write-Output "Attempting to use built-in Azure PowerShell..."
+}
 
 try {
     # Create sample content
@@ -61,9 +73,15 @@ This document serves as a sample for the Policing Assistant search functionality
 
     Write-Output "Creating temporary file with sample content..."
     
-    # Create temporary file
-    $tempFile = [System.IO.Path]::GetTempFileName()
-    $sampleContent | Out-File -FilePath $tempFile -Encoding UTF8
+    # Create temporary file with specific path
+    $tempDir = [System.IO.Path]::GetTempPath()
+    $tempFile = Join-Path $tempDir "sample-police-procedures-$(Get-Date -Format 'yyyyMMdd-HHmmss').txt"
+    
+    # Write content to file using Set-Content
+    Set-Content -Path $tempFile -Value $sampleContent -Encoding UTF8
+    
+    Write-Output "Temporary file created at: $tempFile"
+    Write-Output "File size: $((Get-Item $tempFile).Length) bytes"
     
     Write-Output "Connecting to storage account..."
     
@@ -72,13 +90,15 @@ This document serves as a sample for the Policing Assistant search functionality
     
     Write-Output "Uploading sample document to container..."
     
-    # Upload the file to blob storage
-    $blob = Set-AzStorageBlobContent -File $tempFile -Container $containerName -Blob 'sample-police-procedures.txt' -Context $ctx -Force
+    # Upload the file to blob storage using -File parameter
+    $blob = Set-AzStorageBlobContent -File $tempFile -Container $containerName -Blob 'sample-police-procedures.txt' -Context $ctx -Force -Verbose
     
     Write-Output "Cleaning up temporary file..."
     
     # Clean up temporary file
-    Remove-Item $tempFile -Force
+    if (Test-Path $tempFile) {
+        Remove-Item $tempFile -Force
+    }
     
     Write-Output "✅ Sample document created successfully!"
     Write-Output "Blob name: sample-police-procedures.txt"
@@ -96,14 +116,25 @@ This document serves as a sample for the Policing Assistant search functionality
 }
 catch {
     Write-Output "❌ Error creating sample document: $($_.Exception.Message)"
+    Write-Output "Full error details:"
+    Write-Output "Exception Type: $($_.Exception.GetType().FullName)"
     Write-Output "Stack trace: $($_.ScriptStackTrace)"
     
+    # Specific check for Content parameter error
+    if ($_.Exception.Message -like "*parameter name 'Content'*") {
+        Write-Output ""
+        Write-Output "⚠️ DETECTED: Parameter binding error with 'Content'"
+        Write-Output "This usually indicates an issue with the Set-AzStorageBlobContent cmdlet"
+        Write-Output "or a conflict with PowerShell parameters."
+    }
+    
     # Clean up temp file if it exists
-    if (Test-Path $tempFile) {
+    if ($tempFile -and (Test-Path $tempFile)) {
         Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
     }
     
     # Don't fail the entire deployment for sample document issues
+    Write-Output ""
     Write-Output "Sample document creation failed, but this is not critical for the main deployment."
     Write-Output "You can upload documents manually to the storage container after deployment."
 }

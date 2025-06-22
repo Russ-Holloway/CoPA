@@ -41,7 +41,7 @@
         "roleAssignmentId": "00000000-0000-0000-0000-000000000003",
         "storageRoleAssignmentId": "00000000-0000-0000-0000-000000000004",
         "deploymentScriptUri": "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/setup_search_components.ps1",
-        "sampleDocumentScriptUri": "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/create_sample_document.ps1",
+        "sampleDocumentScriptUri": "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/copy_sample_document.ps1",
         "deployScriptIdentityName": "deployScriptIdentity",
         "AzureOpenAIEmbeddingName": "text-embedding-ada-002",
         "AzureSearchDataSourceName": "policing-assistant-data-source",
