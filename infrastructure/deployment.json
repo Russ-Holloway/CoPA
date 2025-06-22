@@ -10,7 +10,17 @@
             "defaultValue": "[resourceGroup().name]"
         },
         "AzureOpenAIModelName": {
-            "type": "string",
+                   "properties": {
+                "model": {
+                    "format": "OpenAI",
+                    "name": "[parameters('AzureOpenAIEmbeddingName')]",
+                    "version": "2"
+                }
+            },
+            "sku": {
+                "name": "GlobalStandard",
+                "capacity": 5
+            }: "string",
             "metadata": {
                 "description": "The name of the OpenAI model to deploy."
             },
@@ -449,7 +459,7 @@
             },
             "sku": {
                 "name": "GlobalStandard",
-                "capacity": 10
+                "capacity": 5
             }
         },
         {
@@ -469,7 +479,7 @@
             },
             "sku": {
                 "name": "GlobalStandard",
-                "capacity": 120
+                "capacity": 5
             }
         },
         {
