@@ -255,11 +255,11 @@ $index = @{
                 }
             }
         )
-    }
-    semantic = @{
+    }    semantic = @{
         configurations = @(
             @{
-                name = "default"                prioritizedFields = @{
+                name = "default"
+                prioritizedFields = @{
                     titleField = @{
                         fieldName = "title"
                     }
