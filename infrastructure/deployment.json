@@ -10,17 +10,7 @@
             "defaultValue": "[resourceGroup().name]"
         },
         "AzureOpenAIModelName": {
-                   "properties": {
-                "model": {
-                    "format": "OpenAI",
-                    "name": "[parameters('AzureOpenAIEmbeddingName')]",
-                    "version": "2"
-                }
-            },
-            "sku": {
-                "name": "GlobalStandard",
-                "capacity": 5
-            }: "string",
+            "type": "string",
             "metadata": {
                 "description": "The name of the OpenAI model to deploy."
             },
