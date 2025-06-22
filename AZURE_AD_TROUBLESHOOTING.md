@@ -66,7 +66,35 @@ az webapp auth show --name "your-app-name" --resource-group "your-resource-group
    .\scripts\setup_azure_ad_auth.ps1 -WebAppName "your-app" -ResourceGroupName "your-rg"
    ```
 
-### "AADSTS700016: Application with identifier 'xxx' was not found"
+### "User assignment required" Error
+
+**Cause:** Enterprise Application requires assignment but user is not assigned  
+**Solution:**
+1. Go to Azure Portal → Azure AD → Enterprise applications → Your app
+2. Go to "Users and groups"
+3. Click "Add user/group"
+4. Select users/groups who should have access
+5. Click "Assign"
+
+**Alternative:** Disable assignment requirement:
+1. Go to "Properties"
+2. Set "Assignment required" to "No"
+3. Click "Save"
+
+### "This app can't be accessed" Error
+
+**Cause:** Enterprise Application not properly configured  
+**Solutions:**
+
+1. **Check Enterprise Application properties:**
+   - Go to Azure AD → Enterprise applications → Your app → Properties
+   - Verify: "Enabled for users to sign-in" = Yes
+   - Verify: "Visible to users" = Yes
+
+2. **Re-run setup script with Enterprise Application fix:**
+   ```powershell
+   .\scripts\setup_azure_ad_auth.ps1 -WebAppName "your-app" -ResourceGroupName "your-rg"
+   ```
 
 **Cause:** Incorrect Application (client) ID  
 **Solution:**
@@ -169,7 +197,11 @@ az webapp auth update --name "your-app-name" --resource-group "your-resource-gro
 az ad app list --display-name "app-btp-prosecution-guidance" --query "[].{DisplayName:displayName, AppId:appId, ObjectId:id}"
 ```
 
-### Get App Service Authentication Status  
+### Get Enterprise Application Details
+```powershell
+# Get Enterprise Application (Service Principal) details
+az ad sp list --display-name "app-btp-prosecution-guidance" --query "[].{DisplayName:displayName, AppId:appId, ObjectId:id, AccountEnabled:accountEnabled, AppRoleAssignmentRequired:appRoleAssignmentRequired}"
+```  
 ```powershell
 # Check authentication configuration
 az webapp auth show --name "your-app-name" --resource-group "your-resource-group" --query "{enabled:enabled, defaultProvider:defaultProvider}"

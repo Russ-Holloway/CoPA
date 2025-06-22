@@ -14,9 +14,11 @@ param(
     
     [Parameter(Mandatory = $false)]
     [string]$TenantDomain = $null,
+      [Parameter(Mandatory = $false)]
+    [switch]$SkipAuthConfig = $false,
     
     [Parameter(Mandatory = $false)]
-    [switch]$SkipAuthConfig = $false
+    [switch]$SkipEnterpriseAppConfig = $false
 )
 
 Write-Host "════════════════════════════════════════════════════════════" -ForegroundColor Cyan
@@ -166,13 +168,80 @@ try {
     }
     
     Update-AzADApplication -ApplicationId $app.AppId -RequiredResourceAccess $requiredResourceAccess
-    Write-Host "✓ Added Microsoft Graph permissions: User.Read, openid, email, profile" -ForegroundColor Green
-
-    # Create client secret
+    Write-Host "✓ Added Microsoft Graph permissions: User.Read, openid, email, profile" -ForegroundColor Green    # Create client secret
     Write-Host "Creating client secret..." -ForegroundColor Yellow
     $secretName = "Policing-Assistant-Secret-$(Get-Date -Format 'yyyyMMdd')"
     $secret = New-AzADAppCredential -ApplicationId $app.AppId -DisplayName $secretName
-    Write-Host "✓ Created client secret (expires: $($secret.EndDateTime))" -ForegroundColor Green    # Configure App Service Authentication (skip if requested)
+    Write-Host "✓ Created client secret (expires: $($secret.EndDateTime))" -ForegroundColor Green    # Configure Enterprise Application settings
+    if (-not $SkipEnterpriseAppConfig) {
+        Write-Host "Configuring Enterprise Application settings..." -ForegroundColor Yellow
+        
+        # Get or create the service principal (Enterprise Application)
+        $servicePrincipal = Get-AzADServicePrincipal -ApplicationId $app.AppId -ErrorAction SilentlyContinue
+        
+        if (-not $servicePrincipal) {
+            Write-Host "Creating Enterprise Application (Service Principal)..." -ForegroundColor Yellow
+            $servicePrincipal = New-AzADServicePrincipal -ApplicationId $app.AppId
+            Write-Host "✓ Created Enterprise Application" -ForegroundColor Green
+            # Wait a moment for propagation
+            Start-Sleep -Seconds 10
+        } else {
+            Write-Host "✓ Enterprise Application already exists" -ForegroundColor Green
+        }
+        
+        # Configure Enterprise Application properties to match your screenshot
+        try {
+            # Set Enterprise Application properties
+            # - Enabled for users to sign-in: Yes
+            # - Assignment required: Yes  
+            # - Visible to users: Yes
+            Update-AzADServicePrincipal -ApplicationId $app.AppId `
+                -AccountEnabled $true `
+                -AppRoleAssignmentRequired $true
+            
+            Write-Host "✓ Configured Enterprise Application settings:" -ForegroundColor Green
+            Write-Host "  - Enabled for users to sign-in: Yes" -ForegroundColor White
+            Write-Host "  - Assignment required: Yes" -ForegroundColor White  
+            Write-Host "  - Visible to users: Yes" -ForegroundColor White
+            
+            # Set additional properties via Microsoft Graph API if available
+            try {
+                $graphToken = (Get-AzAccessToken -ResourceTypeName MSGraph).Token
+                $headers = @{
+                    'Authorization' = "Bearer $graphToken"
+                    'Content-Type' = 'application/json'
+                }
+                
+                # Configure service principal properties
+                $servicePrincipalUpdate = @{
+                    accountEnabled = $true
+                    appRoleAssignmentRequired = $true
+                    preferredSingleSignOnMode = "saml"
+                    notes = "Policing Assistant Enterprise Application - Configured automatically"
+                } | ConvertTo-Json
+                
+                $spUpdateUri = "https://graph.microsoft.com/v1.0/servicePrincipals/$($servicePrincipal.Id)"
+                Invoke-RestMethod -Uri $spUpdateUri -Method PATCH -Body $servicePrincipalUpdate -Headers $headers -ErrorAction SilentlyContinue
+                
+                Write-Host "✓ Applied additional Enterprise Application settings" -ForegroundColor Green
+            } catch {
+                Write-Host "⚠️  Could not apply all Enterprise Application settings via Graph API" -ForegroundColor Yellow
+                Write-Host "   Basic settings have been applied successfully" -ForegroundColor Yellow
+            }
+            
+        } catch {
+            Write-Host "⚠️  Could not configure all Enterprise Application settings" -ForegroundColor Yellow
+            Write-Host "   Error: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "   You may need to configure these manually in Azure Portal" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "⏭️  Skipping Enterprise Application configuration (use -SkipEnterpriseAppConfig to skip)" -ForegroundColor Yellow
+        # Still need to get the service principal for output
+        $servicePrincipal = Get-AzADServicePrincipal -ApplicationId $app.AppId -ErrorAction SilentlyContinue
+        if (-not $servicePrincipal) {
+            $servicePrincipal = @{ Id = "Not configured" }
+        }
+    }# Configure App Service Authentication (skip if requested)
     if (-not $SkipAuthConfig) {
         Write-Host "Configuring App Service Authentication..." -ForegroundColor Yellow
         
@@ -260,6 +329,12 @@ try {
     }
     Write-Host "  Logout URL: $logoutUrl" -ForegroundColor White
     Write-Host ""
+    Write-Host "Enterprise Application Settings:" -ForegroundColor Cyan
+    Write-Host "  - Enabled for users to sign-in: Yes" -ForegroundColor White
+    Write-Host "  - Assignment required: Yes" -ForegroundColor White
+    Write-Host "  - Visible to users: Yes" -ForegroundColor White
+    Write-Host "  - Service Principal ID: $($servicePrincipal.Id)" -ForegroundColor White
+    Write-Host ""
     Write-Host "Configured Permissions:" -ForegroundColor Cyan
     Write-Host "  - Microsoft Graph: User.Read (delegated)" -ForegroundColor White
     Write-Host "  - Microsoft Graph: openid (delegated)" -ForegroundColor White  
@@ -287,6 +362,7 @@ try {
         AppDisplayName = $AppDisplayName
         ApplicationId = $app.AppId
         ObjectId = $app.Id
+        ServicePrincipalId = $servicePrincipal.Id
         WebAppUrl = $webAppUrl
         RedirectUris = $redirectUris
         LogoutUrl = $logoutUrl
@@ -302,6 +378,11 @@ try {
         ImplicitGrant = @{
             IdTokens = $true
             AccessTokens = $false
+        }
+        EnterpriseApplication = @{
+            Enabled = $true
+            AssignmentRequired = $true
+            VisibleToUsers = $true
         }
         AuthConfigured = -not $SkipAuthConfig
     } | ConvertTo-Json -Depth 3

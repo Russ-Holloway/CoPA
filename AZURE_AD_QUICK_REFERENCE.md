@@ -30,11 +30,17 @@ After your Azure deployment completes, run this in PowerShell:
 - ✅ Redirect URIs: `/.auth/login/aad/callback` + `/redirect`
 - ✅ Logout URL: `/.auth/logout`
 - ✅ ID tokens enabled for implicit grant
+- ✅ Client secret created (24-month expiry)
 
 ### Permissions (Delegated)
 - ✅ Microsoft Graph: User.Read
 - ✅ Microsoft Graph: openid, email, profile
 - ⚠️ **Admin consent required** (manual step)
+
+### Enterprise Application Settings
+- ✅ Enabled for users to sign-in: Yes
+- ✅ Assignment required: Yes
+- ✅ Visible to users: Yes
 
 ### App Service Authentication  
 - ✅ Azure AD provider configured

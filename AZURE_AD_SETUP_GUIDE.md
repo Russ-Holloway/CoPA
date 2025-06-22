@@ -97,7 +97,18 @@ If the automated script doesn't work or you prefer manual setup:
    - ✅ **profile** - View users' basic profile (automatically added)
 4. Click "Grant admin consent for [Your Organization]"
 
-### Step 4: Create Client Secret
+### Step 4: Configure Enterprise Application
+
+1. Go to Azure Active Directory > Enterprise applications
+2. Find your app (same name as app registration)
+3. Go to "Properties"
+4. Configure the following settings:
+   - ✅ **Enabled for users to sign-in:** Yes
+   - ✅ **Assignment required:** Yes
+   - ✅ **Visible to users:** Yes
+5. Click "Save"
+
+### Step 5: Create Client Secret
 
 1. Go to "Certificates & secrets"
 2. Click "New client secret"
@@ -106,7 +117,7 @@ If the automated script doesn't work or you prefer manual setup:
 5. Click "Add"
 6. **Copy the secret value immediately** (you won't see it again)
 
-### Step 5: Configure App Service Authentication
+### Step 6: Configure App Service Authentication
 
 1. Go to your App Service in Azure Portal
 2. Go to "Authentication" in the left menu
@@ -146,6 +157,12 @@ Your Azure AD app registration should match this configuration:
   - openid  
   - email
   - profile
+
+### Enterprise Application Settings
+- **Enabled for users to sign-in:** Yes
+- **Assignment required:** Yes
+- **Visible to users:** Yes
+- **Notes:** "Policing Assistant Enterprise Application - Configured automatically"
 
 ### Certificates & Secrets
 - **Client secret:** Active secret for App Service authentication
