@@ -259,11 +259,11 @@ $index = @{
     semantic = @{
         configurations = @(
             @{
-                name = "default"
-                prioritizedFields = @{
+                name = "default"                prioritizedFields = @{
                     titleField = @{
                         fieldName = "title"
-                    }                    contentFields = @(
+                    }
+                    contentFields = @(
                         @{
                             fieldName = "content"
                         }
@@ -359,12 +359,12 @@ $indexer = @{
         @{
             sourceFieldName = "metadata_author"
             targetFieldName = "metadata_author"
-        },
-        @{
+        },        @{
             sourceFieldName = "metadata_creation_date"
             targetFieldName = "metadata_creation_date"
         }
-    )    outputFieldMappings = @(
+    )
+    outputFieldMappings = @(
         @{
             sourceFieldName = "/document/pages/*"
             targetFieldName = "content"
