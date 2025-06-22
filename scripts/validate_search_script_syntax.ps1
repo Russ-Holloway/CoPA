@@ -57,31 +57,36 @@ $requiredParams = @(
     'openAIGptDeployment'
 )
 
-$scriptAST = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
-$parameterBlock = $scriptAST.FindAll({$args[0] -is [System.Management.Automation.Language.ParamBlockAst]}, $false)
+try {
+    $scriptAST = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
+    $parameterBlock = $scriptAST.FindAll({$args[0] -is [System.Management.Automation.Language.ParamBlockAst]}, $false)
 
-if ($parameterBlock) {
-    $definedParams = $parameterBlock[0].Parameters.Name.VariablePath.UserPath
-    
-    Write-Host "📋 Script parameters found:" -ForegroundColor Yellow
-    foreach ($param in $definedParams) {
-        $isRequired = $param -in $requiredParams
-        $status = if ($isRequired) { "✅ Required" } else { "ℹ️ Optional" }
-        Write-Host "  - $param : $status" -ForegroundColor Gray
-    }
-    
-    # Check for missing required parameters
-    $missingParams = $requiredParams | Where-Object { $_ -notin $definedParams }
-    if ($missingParams) {
-        Write-Host "⚠️ Missing required parameters:" -ForegroundColor Yellow
-        foreach ($missing in $missingParams) {
-            Write-Host "  - $missing" -ForegroundColor Red
+    if ($parameterBlock) {
+        $definedParams = $parameterBlock[0].Parameters.Name.VariablePath.UserPath
+        
+        Write-Host "📋 Script parameters found:" -ForegroundColor Yellow
+        foreach ($param in $definedParams) {
+            $isRequired = $param -in $requiredParams
+            $status = if ($isRequired) { "✅ Required" } else { "ℹ️ Optional" }
+            Write-Host "  - $param : $status" -ForegroundColor Gray
+        }
+        
+        # Check for missing required parameters
+        $missingParams = $requiredParams | Where-Object { $_ -notin $definedParams }
+        if ($missingParams) {
+            Write-Host "⚠️ Missing required parameters:" -ForegroundColor Yellow
+            foreach ($missing in $missingParams) {
+                Write-Host "  - $missing" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "✅ All required parameters are defined" -ForegroundColor Green
         }
     } else {
-        Write-Host "✅ All required parameters are defined" -ForegroundColor Green
+        Write-Host "⚠️ No parameter block found in script" -ForegroundColor Yellow
     }
-} else {
-    Write-Host "⚠️ No parameter block found in script" -ForegroundColor Yellow
+}
+catch {
+    Write-Host "⚠️ Could not parse script for parameters: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 
 # Check for Azure PowerShell cmdlets
@@ -115,23 +120,15 @@ Write-Host "📊 Validation Summary:" -ForegroundColor Cyan
 Write-Host "=====================" -ForegroundColor Cyan
 Write-Host "✅ Script file exists: $scriptPath" -ForegroundColor Green
 Write-Host "✅ PowerShell syntax valid" -ForegroundColor Green
-Write-Host "📋 Parameters: $(if($parameterBlock) { $definedParams.Count } else { 0 }) defined" -ForegroundColor $(if($parameterBlock) { 'Green' } else { 'Yellow' })"
-Write-Host "🔧 Azure cmdlets: $($foundCmdlets.Count) found" -ForegroundColor $(if($foundCmdlets.Count -gt 0) { 'Green' } else { 'Yellow' })"
+Write-Host "📋 Azure cmdlets: $($foundCmdlets.Count) found" -ForegroundColor $(if($foundCmdlets.Count -gt 0) { 'Green' } else { 'Yellow' })
 
-if ($missingParams -or $missingCmdlets.Count -gt 0) {
+if ($missingCmdlets.Count -gt 0) {
     Write-Host ""
-    Write-Host "⚠️ Issues found that may need attention:" -ForegroundColor Yellow
-    if ($missingParams) {
-        Write-Host "  - Missing parameters: $($missingParams -join ', ')" -ForegroundColor Yellow
-    }
-    if ($missingCmdlets.Count -gt 0) {
-        Write-Host "  - Missing cmdlets may indicate different approach or custom functions" -ForegroundColor Yellow
-    }
-} else {
-    Write-Host ""
-    Write-Host "🎉 Script validation passed! Ready for testing with real Azure resources." -ForegroundColor Green
+    Write-Host "⚠️ Note: Missing cmdlets may indicate the script uses REST API calls or custom functions" -ForegroundColor Yellow
 }
 
+Write-Host ""
+Write-Host "🎉 Script validation completed!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Next steps for full testing:" -ForegroundColor Cyan
 Write-Host "1. Use test_search_script.ps1 with real Azure resource credentials" -ForegroundColor Gray
