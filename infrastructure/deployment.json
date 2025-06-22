@@ -40,7 +40,7 @@
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "00000000-0000-0000-0000-000000000003",
         "storageRoleAssignmentId": "00000000-0000-0000-0000-000000000004",
-        "deploymentScriptUri": "https://raw.githubusercontent.com/Russ-Holloway/Policing-Assistant/main/scripts/setup_search_components.ps1",
+        "deploymentScriptUri": "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/setup_search_components.ps1",
         "deployScriptIdentityName": "deployScriptIdentity",
         "AzureOpenAIEmbeddingName": "text-embedding-ada-002",
         "AzureSearchDataSourceName": "policing-assistant-data-source",
