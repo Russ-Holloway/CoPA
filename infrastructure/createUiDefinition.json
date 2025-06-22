@@ -46,7 +46,7 @@
             "AzureOpenAITopP": 1,
             "AzureOpenAIMaxTokens": 1000,
             "AzureOpenAIStopSequence": "\n",            "AzureOpenAISystemMessage": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
-            "StorageAccountName": "stcopuksopenai",
+            "StorageAccountName": "stpolicing001",
             "AzureOpenAIStream": true,
             "AzureSearchQueryType": "simple",
             "AzureSearchVectorFields": "",            "AzureSearchPermittedGroupsField": "",
