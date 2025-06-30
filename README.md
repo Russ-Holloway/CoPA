@@ -27,6 +27,20 @@
 
 ## Deployment
 
+### PDS Compliant Deployment (For UK Police Forces)
+
+**🚔 For all 44 UK Police Forces:** Use our PDS-compliant deployment that automatically generates resource names according to Police Digital Service standards.
+
+[![Deploy PDS Compliant](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fyour-repo%2Finfrastructure%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fyour-repo%2Finfrastructure%2FcreateUiDefinition-pds.json)
+
+📋 **[PDS Deployment Guide](docs/PDS-DEPLOYMENT-GUIDE.md)** - Complete guide for police forces  
+📋 **[Azure Naming Guidelines](docs/azure-naming-guidelines.md)** - PDS naming conventions  
+
+**Quick PDS Validation:**
+```powershell
+.\scripts\validate-pds-naming.ps1 -ForceCode "btp" -Environment "prod" -InstanceNumber "01"
+```
+
 ### One-Click Azure Deployment
 
 Click the button below to deploy directly to Azure with the correct GPT-4o model:
