@@ -1,405 +1,222 @@
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$searchServiceName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$searchServiceKey,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$dataSourceName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$indexName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$indexerName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$skillset1Name,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$skillset2Name,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$storageAccountName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$storageAccountKey,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$storageContainerName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$openAIEndpoint,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$openAIKey,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$openAIEmbeddingDeployment,
-    
-    [Parameter(Mandatory = $false)]
-    [string]$openAIGptDeployment = "gpt-4o"
+    [Parameter(Mandatory=$true)]
+    [string] $SearchServiceName,
+    [Parameter(Mandatory=$true)]
+    [string] $SearchServiceSku,
+    [Parameter(Mandatory=$true)]
+    [string] $SearchIndexName,
+    [Parameter(Mandatory=$true)]
+    [string] $SearchIndexerName,
+    [Parameter(Mandatory=$true)]
+    [string] $SearchDataSourceName,
+    [Parameter(Mandatory=$true)]
+    [string] $StorageAccountName,
+    [Parameter(Mandatory=$true)]
+    [string] $StorageContainerName,
+    [Parameter(Mandatory=$true)]
+    [string] $ResourceGroupName
 )
 
-# Set constants
-$searchApiVersion = "2023-07-01-Preview"
-$searchServiceEndpoint = "https://$searchServiceName.search.windows.net"
-$headers = @{
-    "Content-Type" = "application/json"
-    "api-key"      = $searchServiceKey
-}
-
-# Test connectivity to Azure services
-Write-Output "Testing connectivity to Azure services..."
-
-# Test Search Service
+ 
+# Set error action preference to stop on error
+$ErrorActionPreference = "Stop"
+ 
 try {
-    $testUri = "$searchServiceEndpoint/indexes?api-version=$searchApiVersion"
-    Invoke-RestMethod -Method GET -Uri $testUri -Headers $headers | Out-Null
-    Write-Output "✓ Search service connectivity confirmed"
-}
-catch {
-    Write-Error "✗ Failed to connect to search service: $_"
-    exit 1
-}
-
-# Test OpenAI Service and validate embedding deployment
-try {
-    $openAITestUri = "$openAIEndpoint/openai/deployments?api-version=2023-05-15"
-    $openAIHeaders = @{
-        "api-key" = $openAIKey
+    # Get the search service admin API key
+    Write-Host "Getting search service admin API key..."
+    $searchService = Get-AzResource -ResourceType 'Microsoft.Search/searchServices' -ResourceName $SearchServiceName -ResourceGroupName $ResourceGroupName
+    if (-not $searchService) {
+        throw "Search service '$SearchServiceName' not found in resource group '$ResourceGroupName'."
     }
-    $deployments = Invoke-RestMethod -Method GET -Uri $openAITestUri -Headers $openAIHeaders
-    Write-Output "✓ OpenAI service connectivity confirmed"
-    
-    # Check if embedding deployment exists
-    $embeddingExists = $false
-    foreach ($deployment in $deployments.data) {
-        if ($deployment.id -eq $openAIEmbeddingDeployment) {
-            $embeddingExists = $true
-            Write-Output "✓ Embedding deployment '$openAIEmbeddingDeployment' found"
-            break
+    $adminKeyResponse = Invoke-AzRestMethod -Uri "https://management.azure.com$($searchService.ResourceId)/listAdminKeys?api-version=2023-11-01" -Method Post
+    $adminKey = ($adminKeyResponse.Content | ConvertFrom-Json).primaryKey
+    if (-not $adminKey) {
+        throw "Failed to retrieve admin key for search service '$SearchServiceName'."
+    }
+ 
+    # Get storage account key
+    Write-Host "Getting storage account key..."
+    $storageKeys = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName
+    if (-not $storageKeys -or $storageKeys.Count -eq 0) {
+        throw "Failed to retrieve keys for storage account '$StorageAccountName'."
+    }
+    $storageKey = $storageKeys[0].Value
+
+ 
+    # Create data source
+    Write-Host "Creating data source '$SearchDataSourceName'..."
+    $dataSourceDefinition = @{
+        name = $SearchDataSourceName
+        type = 'azureblob'
+        credentials = @{
+            connectionString = "DefaultEndpointsProtocol=https;AccountName=$StorageAccountName;AccountKey=$storageKey;EndpointSuffix=core.windows.net"
+        }
+        container = @{
+            name = $StorageContainerName
         }
     }
-    
-    if (-not $embeddingExists) {
-        Write-Warning "Embedding deployment '$openAIEmbeddingDeployment' not found. Available deployments:"
-        foreach ($deployment in $deployments.data) {
-            Write-Output "  - $($deployment.id) ($($deployment.model))"
-        }
+    $dataSourcePayload = $dataSourceDefinition | ConvertTo-Json -Depth 10
+    $dataSourceHeaders = @{
+        'api-key' = $adminKey
+        'Content-Type' = 'application/json'
     }
-}
-catch {
-    Write-Error "✗ Failed to connect to OpenAI service: $_"
-    exit 1
-}
-
-# Test Storage Account - Simple test using REST API
-try {
-    $storageTestUri = "https://$storageAccountName.blob.core.windows.net/$storageContainerName?restype=container"
-    $storageHeaders = @{
-        "Authorization" = "SharedKey $storageAccountName`:$(Get-StorageAuthHeader -StorageAccount $storageAccountName -StorageKey $storageAccountKey -Resource $storageContainerName)"
-    }
-    # For simplicity, we'll skip this test in deployment script environment
-    Write-Output "✓ Storage account parameters validated"
-}
-catch {
-    Write-Output "Note: Storage account test skipped in deployment environment"
-}
-
-Write-Output "All connectivity tests passed. Proceeding with setup..."
-
-# Helper function to invoke REST methods
-function Invoke-SearchREST {
-    param(
-        [string]$method,
-        [string]$uri,
-        [object]$body
-    )
-    
-    $bodyJson = $null
-    if ($body) {
-        $bodyJson = ConvertTo-Json -InputObject $body -Depth 20
-        Write-Output "Request body: $bodyJson"
-    }
-    
-    $params = @{
-        Method      = $method
-        Uri         = $uri
-        Headers     = $headers
-        ContentType = "application/json"
-    }
-    
-    if ($bodyJson) {
-        $params.Body = $bodyJson
-    }
-    
-    try {
-        Write-Output "Calling: $method $uri"
-        $response = Invoke-RestMethod @params
-        Write-Output "Success: $(ConvertTo-Json $response -Depth 3)"
-        return $response
-    }
-    catch {
-        Write-Error "Error calling $uri"
-        Write-Error "Status Code: $($_.Exception.Response.StatusCode)"
-        Write-Error "Error Message: $($_.Exception.Message)"
-        if ($_.Exception.Response) {
-            $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
-            $responseText = $reader.ReadToEnd()
-            Write-Error "Response Body: $responseText"
-        }
-        throw $_
-    }
-}
-
-# 1. Create Data Source
-Write-Output "Creating data source..."
-$connectionString = "DefaultEndpointsProtocol=https;AccountName=$storageAccountName;AccountKey=$storageAccountKey;EndpointSuffix=core.windows.net"
-$dataSource = @{
-    name = $dataSourceName
-    type = "azureblob"
-    credentials = @{
-        connectionString = $connectionString
-    }
-    container = @{
-        name = $storageContainerName
-    }
-}
-
-$dataSourceUri = "$searchServiceEndpoint/datasources/$dataSourceName`?api-version=$searchApiVersion"
-Invoke-SearchREST -method "PUT" -uri $dataSourceUri -body $dataSource
-
-Write-Output "Note: Documents should be uploaded to the '$storageContainerName' container in storage account '$storageAccountName' for indexing."
-
-# 2. Create Index
-Write-Output "Creating index..."
-$index = @{
-    name = $indexName
-    fields = @(
-        @{
-            name = "id"
-            type = "Edm.String"
-            key = $true
-            searchable = $false
-        },
-        @{
-            name = "content"
-            type = "Edm.String"
-            searchable = $true
-            filterable = $false
-            sortable = $false
-            facetable = $false
-        },
-        @{
-            name = "title"
-            type = "Edm.String"
-            searchable = $true
-            filterable = $true
-            sortable = $true
-            facetable = $false
-        },
-        @{
-            name = "url"
-            type = "Edm.String"
-            searchable = $false
-            filterable = $false
-            sortable = $false
-            facetable = $false
-        },
-        @{
-            name = "filename"
-            type = "Edm.String"
-            searchable = $true
-            filterable = $true
-            sortable = $true
-            facetable = $false
-        },
-        @{
-            name = "metadata_author"
-            type = "Edm.String"
-            searchable = $true
-            filterable = $true
-            sortable = $false
-            facetable = $false
-        },        @{
-            name = "metadata_creation_date"
-            type = "Edm.DateTimeOffset"
-            searchable = $false
-            filterable = $true
-            sortable = $true
-            facetable = $false
-        },
-        @{
-            name = "contentVector"
-            type = "Collection(Edm.Single)"
-            searchable = $true
-            filterable = $false
-            sortable = $false
-            facetable = $false
-            dimensions = 1536
-            vectorSearchConfiguration = "vectorConfig"
-        }
-    )
-    vectorSearch = @{
-        algorithmConfigurations = @(
+    $dataSourceResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/datasources/$SearchDataSourceName`?api-version=2023-11-01" -Method Put -Headers $dataSourceHeaders -Body $dataSourcePayload
+    Write-Host "Data source created successfully."
+ 
+    # Create index
+    Write-Host "Creating index '$SearchIndexName'..."
+    $indexDefinition = @{
+        name = $SearchIndexName
+        fields = @(
             @{
-                name = "vectorConfig"
-                kind = "hnsw"
-                parameters = @{
-                    m = 4
-                    efConstruction = 400
-                    efSearch = 500
-                    metric = "cosine"
-                }
+                name = 'id'
+                type = 'Edm.String'
+                key = $true
+                searchable = $false
+                retrievable = $true
+            },
+            @{
+                name = 'content'
+                type = 'Edm.String'
+                searchable = $true
+                filterable = $false
+                sortable = $false
+                facetable = $false
+                retrievable = $true
+                analyzer = 'standard.lucene'
+            },
+            @{
+                name = 'url'
+                type = 'Edm.String'
+                searchable = $false
+                filterable = $true
+                sortable = $true
+                facetable = $false
+                retrievable = $true
+            },
+            @{
+                name = 'filepath'
+                type = 'Edm.String'
+                searchable = $false
+                filterable = $true
+                sortable = $true
+                facetable = $false
+                retrievable = $true
+            },
+            @{
+                name = 'title'
+                type = 'Edm.String'
+                searchable = $true
+                filterable = $true
+                sortable = $true
+                facetable = $true
+                retrievable = $true
+            },
+            @{
+                name = 'meta_json_string'
+                type = 'Edm.String'
+                searchable = $false
+                filterable = $false
+                sortable = $false
+                facetable = $false
+                retrievable = $true
+            },
+            @{
+                name = 'contentVector'
+                type = 'Collection(Edm.Single)'
+                searchable = $true
+                retrievable = $true
+                dimensions = 1536
+                vectorSearchConfiguration = 'my-vector-config'
             }
-        )
-    }    semantic = @{
-        configurations = @(
-            @{
-                name = "default"
-                prioritizedFields = @{
-                    titleField = @{
-                        fieldName = "title"
+        ),
+        vectorSearch = @{
+            algorithmConfigurations = @(
+                @{
+                    name = 'my-vector-config'
+                    kind = 'hnsw'
+                    parameters = @{
+                        m = 4
+                        efConstruction = 400
+                        efSearch = 500
+                        metric = 'cosine'
                     }
-                    contentFields = @(
-                        @{
-                            fieldName = "content"
-                        }
-                    )
                 }
+            )
+        }
+    }
+    $indexPayload = $indexDefinition | ConvertTo-Json -Depth 10
+    $indexHeaders = @{
+        'api-key' = $adminKey
+        'Content-Type' = 'application/json'
+    }
+    $indexResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/indexes/$SearchIndexName`?api-version=2023-11-01" -Method Put -Headers $indexHeaders -Body $indexPayload
+    Write-Host "Index created successfully."
+ 
+    # Create indexer
+    Write-Host "Creating indexer '$SearchIndexerName'..."
+    $indexerDefinition = @{
+        name = $SearchIndexerName
+        dataSourceName = $SearchDataSourceName
+        targetIndexName = $SearchIndexName
+        schedule = @{
+            interval = 'PT1H'
+        }
+        parameters = @{
+            batchSize = 100
+            maxFailedItems = 10
+            maxFailedItemsPerBatch = 10
+            configuration = @{
+                parsingMode = 'default'
+                indexedFileNameExtensions = '.pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.txt,.html,.htm,.csv,.json,.xml'
+                excludedFileNameExtensions = '.png,.jpg,.jpeg,.gif,.mp3,.mp4,.avi'
+            }
+        }
+        fieldMappings = @(
+            @{
+                sourceFieldName = 'metadata_storage_path'
+                targetFieldName = 'filepath'
+            },
+            @{
+                sourceFieldName = 'metadata_storage_name'
+                targetFieldName = 'title'
+            },
+            @{
+                sourceFieldName = 'metadata_storage_path'
+                targetFieldName = 'id'
+                mappingFunction = @{
+                    name = 'base64Encode'
+                }
+            },
+            @{
+                sourceFieldName = 'metadata_storage_path'
+                targetFieldName = 'url'
+            }
+        )
+        outputFieldMappings = @(
+            @{
+                sourceFieldName = '/document/content'
+                targetFieldName = 'content'
             }
         )
     }
-}
-
-$indexUri = "$searchServiceEndpoint/indexes/$indexName`?api-version=$searchApiVersion"
-Invoke-SearchREST -method "PUT" -uri $indexUri -body $index
-
-# 3. Create Skillset - Text Splitting + AI Embeddings
-Write-Output "Creating skillset with text splitting and AI embeddings..."
-$skillset = @{
-    name = $skillset1Name
-    description = "Skillset for policing documents with text splitting and AI embeddings"
-    skills = @(
-        @{
-            "@odata.type" = "#Microsoft.Skills.Text.SplitSkill"
-            name = "split-text"
-            description = "Split content into pages"
-            context = "/document"
-            textSplitMode = "pages"
-            maximumPageLength = 5000
-            inputs = @(
-                @{
-                    name = "text"
-                    source = "/document/content"
-                }
-            )
-            outputs = @(
-                @{
-                    name = "textItems"
-                    targetName = "pages"
-                }
-            )
-        },
-        @{
-            "@odata.type" = "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill"
-            name = "text-embedding"
-            description = "Generate embeddings for the document content"
-            context = "/document"
-            resourceUri = $openAIEndpoint
-            apiKey = $openAIKey
-            deploymentId = $openAIEmbeddingDeployment
-            inputs = @(
-                @{
-                    name = "text"
-                    source = "/document/content"
-                }
-            )
-            outputs = @(
-                @{
-                    name = "embedding"
-                    targetName = "contentVector"
-                }
-            )
-        }
-    )
-}
-
-$skillset1Uri = "$searchServiceEndpoint/skillsets/$skillset1Name`?api-version=$searchApiVersion"
-Invoke-SearchREST -method "PUT" -uri $skillset1Uri -body $skillset
-
-# 4. Create Indexer
-Write-Output "Creating indexer..."
-$indexer = @{
-    name = $indexerName
-    dataSourceName = $dataSourceName
-    targetIndexName = $indexName
-    skillsetName = $skillset1Name  # Using the comprehensive skillset
-    parameters = @{
-        configuration = @{
-            dataToExtract = "contentAndMetadata"
-            parsingMode = "default"
-        }
+    $indexerPayload = $indexerDefinition | ConvertTo-Json -Depth 10
+    $indexerHeaders = @{
+        'api-key' = $adminKey
+        'Content-Type' = 'application/json'
     }
-    fieldMappings = @(
-        @{
-            sourceFieldName = "metadata_storage_name"
-            targetFieldName = "filename"
-        },
-        @{
-            sourceFieldName = "metadata_storage_path"
-            targetFieldName = "url"
-        },
-        @{
-            sourceFieldName = "metadata_title"
-            targetFieldName = "title"
-        },
-        @{
-            sourceFieldName = "metadata_author"
-            targetFieldName = "metadata_author"
-        },        @{
-            sourceFieldName = "metadata_creation_date"
-            targetFieldName = "metadata_creation_date"
-        }
-    )
-    outputFieldMappings = @(
-        @{
-            sourceFieldName = "/document/pages/*"
-            targetFieldName = "content"
-            mappingFunction = @{
-                name = "merge"
-            }
-        },
-        @{
-            sourceFieldName = "/document/contentVector"
-            targetFieldName = "contentVector"
-        }
-    )
-    schedule = @{
-        interval = "PT12H"  # Run every 12 hours
-    }
-}
-
-$indexerUri = "$searchServiceEndpoint/indexers/$indexerName`?api-version=$searchApiVersion"
-Invoke-SearchREST -method "PUT" -uri $indexerUri -body $indexer
-
-# Start the indexer to begin processing documents
-Write-Output "Starting indexer to process documents..."
-$runIndexerUri = "$searchServiceEndpoint/indexers/$indexerName/run?api-version=$searchApiVersion"
-try {
-    Invoke-SearchREST -method "POST" -uri $runIndexerUri -body $null
-    Write-Output "Indexer started successfully"
-    
-    # Check indexer status (optional - for monitoring)
-    Start-Sleep -Seconds 5
-    $statusUri = "$searchServiceEndpoint/indexers/$indexerName/status?api-version=$searchApiVersion"
-    $status = Invoke-SearchREST -method "GET" -uri $statusUri
-    Write-Output "Indexer status: $($status.lastResult.status)"
+    $indexerResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/indexers/$SearchIndexerName`?api-version=2023-11-01" -Method Put -Headers $indexerHeaders -Body $indexerPayload
+    Write-Host "Indexer created successfully."
+ 
+    # Output the status information
+    $DeploymentScriptOutputs = @{}
+    $DeploymentScriptOutputs['searchServiceName'] = $SearchServiceName
+    $DeploymentScriptOutputs['searchIndexName'] = $SearchIndexName
+    $DeploymentScriptOutputs['searchIndexerName'] = $SearchIndexerName
+    $DeploymentScriptOutputs['searchDataSourceName'] = $SearchDataSourceName
+    Write-Host "Azure Search resources created successfully!"
 }
 catch {
-    Write-Warning "Failed to start indexer, but this is not critical. The indexer can be started manually later."
+    Write-Error "An error occurred: $_"
+    throw
 }
-
-Write-Output "Search components setup completed successfully."
