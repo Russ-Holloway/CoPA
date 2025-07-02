@@ -7,10 +7,71 @@ This guide will help you set up the Azure Cognitive Search components needed for
 - The ARM template has been deployed successfully
 - You have access to the Azure Portal
 - You have the necessary permissions to create resources in the resource group
+- For automated setup: PowerShell with Azure CLI installed
 
-## Setting Up Azure Cognitive Search Components
+## Setup Options
 
-Follow these steps to configure Azure Cognitive Search with data sources, indexes, skillsets, and indexers:
+You can set up Azure Cognitive Search components using either:
+- **Option A (Recommended)**: Automated PowerShell Script
+- **Option B**: Manual Azure Portal Configuration
+
+## Option A: Automated PowerShell Script Setup (Recommended)
+
+The fastest and most reliable way to set up Azure Cognitive Search components is using our automated PowerShell script.
+
+### Prerequisites for Automated Setup
+
+- PowerShell 5.1 or later
+- Azure CLI installed and configured
+- Appropriate permissions to create resources in your Azure subscription
+
+### Running the Automated Setup
+
+1. Navigate to the CoPPA repository root directory
+2. Run the automated setup script:
+
+```powershell
+.\scripts\setup-search-components.ps1 -ResourceGroupName "your-resource-group-name" -SearchServiceName "your-search-service-name" -StorageAccountName "your-storage-account-name" -OpenAIServiceName "your-openai-service-name"
+```
+
+### Script Parameters
+
+- **ResourceGroupName**: The name of your Azure resource group
+- **SearchServiceName**: The name of your Azure Cognitive Search service
+- **StorageAccountName**: The name of your Azure Storage account (must be globally unique)
+- **OpenAIServiceName**: The name of your Azure OpenAI service
+
+### What the Script Does
+
+The automated script will:
+1. Create a storage account with a "documents" container
+2. Set up the search index with proper fields and vector search configuration
+3. Create data sources for document indexing
+4. Configure skillsets for text processing and AI enrichment
+5. Set up indexers to process and index documents
+6. Upload sample documents (if available in the data folder)
+7. Run the initial indexing process
+
+### Example Usage
+
+```powershell
+.\scripts\setup-search-components.ps1 -ResourceGroupName "coppa-rg" -SearchServiceName "coppa-search" -StorageAccountName "coppastorage123" -OpenAIServiceName "coppa-openai"
+```
+
+### Verification After Automated Setup
+
+After the script completes successfully:
+1. Check the Azure Portal to verify all resources were created
+2. Test the search functionality in your CoPPA application
+3. Upload additional documents to the storage container as needed
+
+---
+
+## Option B: Manual Azure Portal Configuration
+
+If you prefer to configure the components manually or need to customize the setup, follow these detailed steps:
+
+## Manual Setup Steps
 
 ### 1. Create a Storage Account for Document Storage
 
@@ -147,18 +208,53 @@ Follow these steps to configure Azure Cognitive Search with data sources, indexe
 
 ## Verification
 
+### For Automated Setup
+After running the PowerShell script:
+1. Check the script output for any error messages
+2. Verify in the Azure Portal that all resources were created successfully
+3. Test the search functionality in your CoPPA application
+
+### For Manual Setup
 1. Once the indexer has finished running, go to your search service
 2. Select "Search explorer"
 3. Run a test query to verify your documents are being indexed properly
 4. Try the search functionality in your CoPPA application
 
+## Adding More Documents
+
+### With Automated Setup
+- Upload documents directly to the "documents" container in your storage account
+- The indexer will automatically process new documents based on the configured schedule
+
+### With Manual Setup
+- Upload documents to the storage container you configured
+- Manually run the indexer or wait for the scheduled run
+
 ## Troubleshooting
 
-If you encounter issues:
+### Automated Setup Issues
+If the PowerShell script fails:
+1. Check that you have the correct permissions for all services
+2. Verify that Azure CLI is properly configured (`az login`)
+3. Ensure all service names are correct and resources exist
+4. Check the script output for specific error messages
+5. Try running individual Azure CLI commands manually to isolate issues
 
+### Manual Setup Issues
+If you encounter issues with manual configuration:
 1. Check the indexer status for error messages
 2. Verify all connection strings and keys are correct
 3. Ensure your documents can be parsed properly
 4. Check that the field mappings are configured correctly
 
-For more detailed guidance, refer to the [Azure Cognitive Search documentation](https://learn.microsoft.com/en-us/azure/search/).
+### General Issues
+- Verify that your Azure OpenAI service has the required models deployed
+- Ensure the embedding model deployment name matches your configuration
+- Check that the search service has sufficient capacity for your document volume
+
+## Additional Resources
+
+- [Azure Cognitive Search documentation](https://learn.microsoft.com/en-us/azure/search/)
+- [Azure OpenAI Service documentation](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/)
+- [Automated Search Setup Guide](./automated_search_setup.md)
+- [CoPPA Repository](../README.md)

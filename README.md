@@ -51,8 +51,9 @@ Click the button below to deploy directly to Azure with the correct GPT-4o model
 
 ### Post-Deployment Setup
 
-After deployment completes, you need to configure authentication:
+After deployment completes, you need to configure two main components:
 
+#### 1. Authentication Setup
 **🚀 Quick Setup:** Run the automated authentication script:
 ```powershell
 .\scripts\setup_azure_ad_auth.ps1 -WebAppName "your-web-app-name" -ResourceGroupName "your-resource-group"
@@ -60,6 +61,14 @@ After deployment completes, you need to configure authentication:
 
 **📋 Quick Reference:** [Azure AD Quick Reference](AZURE_AD_QUICK_REFERENCE.md)  
 **📖 Full Guide:** [Azure AD Setup Guide](AZURE_AD_SETUP_GUIDE.md)
+
+#### 2. Search Components Setup
+**🚀 Quick Setup:** Run the automated search setup script:
+```powershell
+.\scripts\setup-search-components.ps1 -ResourceGroupName "your-resource-group-name" -SearchServiceName "your-search-service-name" -StorageAccountName "your-storage-account-name" -OpenAIServiceName "your-openai-service-name"
+```
+
+**📖 Full Guide:** [Search Components Setup Guide](docs/search_components_setup.md)
 
 ---
 
