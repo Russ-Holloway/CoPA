@@ -1,34 +1,43 @@
 # Azure Cognitive Search Setup Guide
 
-This guide will help you set up the Azure Cognitive Search components needed for the CoPPA application after the main ARM template deployment completes.
+This guide explains how Azure Cognitive Search components are configured for the CoPPA application. Search components are **automatically set up during deployment**, but this guide provides information for troubleshooting or manual reconfiguration if needed.
 
-## Prerequisites
+## Automated Setup Process
 
-- The ARM template has been deployed successfully
-- You have access to the Azure Portal
-- You have the necessary permissions to create resources in the resource group
-- For automated setup: PowerShell with Azure CLI installed
+When you deploy CoPPA using the "Deploy to Azure" button, the search components are automatically configured through:
+
+1. **ARM Template Deployment Script**: A PowerShell script runs during deployment to create and configure all search components
+2. **Application Startup Configuration**: Additional setup happens during the web app's first startup
+
+**No manual setup is required** under normal circumstances.
+
+## When to Use Manual Setup
+
+You only need to manually set up search components if:
+- The automatic setup failed during deployment
+- You need to recreate or reconfigure components
+- You're deploying in a customized environment
 
 ## Setup Options
 
 You can set up Azure Cognitive Search components using either:
-- **Option A (Recommended)**: Automated PowerShell Script
+- **Option A**: PowerShell Script (for manual troubleshooting)
 - **Option B**: Manual Azure Portal Configuration
 
-## Option A: Automated PowerShell Script Setup (Recommended)
+## Option A: PowerShell Script Setup (For Troubleshooting)
 
-The fastest and most reliable way to set up Azure Cognitive Search components is using our automated PowerShell script.
+If you need to manually set up or recreate the Azure Cognitive Search components, you can use our PowerShell script.
 
-### Prerequisites for Automated Setup
+### Prerequisites for Script Usage
 
 - PowerShell 5.1 or later
 - Azure CLI installed and configured
 - Appropriate permissions to create resources in your Azure subscription
 
-### Running the Automated Setup
+### Running the Script
 
 1. Navigate to the CoPPA repository root directory
-2. Run the automated setup script:
+2. Run the setup script:
 
 ```powershell
 .\scripts\setup-search-components.ps1 -ResourceGroupName "your-resource-group-name" -SearchServiceName "your-search-service-name" -StorageAccountName "your-storage-account-name" -OpenAIServiceName "your-openai-service-name"
@@ -43,7 +52,7 @@ The fastest and most reliable way to set up Azure Cognitive Search components is
 
 ### What the Script Does
 
-The automated script will:
+The script will:
 1. Create a storage account with a "documents" container
 2. Set up the search index with proper fields and vector search configuration
 3. Create data sources for document indexing
@@ -58,12 +67,7 @@ The automated script will:
 .\scripts\setup-search-components.ps1 -ResourceGroupName "coppa-rg" -SearchServiceName "coppa-search" -StorageAccountName "coppastorage123" -OpenAIServiceName "coppa-openai"
 ```
 
-### Verification After Automated Setup
-
-After the script completes successfully:
-1. Check the Azure Portal to verify all resources were created
-2. Test the search functionality in your CoPPA application
-3. Upload additional documents to the storage container as needed
+**Note:** This script is the same script used by the ARM template during deployment.
 
 ---
 

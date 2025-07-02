@@ -51,9 +51,9 @@ Click the button below to deploy directly to Azure with the correct GPT-4o model
 
 ### Post-Deployment Setup
 
-After deployment completes, you need to configure two main components:
+After deployment completes, you only need to configure authentication. The search components are automatically set up during deployment.
 
-#### 1. Authentication Setup
+#### Authentication Setup (Required)
 **🚀 Quick Setup:** Run the automated authentication script:
 ```powershell
 .\scripts\setup_azure_ad_auth.ps1 -WebAppName "your-web-app-name" -ResourceGroupName "your-resource-group"
@@ -62,8 +62,10 @@ After deployment completes, you need to configure two main components:
 **📋 Quick Reference:** [Azure AD Quick Reference](AZURE_AD_QUICK_REFERENCE.md)  
 **📖 Full Guide:** [Azure AD Setup Guide](AZURE_AD_SETUP_GUIDE.md)
 
-#### 2. Search Components Setup
-**🚀 Quick Setup:** Run the automated search setup script:
+#### Search Components (Automatically Configured)
+The Azure Cognitive Search components (index, data source, skillsets, and indexers) are automatically set up during deployment through a built-in deployment script. **No manual setup is required.**
+
+If you need to troubleshoot or reconfigure search components:
 ```powershell
 .\scripts\setup-search-components.ps1 -ResourceGroupName "your-resource-group-name" -SearchServiceName "your-search-service-name" -StorageAccountName "your-storage-account-name" -OpenAIServiceName "your-openai-service-name"
 ```
@@ -297,6 +299,14 @@ This section provides technical details about the deployment process:
 
 ### Deployment Method
 The one-click deployment method provides convenient deployment directly from the GitHub repository through Azure Blob Storage with proper CORS configuration.
+
+### Automated Components Setup
+- **Search Components**: The deployment automatically configures Azure Cognitive Search using a PowerShell deployment script:
+  - Creates a search index with vector search capabilities
+  - Sets up a data source connected to blob storage
+  - Configures skillsets for document processing and embedding generation
+  - Creates and runs an indexer to process documents
+  - No manual setup required after deployment
 
 ### Access Requirements
 - The deployment uses a SAS token for Azure Blob Storage valid until June 16, 2026
