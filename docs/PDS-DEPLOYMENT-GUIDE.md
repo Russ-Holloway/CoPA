@@ -1,7 +1,7 @@
-# PDS Compliant Policing Assistant Deployment Guide
+# PDS Compliant CoPPA Deployment Guide
 
 ## Overview
-This deployment guide provides instructions for deploying the Policing Assistant solution in compliance with PDS (Police Digital Service) naming standards. The solution is designed to be used by all 44 UK police forces with consistent, policy-compliant resource naming.
+This deployment guide provides instructions for deploying the CoPPA (College of Policing Assistant) solution in compliance with PDS (Police Digital Service) naming standards. The solution is designed to be used by all 44 UK police forces with consistent, policy-compliant resource naming.
 
 ## Prerequisites
 - Azure subscription with appropriate permissions

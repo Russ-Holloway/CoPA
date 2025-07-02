@@ -1,16 +1,16 @@
-# Deployment script for Policing Assistant
-# This script will deploy all the necessary Azure resources for the Policing Assistant
+# Deployment script for CoPPA - College of Policing Assistant
+# This script will deploy all the necessary Azure resources for CoPPA
 
 # Default values
-$RESOURCE_GROUP = "policing-assistant-rg"
+$RESOURCE_GROUP = "coppa-rg"
 $LOCATION = "eastus"
-$DEPLOYMENT_NAME = "policing-assistant-deployment"
-$WEBSITE_NAME = "policing-assistant-" + (-join ((97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_}))
+$DEPLOYMENT_NAME = "coppa-deployment"
+$WEBSITE_NAME = "coppa-" + (-join ((97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_}))
 $OPENAI_NAME = "oai-" + (-join ((97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_}))
 $SEARCH_NAME = "search-" + (-join ((97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_}))
 
 Write-Host "╔════════════════════════════════════════════════════════════╗"
-Write-Host "║              Policing Assistant Deployment                  ║"
+Write-Host "║              CoPPA - College of Policing Assistant         ║"
 Write-Host "╚════════════════════════════════════════════════════════════╝"
 
 # Check if Azure PowerShell is installed

@@ -1,6 +1,6 @@
 # Azure Cognitive Search Setup Guide
 
-This guide will help you set up the Azure Cognitive Search components needed for the Policing Assistant application after the main ARM template deployment completes.
+This guide will help you set up the Azure Cognitive Search components needed for the CoPPA application after the main ARM template deployment completes.
 
 ## Prerequisites
 
@@ -150,7 +150,7 @@ Follow these steps to configure Azure Cognitive Search with data sources, indexe
 1. Once the indexer has finished running, go to your search service
 2. Select "Search explorer"
 3. Run a test query to verify your documents are being indexed properly
-4. Try the search functionality in your Policing Assistant application
+4. Try the search functionality in your CoPPA application
 
 ## Troubleshooting
 

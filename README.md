@@ -1,6 +1,6 @@
-# Policing Assistant
+# CoPPA - College of Policing Assistant
 
-**Policing Assistant** is an advanced AI-powered Smart Assistant designed to enhance police decision-making and effectiveness. Built within a secure Microsoft Azure environment, this assistant integrates trusted data, policy, and user feedback to deliver actionable, transparent, and secure guidance.
+**CoPPA (College of Policing Assistant)** is an advanced AI-powered Smart Assistant designed to enhance police decision-making and effectiveness. Built within a secure Microsoft Azure environment, this assistant integrates trusted data, policy, and user feedback to deliver actionable, transparent, and secure guidance.
 
 ---
 
@@ -124,8 +124,8 @@ After deployment completes, you need to configure authentication:
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/Russ-Holloway/Policing-Assistant.git
-   cd Policing-Assistant
+   git clone https://github.com/Russ-Holloway/CoPPA.git
+   cd CoPPA
    ```
 
 2. **Install Dependencies:**
@@ -238,7 +238,7 @@ This project may contain trademarks or logos for projects, products, or services
 
 ## Disclaimer
 
-Policing Assistant is an advisory tool. Advice is based on curated, up-to-date data, but ultimate responsibility for decisions remains with the user.  
+CoPPA (College of Policing Assistant) is an advisory tool. Advice is based on curated, up-to-date data, but ultimate responsibility for decisions remains with the user.  
 **Do not use this tool as a sole source for critical or time-sensitive decisions.**  
 _Example scenarios where caution is required:_  
 - Making legal decisions without human review  
