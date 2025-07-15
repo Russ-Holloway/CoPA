@@ -27,7 +27,6 @@ import {
   Conversation,
   historyGenerate,
   historyUpdate,
-  historyClear,
   ChatHistoryLoadingState,
   CosmosDBStatus,
   ErrorMessage,
@@ -49,7 +48,6 @@ const Chat = () => {
   const appStateContext = useContext(AppStateContext)
   const ui = appStateContext?.state.frontendSettings?.ui
   const AUTH_ENABLED = appStateContext?.state.frontendSettings?.auth_enabled
-  const isDeleteEnabled = appStateContext?.state.frontendSettings?.chat_history_delete_enabled ?? false
   const chatMessageStreamEnd = useRef<HTMLDivElement | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showLoadingMessage, setShowLoadingMessage] = useState<boolean>(false)
@@ -61,7 +59,6 @@ const Chat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [execResults, setExecResults] = useState<ExecResults[]>([])
   const [processMessages, setProcessMessages] = useState<messageStatus>(messageStatus.NotRunning)
-  const [clearingChat, setClearingChat] = useState<boolean>(false)
   const [hideErrorDialog, { toggle: toggleErrorDialog }] = useBoolean(true)
   const [errorMsg, setErrorMsg] = useState<ErrorMessage | null>()
   const [logo, setLogo] = useState('')
@@ -535,31 +532,6 @@ const Chat = () => {
     return abortController.abort()
   }
 
-  const clearChat = async () => {
-    setClearingChat(true)
-    if (appStateContext?.state.currentChat?.id && appStateContext?.state.isCosmosDBAvailable.cosmosDB) {
-      let response = await historyClear(appStateContext?.state.currentChat.id)
-      if (!response.ok) {
-        setErrorMsg({
-          title: 'Error clearing current chat',
-          subtitle: 'Please try again. If the problem persists, please contact the site administrator.'
-        })
-        toggleErrorDialog()
-      } else {
-        appStateContext?.dispatch({
-          type: 'DELETE_CURRENT_CHAT_MESSAGES',
-          payload: appStateContext?.state.currentChat.id
-        })
-        appStateContext?.dispatch({ type: 'UPDATE_CHAT_HISTORY', payload: appStateContext?.state.currentChat })
-        setActiveCitation(undefined)
-        setIsCitationPanelOpen(false)
-        setIsIntentsPanelOpen(false)
-        setMessages([])
-      }
-    }
-    setClearingChat(false)
-  }
-
   const tryGetRaiPrettyError = (errorMessage: string) => {
     try {
       // Using a regex to extract the JSON part that contains "innererror"
@@ -753,7 +725,6 @@ const Chat = () => {
     return (
       isLoading ||
       (messages && messages.length === 0) ||
-      clearingChat ||
       appStateContext?.state.chatHistoryLoadingState === ChatHistoryLoadingState.Loading
     )
   }
@@ -918,11 +889,7 @@ const Chat = () => {
                       : styles.clearChatBroomNoCosmos
                   }
                   iconProps={{ iconName: 'Broom' }}
-                  onClick={
-                    appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && isDeleteEnabled
-                      ? clearChat
-                      : newChat
-                  }
+                  onClick={newChat}
                   disabled={disabledButton()}
                   aria-label="clear chat button"
                 />
