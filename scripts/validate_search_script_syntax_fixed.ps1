@@ -61,7 +61,7 @@ try {
     $scriptAST = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
     $parameterBlock = $scriptAST.FindAll({$args[0] -is [System.Management.Automation.Language.ParamBlockAst]}, $false)
 
-    if ($parameterBlock) {
+    if ($parameterBlock -and $parameterBlock.Count -gt 0) {
         $definedParams = $parameterBlock[0].Parameters.Name.VariablePath.UserPath
         
         Write-Host "📋 Script parameters found:" -ForegroundColor Yellow
@@ -102,14 +102,12 @@ $azureCmdlets = @(
 
 $scriptText = Get-Content $scriptPath -Raw
 $foundCmdlets = @()
-$missingCmdlets = @()
 
 foreach ($cmdlet in $azureCmdlets) {
     if ($scriptText -match $cmdlet) {
         $foundCmdlets += $cmdlet
         Write-Host "  ✅ Found: $cmdlet" -ForegroundColor Green
     } else {
-        $missingCmdlets += $cmdlet
         Write-Host "  ⚠️ Not found: $cmdlet" -ForegroundColor Yellow
     }
 }
@@ -122,9 +120,9 @@ Write-Host "✅ Script file exists: $scriptPath" -ForegroundColor Green
 Write-Host "✅ PowerShell syntax valid" -ForegroundColor Green
 Write-Host "📋 Azure cmdlets: $($foundCmdlets.Count) found" -ForegroundColor $(if($foundCmdlets.Count -gt 0) { 'Green' } else { 'Yellow' })
 
-if ($missingCmdlets.Count -gt 0) {
+if ($foundCmdlets.Count -eq 0) {
     Write-Host ""
-    Write-Host "⚠️ Note: Missing cmdlets may indicate the script uses REST API calls or custom functions" -ForegroundColor Yellow
+    Write-Host "⚠️ Note: No Azure PowerShell cmdlets found - script likely uses REST API calls" -ForegroundColor Yellow
 }
 
 Write-Host ""

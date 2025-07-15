@@ -402,6 +402,43 @@ cd scripts
 - [ ] ✅ All resources are available in target region
 - [ ] ✅ What-if analysis shows expected resources
 
+### Deployment Readiness Validation
+
+After deployment, use our comprehensive validation scripts to ensure all components are properly configured:
+
+#### Comprehensive Readiness Check
+```powershell
+# Check all components at once
+.\scripts\check_deployment_readiness.ps1 -SubscriptionId "your-sub-id" -ResourceGroupName "your-rg" -StorageAccountName "yourstorageaccount" -OpenAIServiceName "your-openai-service" -SearchServiceName "your-search-service" -WaitForCompletion -FixPermissions
+```
+
+#### Individual Component Checks
+```powershell
+# Check OpenAI model deployments (with automatic waiting)
+.\scripts\check_openai_deployments.ps1 -SubscriptionId "your-sub-id" -ResourceGroupName "your-rg" -OpenAIServiceName "your-openai-service" -WaitForCompletion
+
+# Check storage account permissions (with automatic fixes)
+.\scripts\check_storage_permissions.ps1 -SubscriptionId "your-sub-id" -ResourceGroupName "your-rg" -StorageAccountName "yourstorageaccount" -SearchServiceName "your-search-service" -Detailed -FixPermissions
+```
+
+#### Quick Connectivity Test
+```powershell
+# Fast connectivity check (for CI/CD pipelines)
+.\scripts\check_deployment_readiness.ps1 -SubscriptionId "your-sub-id" -ResourceGroupName "your-rg" -StorageAccountName "yourstorageaccount" -OpenAIServiceName "your-openai-service" -SearchServiceName "your-search-service" -QuickCheck
+```
+
+**📖 Full Guide:** [Azure Validation Scripts Guide](AZURE_VALIDATION_SCRIPTS_GUIDE.md)
+
+#### Post-Deployment Checklist
+- [ ] ✅ All Azure resources are provisioned and running
+- [ ] ✅ OpenAI models are deployed and accessible
+- [ ] ✅ Storage account permissions are properly configured
+- [ ] ✅ Search service is running and accessible
+- [ ] ✅ Managed identities are configured
+- [ ] ✅ Role assignments are in place
+- [ ] ✅ Network connectivity is working
+- [ ] ✅ Application startup completes successfully
+
 ### Post-Deployment Testing
 
 After successful deployment:

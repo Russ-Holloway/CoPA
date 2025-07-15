@@ -9,140 +9,6 @@
             },
             "defaultValue": "[resourceGroup().name]"
         },
-        "ForceCode": {
-            "type": "string",
-            "metadata": {
-                "description": "Police force code (2-3 characters, e.g., 'btp', 'met', 'gmp'). Must be lowercase letters only."
-            },
-            "minLength": 2,
-            "maxLength": 3,
-            "defaultValue": "btp"
-        },
-        "EnvironmentSuffix": {
-            "type": "string",
-            "metadata": {
-                "description": "Environment suffix following PDS standards"
-            },
-            "defaultValue": "dev",
-            "allowedValues": [
-                "dev",
-                "test",
-                "prod"
-            ]
-        },
-        "InstanceNumber": {
-            "type": "string",
-            "metadata": {
-                "description": "Instance number (01, 02, etc.)"
-            },
-            "defaultValue": "01",
-            "minLength": 2,
-            "maxLength": 2
-        },
-        "WebAppName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the web application following PDS naming: must start with 'app-'"
-            },
-            "defaultValue": "[concat('app-', parameters('ForceCode'), '-policing-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
-            "minLength": 5,
-            "maxLength": 60
-        },
-        "SearchServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the Azure AI Search service following PDS pattern (assuming 'srch-' prefix)"
-            },
-            "defaultValue": "[concat('srch-', parameters('ForceCode'), '-policing-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
-            "minLength": 2,
-            "maxLength": 60
-        },
-        "SearchServiceSku": {
-            "type": "string",
-            "metadata": {
-                "description": "SKU for the Azure Search service"
-            },
-            "defaultValue": "standard",
-            "allowedValues": [
-                "free",
-                "basic",
-                "standard",
-                "standard2",
-                "standard3"
-            ]
-        },
-        "OpenAIServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the Azure OpenAI service following PDS pattern (assuming 'ai-' prefix)"
-            },
-            "defaultValue": "[concat('ai-', parameters('ForceCode'), '-policing-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
-            "minLength": 2,
-            "maxLength": 64
-        },
-        "StorageAccountName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the storage account following PDS naming: must start with 'st'. Must be globally unique."
-            },
-            "defaultValue": "[take(concat('st', parameters('ForceCode'), 'policing', parameters('EnvironmentSuffix'), parameters('InstanceNumber')), 24)]",
-            "minLength": 3,
-            "maxLength": 24
-        },
-        "StorageContainerName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the storage container for documents"
-            },
-            "defaultValue": "docs",
-            "minLength": 3,
-            "maxLength": 63
-        },
-        "CosmosDbAccountName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the Cosmos DB account following PDS naming: must start with 'db-'"
-            },
-            "defaultValue": "[concat('db-', parameters('ForceCode'), '-policing-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
-            "minLength": 4,
-            "maxLength": 44
-        },
-        "ApplicationInsightsName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for Application Insights following PDS naming: must start with 'appi-'"
-            },
-            "defaultValue": "[concat('appi-', parameters('ForceCode'), '-policing-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
-            "minLength": 6,
-            "maxLength": 260
-        },
-        "SearchIndexName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the search index following PDS naming: {force-code}-policing-index-{environment}"
-            },
-            "defaultValue": "[concat(parameters('ForceCode'), '-policing-index-', parameters('EnvironmentSuffix'))]",
-            "minLength": 1,
-            "maxLength": 128
-        },
-        "SearchIndexerName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the search indexer following PDS naming: {force-code}-policing-indexer-{environment}"
-            },
-            "defaultValue": "[concat(parameters('ForceCode'), '-policing-indexer-', parameters('EnvironmentSuffix'))]",
-            "minLength": 1,
-            "maxLength": 128
-        },
-        "SearchDataSourceName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name for the search data source following PDS naming: {force-code}-policing-datasource-{environment}"
-            },
-            "defaultValue": "[concat(parameters('ForceCode'), '-policing-datasource-', parameters('EnvironmentSuffix'))]",
-            "minLength": 1,
-            "maxLength": 128
-        },
         "AzureOpenAIModelName": {
             "type": "string",
             "metadata": {
@@ -156,73 +22,26 @@
                 "description": "The name of the OpenAI embedding model to deploy."
             },
             "defaultValue": "text-embedding-ada-002"
-        },
-        "Location": {
-            "type": "string",
-            "metadata": {
-                "description": "Azure region for deployment"
-            },
-            "defaultValue": "[resourceGroup().location]",
-            "allowedValues": [
-                "uksouth",
-                "ukwest",
-                "westeurope",
-                "northeurope",
-                "eastus",
-                "westus2"
-            ]
-        },
-        "ForceID": {
-            "type": "string",
-            "metadata": {
-                "description": "Police Force ID for PDS tagging compliance"
-            },
-            "defaultValue": "[toUpper(parameters('ForceCode'))]"
-        },
-        "LocationID": {
-            "type": "string",
-            "metadata": {
-                "description": "Location ID for PDS tagging compliance (e.g., 'UK-South', 'UK-West')"
-            },
-            "defaultValue": "UK-South"
-        },
-        "ServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "Service name for PDS tagging compliance"
-            },
-            "defaultValue": "Policing-Assistant"
-        },
-        "Owner": {
-            "type": "string",
-            "metadata": {
-                "description": "Owner contact for PDS tagging compliance (email address)"
-            }
-        },
-        "CostCentre": {
-            "type": "string",
-            "metadata": {
-                "description": "Cost centre code for PDS tagging compliance"
-            }
         }
     },
     "variables": {
-        "HostingPlanName": "[concat(parameters('ForceCode'), '-plan-policing-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
+        "HostingPlanName": "policing-app-plan",
         "HostingPlanSku": "B3",
-        "WebsiteName": "[parameters('WebAppName')]",
-        "ApplicationInsightsName": "[parameters('ApplicationInsightsName')]",
-        "AzureSearchService": "[parameters('SearchServiceName')]",
-        "AzureOpenAIResource": "[parameters('OpenAIServiceName')]",
-        "AzureSearchSku": "[parameters('SearchServiceSku')]",
-        "StorageAccountName": "[parameters('StorageAccountName')]",
-        "StorageContainerName": "[parameters('StorageContainerName')]",
-        "cosmosdb_account_name": "[parameters('CosmosDbAccountName')]",
+        "WebsiteName": "policing-assistant",
+        "ApplicationInsightsName": "policing-assistant-app-insights",
+        "AzureSearchService": "policing-assistant-search-service",
+        "AzureOpenAIResource": "[concat('policing-ai-', uniqueString(resourceGroup().id))]",
+        "AzureSearchSku": "standard",
+        "StorageAccountName": "stpolicing001",
+        "StorageContainerName": "docs",
+        "cosmosdb_account_name": "policingassistant-cosmos-db",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "00000000-0000-0000-0000-000000000003",
         "storageRoleAssignmentId": "00000000-0000-0000-0000-000000000004",
         "deploymentScriptUri": "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/setup_search_components.ps1",
+        "sampleDocumentScriptUri": "https://stbtpukssandopenai.blob.core.windows.net/policing-assistant-azure-deployment-template/copy_sample_document.ps1",
         "deployScriptIdentityName": "[concat(parameters('ForceCode'), '-deploy-identity-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "AzureOpenAIEmbeddingName": "[parameters('AzureOpenAIEmbeddingName')]",
         "AzureSearchDataSourceName": "[parameters('SearchDataSourceName')]",
@@ -230,6 +49,7 @@
         "AzureSearchIndexerName": "[parameters('SearchIndexerName')]",
         "AzureSearchSkillset1Name": "[concat(parameters('ForceCode'), '-skillset-1-', parameters('EnvironmentSuffix'))]",
         "AzureSearchSkillset2Name": "[concat(parameters('ForceCode'), '-skillset-2-', parameters('EnvironmentSuffix'))]",
+        "AzureSearchSkillset2Name": "police-skillset-2",
         "AzureSearchUseSemanticSearch": "true",
         "AzureSearchSemanticSearchConfig": "default",
         "AzureSearchIndexIsPrechunked": "false",
@@ -243,8 +63,8 @@
         "AzureOpenAITopP": "1.0",
         "AzureOpenAIMaxTokens": "2000",
         "AzureOpenAIStopSequence": "",
-        "AzureOpenAIModelName": "[parameters('AzureOpenAIModelName')]",
-        "AzureOpenAIModelDeploymentName": "[concat('gpt-deployment-', parameters('EnvironmentSuffix'))]",
+        "AzureOpenAIModelName": "gpt-4o",
+        "AzureOpenAIModelDeploymentName": "policingGptDeployment",
         "AzureOpenAISystemMessage": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
         "AzureOpenAIStream": true,
         "AzureOpenAISku": "S0",
@@ -276,7 +96,7 @@
             "apiVersion": "2020-06-01",
             "name": "[variables('WebsiteName')]",
             "type": "Microsoft.Web/sites",
-            "location": "[parameters('Location')]",
+            "location": "uksouth",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
                 "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
@@ -604,7 +424,7 @@
             "type": "Microsoft.CognitiveServices/accounts",
             "apiVersion": "2023-05-01",
             "name": "[variables('AzureOpenAIResource')]",
-            "location": "[parameters('Location')]",
+            "location": "uksouth",
             "kind": "OpenAI",
             "properties": {
                 "customSubDomainName": "[variables('AzureOpenAIResource')]",
@@ -630,7 +450,7 @@
             },
             "sku": {
                 "name": "GlobalStandard",
-                "capacity": 10
+                "capacity": 5
             }
         },
         {
@@ -650,13 +470,13 @@
             },
             "sku": {
                 "name": "GlobalStandard",
-                "capacity": 120
+                "capacity": 5
             }
         },
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-04-01",
-            "name": "[variables('StorageAccountName')]",
+            "name": "stpolicing001",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS"
@@ -664,6 +484,7 @@
             "kind": "StorageV2",
             "properties": {
                 "supportsHttpsTrafficOnly": true,
+                "allowBlobPublicAccess": true,
                 "encryption": {
                     "services": {
                         "file": {
@@ -676,6 +497,12 @@
                         }
                     },
                     "keySource": "Microsoft.Storage"
+                },
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
                 }
             }
         },
@@ -687,24 +514,28 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
+                "deleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                },
+                "changeFeed": {
+                    "enabled": false
+                },
                 "cors": {
                     "corsRules": []
-                },
-                "deleteRetentionPolicy": {
-                    "enabled": false
                 }
             }
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2021-04-01",
-            "name": "[concat(variables('StorageAccountName'), '/default/', variables('StorageContainerName'))]",
+            "name": "stpolicing001/default/docs",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('StorageAccountName'), 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
-                "publicAccess": "None"
+                "publicAccess": "Blob"
             }
         },
         {
@@ -758,6 +589,30 @@
         {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2020-10-01",
+            "name": "createSampleDocument",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('StorageAccountName'), 'default', variables('StorageContainerName'))]"
+            ],
+            "kind": "AzurePowerShell",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
+                }
+            },
+            "properties": {
+                "azPowerShellVersion": "6.4",
+                "timeout": "PT10M",
+                "arguments": "[concat('-storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -containerName \"', variables('StorageContainerName'), '\"')]",
+                "primaryScriptUri": "[variables('sampleDocumentScriptUri')]",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2020-10-01",
             "name": "setupSearchComponents",
             "location": "[resourceGroup().location]",
             "dependsOn": [
@@ -778,7 +633,7 @@
             "properties": {
                 "azPowerShellVersion": "6.4",
                 "timeout": "PT60M",
-                "arguments": "[concat('-SearchServiceName \"', variables('AzureSearchService'), '\" -SearchServiceSku \"', variables('AzureSearchSku'), '\" -SearchIndexName \"', variables('AzureSearchIndexName'), '\" -SearchIndexerName \"', variables('AzureSearchIndexerName'), '\" -SearchDataSourceName \"', variables('AzureSearchDataSourceName'), '\" -StorageAccountName \"', variables('StorageAccountName'), '\" -StorageContainerName \"', variables('StorageContainerName'), '\" -ResourceGroupName \"', resourceGroup().name, '\"')]",
+                "arguments": "[concat('-searchServiceName \"', variables('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', variables('AzureSearchDataSourceName'), '\" -indexName \"', variables('AzureSearchIndexName'), '\" -indexerName \"', variables('AzureSearchIndexerName'), '\" -skillset1Name \"', variables('AzureSearchSkillset1Name'), '\" -skillset2Name \"', variables('AzureSearchSkillset2Name'), '\" -storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', variables('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\" -openAIGptDeployment \"', variables('AzureOpenAIModelDeploymentName'), '\"')]",
                 "primaryScriptUri": "[variables('deploymentScriptUri')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
