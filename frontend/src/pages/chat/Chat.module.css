@@ -370,6 +370,43 @@ a {
   border-radius: 4px;
 }
 
+.clearChatButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+  min-width: 120px;
+}
+
+.clearChatButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.clearChatButton:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.clearChatButtonText {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 @media (max-width: 480px) {
   .chatInput {
     width: 90%;
@@ -394,5 +431,11 @@ a {
 
   .citationPanel {
     max-width: 100%;
+  }
+
+  .clearChatButton {
+    padding: 10px 20px;
+    font-size: 13px;
+    min-width: 100px;
   }
 }
