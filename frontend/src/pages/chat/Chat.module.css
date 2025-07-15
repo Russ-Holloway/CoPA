@@ -3,16 +3,15 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: calc(100vh - 100px);
 }
 
 .chatRoot {
   flex: 1;
   display: flex;
-  margin-top: 0px;
-  margin-bottom: 20px;
-  margin-left: 20px;
-  margin-right: 20px;
-  gap: 5px;
+  margin: 20px;
+  gap: 20px;
 }
 
 .chatContainer {
@@ -20,13 +19,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: radial-gradient(108.78% 108.78% at 50.02% 19.78%, #ffffff 57.29%, #eef6fe 100%);
-  box-shadow:
-    0px 2px 4px rgba(0, 0, 0, 0.14),
-    0px 0px 2px rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-  overflow-y: auto;
-  max-height: calc(100vh - 100px);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .chatEmptyState {
@@ -35,35 +33,39 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 60px 40px;
 }
 
 .chatEmptyStateTitle {
   font-style: normal;
   font-weight: 700;
-  font-size: 36px;
-  display: flex;
-  align-items: flex-end;
+  font-size: 32px;
   text-align: center;
-  line-height: 24px;
-  margin-top: 36px;
-  margin-bottom: 0px;
+  line-height: 40px;
+  margin: 24px 0 0 0;
+  color: #2c3e50;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .chatEmptyStateSubtitle {
-  margin-top: 20px;
+  margin-top: 16px;
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 150%;
-  align-items: flex-end;
+  font-size: 18px;
+  line-height: 28px;
   text-align: center;
   letter-spacing: -0.01em;
-  color: #616161;
+  color: #64748b;
+  max-width: 600px;
 }
 
 .chatIcon {
-  height: 62px;
+  height: 80px;
   width: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
 .chatMessageStream {
@@ -71,42 +73,40 @@
   max-width: 1028px;
   width: 100%;
   overflow-y: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  margin-top: 24px;
+  margin-top: 0;
 }
 
 .chatMessageUser {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .chatMessageUserMessage {
   position: relative;
   display: flex;
-  padding: 20px;
-  background: #edf5fd;
-  border-radius: 8px;
-  box-shadow:
-    0px 2px 4px rgba(0, 0, 0, 0.14),
-    0px 0px 2px rgba(0, 0, 0, 0.12);
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px 16px 4px 16px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #242424;
+  color: #ffffff;
+  max-width: 80%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   order: 0;
   flex-grow: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
-  max-width: 80%;
 }
 
 .chatMessageGpt {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   max-width: 80%;
   display: flex;
 }

@@ -2,59 +2,128 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
 }
 
 .header {
-  background-color: #f2f2f2;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
 }
 
 .headerContainer {
   display: flex;
-  justify-content: left;
+  justify-content: space-between;
   align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .headerTitleContainer {
   display: flex;
   align-items: center;
-  margin-left: 14px;
   text-decoration: none;
+  position: relative;
 }
 
 .headerTitle {
   font-style: normal;
-  font-weight: 600;
-  font-size: 20px;
-  line-height: 28px;
-  display: flex;
-  align-items: flex-end;
-  color: #242424;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 36px;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.headerSubtitle {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  margin-top: 4px;
+}
+
+.headerCustomSubtitle {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  margin-top: 2px;
+  font-style: italic;
 }
 
 .headerIcon {
-  height: 32px;
+  height: 48px;
   width: auto;
-  margin-left: 36px;
+  margin-right: 16px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.forceLogoContainer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.forceLogo {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .shareButtonContainer {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  margin-right: 20px;
+  align-items: center;
+  gap: 12px;
 }
 
 .shareButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 16px;
   color: #ffffff;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.shareButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .shareButtonText {
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  display: flex;
-  align-items: center;
   color: #ffffff;
 }
 
@@ -64,8 +133,11 @@
   font-size: 14px;
   line-height: 20px;
   color: #707070;
-  border: 1px solid #d1d1d1;
-  border-radius: 4px;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .copyButtonContainer {
@@ -74,38 +146,68 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 5px 12px;
-  gap: 4px;
+  padding: 12px 16px;
+  gap: 8px;
   background: #ffffff;
-  border: 1px solid #d1d1d1;
-  border-radius: 4px;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .copyButtonContainer:hover {
   cursor: pointer;
-  background: #d1d1d1;
+  background: #f8f9fa;
+  border-color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .copyButton {
-  color: #424242;
+  color: #667eea;
 }
 
 .copyButtonText {
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  display: flex;
-  align-items: center;
-  color: #242424;
+  color: #495057;
 }
 
 @media (max-width: 480px) {
+  .headerContainer {
+    padding: 0 16px;
+  }
+
   .headerTitleContainer {
-    margin-left: 4px;
+    margin-left: 0;
   }
 
   .headerIcon {
-    margin-left: 26px;
+    height: 36px;
+    margin-right: 12px;
+  }
+
+  .headerTitle {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .headerSubtitle {
+    font-size: 14px;
+  }
+
+  .headerCustomSubtitle {
+    font-size: 12px;
+  }
+
+  .shareButtonContainer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .forceLogo {
+    height: 32px;
   }
 }
