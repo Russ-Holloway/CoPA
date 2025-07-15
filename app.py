@@ -6,6 +6,7 @@ import uuid
 import httpx
 import asyncio
 import threading
+from functools import wraps
 from quart import (
     Blueprint,
     Quart,
@@ -43,6 +44,23 @@ from backend.utils import (
 bp = Blueprint("routes", __name__, static_folder="static", template_folder="static")
 
 cosmos_db_ready = asyncio.Event()
+
+
+def require_cosmos_db(f):
+    """Decorator to ensure CosmosDB is available before executing the function"""
+    @wraps(f)
+    async def decorated_function(*args, **kwargs):
+        # Check if CosmosDB is available
+        if not current_app.cosmos_conversation_client:
+            return jsonify({
+                "error": "Chat history is required for conversations. CosmosDB is not configured or not working properly. Please contact the site administrator."
+            }), 503  # Service Unavailable
+        
+        # Wait for CosmosDB to be ready
+        await cosmos_db_ready.wait()
+        
+        return await f(*args, **kwargs)
+    return decorated_function
 
 
 def create_app():
@@ -100,27 +118,6 @@ if DEBUG.lower() == "true":
     logging.basicConfig(level=logging.DEBUG)
 
 USER_AGENT = "GitHubSampleWebApp/AsyncAzureOpenAI/1.0.0"
-
-
-# Frontend Settings via Environment Variables
-frontend_settings = {
-    "auth_enabled": app_settings.base_settings.auth_enabled,
-    "feedback_enabled": (
-        app_settings.chat_history and
-        app_settings.chat_history.enable_feedback
-    ),
-    "ui": {
-        "title": app_settings.ui.title,
-        "logo": app_settings.ui.logo,
-        "chat_logo": app_settings.ui.chat_logo or app_settings.ui.logo,
-        "chat_title": app_settings.ui.chat_title,
-        "chat_description": app_settings.ui.chat_description,
-        "show_share_button": app_settings.ui.show_share_button,
-        "show_chat_history_button": app_settings.ui.show_chat_history_button,
-    },
-    "sanitize_answer": app_settings.base_settings.sanitize_answer,
-    "oyd_enabled": app_settings.base_settings.datasource_type,
-}
 
 
 # Enable Microsoft Defender for Cloud Integration
@@ -244,12 +241,13 @@ async def init_cosmosdb_client():
                 container_name=app_settings.chat_history.conversations_container,
                 enable_message_feedback=app_settings.chat_history.enable_feedback,
             )
+            logging.info("CosmosDB client initialized successfully")
         except Exception as e:
-            logging.exception("Exception in CosmosDB initialization", e)
+            logging.exception("Exception in CosmosDB initialization - Chat history will be disabled", e)
             cosmos_conversation_client = None
-            raise e
+            # Don't raise the exception, just log it and continue without chat history
     else:
-        logging.debug("CosmosDB not configured")
+        logging.debug("CosmosDB not configured - Chat history disabled")
 
     return cosmos_conversation_client
 
@@ -599,6 +597,7 @@ async def conversation_internal(request_body, request_headers):
 
 
 @bp.route("/conversation", methods=["POST"])
+@require_cosmos_db
 async def conversation():
     if not request.is_json:
         return jsonify({"error": "request must be json"}), 415
@@ -610,7 +609,36 @@ async def conversation():
 @bp.route("/frontend_settings", methods=["GET"])
 def get_frontend_settings():
     try:
-        return jsonify(frontend_settings), 200
+        # Dynamically check if CosmosDB is available
+        cosmos_available = (
+            hasattr(current_app, 'cosmos_conversation_client') and 
+            current_app.cosmos_conversation_client is not None
+        )
+        
+        # Create dynamic frontend settings
+        dynamic_settings = {
+            "auth_enabled": app_settings.base_settings.auth_enabled,
+            "feedback_enabled": (
+                app_settings.chat_history and
+                app_settings.chat_history.enable_feedback and
+                cosmos_available
+            ),
+            "ui": {
+                "title": app_settings.ui.title,
+                "logo": app_settings.ui.logo,
+                "chat_logo": app_settings.ui.chat_logo or app_settings.ui.logo,
+                "chat_title": app_settings.ui.chat_title,
+                "chat_description": app_settings.ui.chat_description,
+                "show_share_button": app_settings.ui.show_share_button,
+                "show_chat_history_button": app_settings.ui.show_chat_history_button and cosmos_available,
+            },
+            "sanitize_answer": app_settings.base_settings.sanitize_answer,
+            "oyd_enabled": app_settings.base_settings.datasource_type,
+            "chat_history_enabled": cosmos_available,
+            "chat_history_required": True,  # Indicate that chat history is required for conversations
+        }
+        
+        return jsonify(dynamic_settings), 200
     except Exception as e:
         logging.exception("Exception in /frontend_settings")
         return jsonify({"error": str(e)}), 500
@@ -618,8 +646,8 @@ def get_frontend_settings():
 
 ## Conversation History API ##
 @bp.route("/history/generate", methods=["POST"])
+@require_cosmos_db
 async def add_conversation():
-    await cosmos_db_ready.wait()
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
 
@@ -628,10 +656,6 @@ async def add_conversation():
     conversation_id = request_json.get("conversation_id", None)
 
     try:
-        # make sure cosmos is configured
-        if not current_app.cosmos_conversation_client:
-            raise Exception("CosmosDB is not configured or not working")
-
         # check for the conversation_id, if the conversation is not set, we will create a new one
         history_metadata = {}
         if not conversation_id:
@@ -654,13 +678,11 @@ async def add_conversation():
                 input_message=messages[-1],
             )
             if createdMessageValue == "Conversation not found":
-                raise Exception(
-                    "Conversation not found for the given conversation ID: "
-                    + conversation_id
-                    + "."
-                )
+                return jsonify({
+                    "error": f"Conversation not found for the given conversation ID: {conversation_id}"
+                }), 404
         else:
-            raise Exception("No user message found")
+            return jsonify({"error": "No user message found"}), 400
 
         # Submit request to Chat Completions for response
         request_body = await request.get_json()
@@ -670,12 +692,12 @@ async def add_conversation():
 
     except Exception as e:
         logging.exception("Exception in /history/generate")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Failed to process conversation history"}), 500
 
 
 @bp.route("/history/update", methods=["POST"])
+@require_cosmos_db
 async def update_conversation():
-    await cosmos_db_ready.wait()
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
 
@@ -684,13 +706,9 @@ async def update_conversation():
     conversation_id = request_json.get("conversation_id", None)
 
     try:
-        # make sure cosmos is configured
-        if not current_app.cosmos_conversation_client:
-            raise Exception("CosmosDB is not configured or not working")
-
         # check for the conversation_id, if the conversation is not set, we will create a new one
         if not conversation_id:
-            raise Exception("No conversation_id found")
+            return jsonify({"error": "No conversation_id found"}), 400
 
         ## Format the incoming message object in the "chat/completions" messages format
         ## then write it to the conversation history in cosmos
@@ -712,7 +730,7 @@ async def update_conversation():
                 input_message=messages[-1],
             )
         else:
-            raise Exception("No bot messages found")
+            return jsonify({"error": "No bot messages found"}), 400
 
         # Submit request to Chat Completions for response
         response = {"success": True}
@@ -720,12 +738,12 @@ async def update_conversation():
 
     except Exception as e:
         logging.exception("Exception in /history/update")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Failed to update conversation history"}), 500
 
 
 @bp.route("/history/message_feedback", methods=["POST"])
+@require_cosmos_db
 async def update_message():
-    await cosmos_db_ready.wait()
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
 
@@ -770,8 +788,8 @@ async def update_message():
 
 
 @bp.route("/history/delete", methods=["DELETE"])
+@require_cosmos_db
 async def delete_conversation():
-    await cosmos_db_ready.wait()
     ## get the user id from the request headers
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
@@ -783,10 +801,6 @@ async def delete_conversation():
     try:
         if not conversation_id:
             return jsonify({"error": "conversation_id is required"}), 400
-
-        ## make sure cosmos is configured
-        if not current_app.cosmos_conversation_client:
-            raise Exception("CosmosDB is not configured or not working")
 
         ## delete the conversation messages from cosmos first
         deleted_messages = await current_app.cosmos_conversation_client.delete_messages(
@@ -813,15 +827,11 @@ async def delete_conversation():
 
 
 @bp.route("/history/list", methods=["GET"])
+@require_cosmos_db
 async def list_conversations():
-    await cosmos_db_ready.wait()
     offset = request.args.get("offset", 0)
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
-
-    ## make sure cosmos is configured
-    if not current_app.cosmos_conversation_client:
-        raise Exception("CosmosDB is not configured or not working")
 
     ## get the conversations from cosmos
     conversations = await current_app.cosmos_conversation_client.get_conversations(
@@ -836,8 +846,8 @@ async def list_conversations():
 
 
 @bp.route("/history/read", methods=["POST"])
+@require_cosmos_db
 async def get_conversation():
-    await cosmos_db_ready.wait()
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
 
@@ -847,10 +857,6 @@ async def get_conversation():
 
     if not conversation_id:
         return jsonify({"error": "conversation_id is required"}), 400
-
-    ## make sure cosmos is configured
-    if not current_app.cosmos_conversation_client:
-        raise Exception("CosmosDB is not configured or not working")
 
     ## get the conversation object and the related messages from cosmos
     conversation = await current_app.cosmos_conversation_client.get_conversation(
@@ -888,8 +894,8 @@ async def get_conversation():
 
 
 @bp.route("/history/rename", methods=["POST"])
+@require_cosmos_db
 async def rename_conversation():
-    await cosmos_db_ready.wait()
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
 
@@ -899,10 +905,6 @@ async def rename_conversation():
 
     if not conversation_id:
         return jsonify({"error": "conversation_id is required"}), 400
-
-    ## make sure cosmos is configured
-    if not current_app.cosmos_conversation_client:
-        raise Exception("CosmosDB is not configured or not working")
 
     ## get the conversation from cosmos
     conversation = await current_app.cosmos_conversation_client.get_conversation(
@@ -931,18 +933,14 @@ async def rename_conversation():
 
 
 @bp.route("/history/delete_all", methods=["DELETE"])
+@require_cosmos_db
 async def delete_all_conversations():
-    await cosmos_db_ready.wait()
     ## get the user id from the request headers
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
 
     # get conversations for user
     try:
-        ## make sure cosmos is configured
-        if not current_app.cosmos_conversation_client:
-            raise Exception("CosmosDB is not configured or not working")
-
         conversations = await current_app.cosmos_conversation_client.get_conversations(
             user_id, offset=0, limit=None
         )
@@ -975,8 +973,8 @@ async def delete_all_conversations():
 
 
 @bp.route("/history/clear", methods=["POST"])
+@require_cosmos_db
 async def clear_messages():
-    await cosmos_db_ready.wait()
     ## get the user id from the request headers
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
@@ -988,10 +986,6 @@ async def clear_messages():
     try:
         if not conversation_id:
             return jsonify({"error": "conversation_id is required"}), 400
-
-        ## make sure cosmos is configured
-        if not current_app.cosmos_conversation_client:
-            raise Exception("CosmosDB is not configured or not working")
 
         ## delete the conversation messages from cosmos
         deleted_messages = await current_app.cosmos_conversation_client.delete_messages(
@@ -1013,8 +1007,8 @@ async def clear_messages():
 
 
 @bp.route("/history/ensure", methods=["GET"])
+@require_cosmos_db
 async def ensure_cosmos():
-    await cosmos_db_ready.wait()
     if not app_settings.chat_history:
         return jsonify({"error": "CosmosDB is not configured"}), 404
 
