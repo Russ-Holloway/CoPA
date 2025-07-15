@@ -1,6 +1,6 @@
 .questionInputContainer {
   height: auto;
-  min-height: 140px;
+  min-height: 160px;
   position: relative;
   margin: 20px 40px;
   background: #ffffff;
@@ -15,9 +15,9 @@
 
 .questionInputTextArea {
   width: calc(100% - 120px);
-  min-height: 100px;
+  min-height: 120px;
   margin: 24px 20px 24px 20px;
-  padding: 24px 28px;
+  padding: 28px 32px;
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 12px;
   font-size: 18px;
@@ -41,36 +41,37 @@
 }
 
 .questionInputSendButton {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 }
 
 .questionInputSendButton:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
 }
 
 .questionInputSendButtonDisabled {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
-  border: none;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: not-allowed;
   color: #94a3b8;
+  transition: all 0.3s ease;
 }
 
 .questionInputBottomBorder {
@@ -102,29 +103,29 @@
 @media (max-width: 480px) {
   .questionInputContainer {
     margin: 16px 20px;
-    min-height: 120px;
+    min-height: 140px;
     width: calc(100% - 40px);
   }
 
   .questionInputTextArea {
     font-size: 16px;
     line-height: 24px;
-    min-height: 80px;
-    padding: 20px 24px;
+    min-height: 100px;
+    padding: 24px 28px;
     width: calc(100% - 80px);
     margin: 20px;
   }
 
   .questionInputSendButton {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
   }
 
   .questionInputSendButtonDisabled {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
   }
   
   .questionInputSendButtonContainer {
