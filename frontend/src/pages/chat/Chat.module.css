@@ -39,9 +39,9 @@
 .chatEmptyStateTitle {
   font-style: normal;
   font-weight: 700;
-  font-size: 32px;
+  font-size: 48px;
   text-align: center;
-  line-height: 40px;
+  line-height: 56px;
   margin: 24px 0 0 0;
   color: #2c3e50;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -373,24 +373,24 @@ a {
 .clearChatButton {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 12px;
-  padding: 12px 24px;
+  border-radius: 16px;
+  padding: 14px 28px;
   color: #ffffff;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 16px 0;
-  min-width: 120px;
+  margin: 20px 0;
+  min-width: 140px;
 }
 
 .clearChatButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
 }
 
 .clearChatButton:disabled {
@@ -405,6 +405,42 @@ a {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 14px;
   font-weight: 500;
+}
+
+.chatEmptyStateLogo {
+  margin-bottom: 20px;
+}
+
+.customTaglinePlaceholder {
+  margin-top: 30px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.taglineInput {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.taglineInput:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #ffffff;
+}
+
+.taglineInput::placeholder {
+  color: rgba(102, 126, 234, 0.6);
+  font-style: italic;
 }
 
 @media (max-width: 480px) {
@@ -426,7 +462,8 @@ a {
   }
 
   .chatEmptyStateTitle {
-    line-height: 36px;
+    font-size: 36px;
+    line-height: 44px;
   }
 
   .citationPanel {
@@ -434,8 +471,17 @@ a {
   }
 
   .clearChatButton {
-    padding: 10px 20px;
-    font-size: 13px;
-    min-width: 100px;
+    padding: 12px 24px;
+    font-size: 14px;
+    min-width: 120px;
+  }
+
+  .taglineInput {
+    font-size: 14px;
+    padding: 14px 18px;
+  }
+
+  .customTaglinePlaceholder {
+    max-width: 90%;
   }
 }
