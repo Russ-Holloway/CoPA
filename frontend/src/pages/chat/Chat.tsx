@@ -49,6 +49,7 @@ const Chat = () => {
   const appStateContext = useContext(AppStateContext)
   const ui = appStateContext?.state.frontendSettings?.ui
   const AUTH_ENABLED = appStateContext?.state.frontendSettings?.auth_enabled
+  const isDeleteEnabled = appStateContext?.state.frontendSettings?.chat_history_delete_enabled ?? false
   const chatMessageStreamEnd = useRef<HTMLDivElement | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showLoadingMessage, setShowLoadingMessage] = useState<boolean>(false)
@@ -918,7 +919,7 @@ const Chat = () => {
                   }
                   iconProps={{ iconName: 'Broom' }}
                   onClick={
-                    appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured
+                    appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && isDeleteEnabled
                       ? clearChat
                       : newChat
                   }
