@@ -71,7 +71,6 @@ def create_app():
         search_setup_thread = threading.Thread(target=run_search_setup)
         search_setup_thread.daemon = True
         search_setup_thread.start()
-            raise e
     
     return app
 
