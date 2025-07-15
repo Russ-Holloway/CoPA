@@ -636,6 +636,7 @@ def get_frontend_settings():
             "oyd_enabled": app_settings.base_settings.datasource_type,
             "chat_history_enabled": cosmos_available,
             "chat_history_required": True,  # Indicate that chat history is required for conversations
+            "chat_history_delete_enabled": False,  # Disable delete functionality for chat history
         }
         
         return jsonify(dynamic_settings), 200
@@ -787,10 +788,9 @@ async def update_message():
         return jsonify({"error": str(e)}), 500
 
 
-@bp.route("/history/delete", methods=["DELETE"])
+@bp.route("/history/rename", methods=["POST"])
 @require_cosmos_db
-async def delete_conversation():
-    ## get the user id from the request headers
+async def rename_conversation():
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
 
@@ -798,32 +798,33 @@ async def delete_conversation():
     request_json = await request.get_json()
     conversation_id = request_json.get("conversation_id", None)
 
-    try:
-        if not conversation_id:
-            return jsonify({"error": "conversation_id is required"}), 400
+    if not conversation_id:
+        return jsonify({"error": "conversation_id is required"}), 400
 
-        ## delete the conversation messages from cosmos first
-        deleted_messages = await current_app.cosmos_conversation_client.delete_messages(
-            conversation_id, user_id
-        )
-
-        ## Now delete the conversation
-        deleted_conversation = await current_app.cosmos_conversation_client.delete_conversation(
-            user_id, conversation_id
-        )
-
+    ## get the conversation from cosmos
+    conversation = await current_app.cosmos_conversation_client.get_conversation(
+        user_id, conversation_id
+    )
+    if not conversation:
         return (
             jsonify(
                 {
-                    "message": "Successfully deleted conversation and messages",
-                    "conversation_id": conversation_id,
+                    "error": f"Conversation {conversation_id} was not found. It either does not exist or the logged in user does not have access to it."
                 }
             ),
-            200,
+            404,
         )
-    except Exception as e:
-        logging.exception("Exception in /history/delete")
-        return jsonify({"error": str(e)}), 500
+
+    ## update the title
+    title = request_json.get("title", None)
+    if not title:
+        return jsonify({"error": "title is required"}), 400
+    conversation["title"] = title
+    updated_conversation = await current_app.cosmos_conversation_client.upsert_conversation(
+        conversation
+    )
+
+    return jsonify(updated_conversation), 200
 
 
 @bp.route("/history/list", methods=["GET"])
@@ -891,119 +892,6 @@ async def get_conversation():
     ]
 
     return jsonify({"conversation_id": conversation_id, "messages": messages}), 200
-
-
-@bp.route("/history/rename", methods=["POST"])
-@require_cosmos_db
-async def rename_conversation():
-    authenticated_user = get_authenticated_user_details(request_headers=request.headers)
-    user_id = authenticated_user["user_principal_id"]
-
-    ## check request for conversation_id
-    request_json = await request.get_json()
-    conversation_id = request_json.get("conversation_id", None)
-
-    if not conversation_id:
-        return jsonify({"error": "conversation_id is required"}), 400
-
-    ## get the conversation from cosmos
-    conversation = await current_app.cosmos_conversation_client.get_conversation(
-        user_id, conversation_id
-    )
-    if not conversation:
-        return (
-            jsonify(
-                {
-                    "error": f"Conversation {conversation_id} was not found. It either does not exist or the logged in user does not have access to it."
-                }
-            ),
-            404,
-        )
-
-    ## update the title
-    title = request_json.get("title", None)
-    if not title:
-        return jsonify({"error": "title is required"}), 400
-    conversation["title"] = title
-    updated_conversation = await current_app.cosmos_conversation_client.upsert_conversation(
-        conversation
-    )
-
-    return jsonify(updated_conversation), 200
-
-
-@bp.route("/history/delete_all", methods=["DELETE"])
-@require_cosmos_db
-async def delete_all_conversations():
-    ## get the user id from the request headers
-    authenticated_user = get_authenticated_user_details(request_headers=request.headers)
-    user_id = authenticated_user["user_principal_id"]
-
-    # get conversations for user
-    try:
-        conversations = await current_app.cosmos_conversation_client.get_conversations(
-            user_id, offset=0, limit=None
-        )
-        if not conversations:
-            return jsonify({"error": f"No conversations for {user_id} were found"}), 404
-
-        # delete each conversation
-        for conversation in conversations:
-            ## delete the conversation messages from cosmos first
-            deleted_messages = await current_app.cosmos_conversation_client.delete_messages(
-                conversation["id"], user_id
-            )
-
-            ## Now delete the conversation
-            deleted_conversation = await current_app.cosmos_conversation_client.delete_conversation(
-                user_id, conversation["id"]
-            )
-        return (
-            jsonify(
-                {
-                    "message": f"Successfully deleted conversation and messages for user {user_id}"
-                }
-            ),
-            200,
-        )
-
-    except Exception as e:
-        logging.exception("Exception in /history/delete_all")
-        return jsonify({"error": str(e)}), 500
-
-
-@bp.route("/history/clear", methods=["POST"])
-@require_cosmos_db
-async def clear_messages():
-    ## get the user id from the request headers
-    authenticated_user = get_authenticated_user_details(request_headers=request.headers)
-    user_id = authenticated_user["user_principal_id"]
-
-    ## check request for conversation_id
-    request_json = await request.get_json()
-    conversation_id = request_json.get("conversation_id", None)
-
-    try:
-        if not conversation_id:
-            return jsonify({"error": "conversation_id is required"}), 400
-
-        ## delete the conversation messages from cosmos
-        deleted_messages = await current_app.cosmos_conversation_client.delete_messages(
-            conversation_id, user_id
-        )
-
-        return (
-            jsonify(
-                {
-                    "message": "Successfully deleted messages in conversation",
-                    "conversation_id": conversation_id,
-                }
-            ),
-            200,
-        )
-    except Exception as e:
-        logging.exception("Exception in /history/clear_messages")
-        return jsonify({"error": str(e)}), 500
 
 
 @bp.route("/history/ensure", methods=["GET"])
