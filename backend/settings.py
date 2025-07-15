@@ -50,6 +50,9 @@ class _UiSettings(BaseSettings):
     favicon: str = "/favicon.ico"
     show_share_button: bool = True
     show_chat_history_button: bool = True
+    # Police force specific settings
+    police_force_logo: Optional[str] = None
+    police_force_tagline: Optional[str] = None
 
 
 class _ChatHistorySettings(BaseSettings):

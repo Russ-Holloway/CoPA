@@ -132,6 +132,9 @@ export type UI = {
   subtitle?: string
   show_share_button?: boolean
   show_chat_history_button?: boolean
+  is_admin?: boolean
+  police_force_logo?: string
+  police_force_tagline?: string
 }
 
 export type FrontendSettings = {
