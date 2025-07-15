@@ -10,7 +10,7 @@ body {
 }
 
 html {
-  background: #f2f2f2;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   font-family:
     'Segoe UI',
     'Segoe UI Web (West European)',
@@ -26,4 +26,45 @@ html {
 
 #root {
   height: 100%;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+/* Modern button styling */
+.ms-Button {
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.ms-Button:hover {
+  transform: translateY(-1px) !important;
+}
+
+/* Modern input styling */
+.ms-TextField-field {
+  border-radius: 8px !important;
+  border: 1px solid rgba(102, 126, 234, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.ms-TextField-field:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
 }

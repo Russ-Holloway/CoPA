@@ -5,6 +5,7 @@ import { CopyRegular } from '@fluentui/react-icons'
 
 import { CosmosDBStatus } from '../../api'
 import Contoso from '../../assets/Contoso.svg'
+import ForceLogo from '../../assets/ForceLogo.svg'
 import { HistoryButton, ShareButton } from '../../components/common/Button'
 import { AppStateContext } from '../../state/AppProvider'
 
@@ -18,6 +19,7 @@ const Layout = () => {
   const [hideHistoryLabel, setHideHistoryLabel] = useState<string>('Hide chat history')
   const [showHistoryLabel, setShowHistoryLabel] = useState<string>('Show chat history')
   const [logo, setLogo] = useState('')
+  const [forceLogo, setForceLogo] = useState('')
   const appStateContext = useContext(AppStateContext)
   const ui = appStateContext?.state.frontendSettings?.ui
 
@@ -43,6 +45,8 @@ const Layout = () => {
   useEffect(() => {
     if (!appStateContext?.state.isLoading) {
       setLogo(ui?.logo || Contoso)
+      // Set the force logo - always show it for now
+      setForceLogo(ForceLogo)
     }
   }, [appStateContext?.state.isLoading])
 
@@ -76,23 +80,29 @@ const Layout = () => {
   return (
     <div className={styles.layout}>
       <header className={styles.header} role={'banner'}>
-        <Stack horizontal verticalAlign="center" horizontalAlign="space-between">
-          <Stack horizontal verticalAlign="center">
+        <div className={styles.headerContainer}>
+          <div className={styles.headerTitleContainer}>
             <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
-            <Link to="/" className={styles.headerTitleContainer}>
-              <h1 className={styles.headerTitle}>{ui?.title}</h1>
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <h1 className={styles.headerTitle}>CoPPA Analytics Dashboard</h1>
+              <p className={styles.headerSubtitle}>Real Time Insights into User Interactions</p>
             </Link>
-          </Stack>
-          <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
-            {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
-              <HistoryButton
-                onClick={handleHistoryClick}
-                text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
-              />
+          </div>
+          <div className={styles.forceLogoContainer}>
+            <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
+              {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
+                <HistoryButton
+                  onClick={handleHistoryClick}
+                  text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
+                />
+              )}
+              {ui?.show_share_button && <ShareButton onClick={handleShareClick} text={shareLabel} />}
+            </Stack>
+            {forceLogo && (
+              <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
             )}
-            {ui?.show_share_button && <ShareButton onClick={handleShareClick} text={shareLabel} />}
-          </Stack>
-        </Stack>
+          </div>
+        </div>
       </header>
       <Outlet />
       <Dialog
