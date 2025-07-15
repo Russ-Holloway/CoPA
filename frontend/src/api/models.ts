@@ -139,6 +139,9 @@ export type FrontendSettings = {
   ui?: UI
   sanitize_answer?: boolean
   oyd_enabled?: boolean
+  chat_history_enabled?: boolean
+  chat_history_required?: boolean
+  chat_history_delete_enabled?: boolean
 }
 
 export enum Feedback {

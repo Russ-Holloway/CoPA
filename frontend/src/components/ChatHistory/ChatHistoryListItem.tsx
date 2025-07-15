@@ -62,6 +62,7 @@ export const ChatHistoryListItemCell: React.FC<ChatHistoryListItemCellProps> = (
 
   const appStateContext = React.useContext(AppStateContext)
   const isSelected = item?.id === appStateContext?.state.currentChat?.id
+  const isDeleteEnabled = appStateContext?.state.frontendSettings?.chat_history_delete_enabled ?? false
   const dialogContentProps = {
     type: DialogType.close,
     title: 'Are you sure you want to delete this item?',
@@ -250,13 +251,15 @@ export const ChatHistoryListItemCell: React.FC<ChatHistoryListItemCellProps> = (
             <div className={styles.chatTitle}>{truncatedTitle}</div>
             {(isSelected || isHovered) && (
               <Stack horizontal horizontalAlign="end">
-                <IconButton
-                  className={styles.itemButton}
-                  iconProps={{ iconName: 'Delete' }}
-                  title="Delete"
-                  onClick={toggleDeleteDialog}
-                  onKeyDown={e => (e.key === ' ' ? toggleDeleteDialog() : null)}
-                />
+                {isDeleteEnabled && (
+                  <IconButton
+                    className={styles.itemButton}
+                    iconProps={{ iconName: 'Delete' }}
+                    title="Delete"
+                    onClick={toggleDeleteDialog}
+                    onKeyDown={e => (e.key === ' ' ? toggleDeleteDialog() : null)}
+                  />
+                )}
                 <IconButton
                   className={styles.itemButton}
                   iconProps={{ iconName: 'Edit' }}
@@ -269,7 +272,7 @@ export const ChatHistoryListItemCell: React.FC<ChatHistoryListItemCellProps> = (
           </Stack>
         </>
       )}
-      {errorDelete && (
+      {errorDelete && isDeleteEnabled && (
         <Text
           styles={{
             root: { color: 'red', marginTop: 5, fontSize: 14 }
@@ -277,16 +280,18 @@ export const ChatHistoryListItemCell: React.FC<ChatHistoryListItemCellProps> = (
           Error: could not delete item
         </Text>
       )}
-      <Dialog
-        hidden={hideDeleteDialog}
-        onDismiss={toggleDeleteDialog}
-        dialogContentProps={dialogContentProps}
-        modalProps={modalProps}>
-        <DialogFooter>
-          <PrimaryButton onClick={onDelete} text="Delete" />
-          <DefaultButton onClick={toggleDeleteDialog} text="Cancel" />
-        </DialogFooter>
-      </Dialog>
+      {isDeleteEnabled && (
+        <Dialog
+          hidden={hideDeleteDialog}
+          onDismiss={toggleDeleteDialog}
+          dialogContentProps={dialogContentProps}
+          modalProps={modalProps}>
+          <DialogFooter>
+            <PrimaryButton onClick={onDelete} text="Delete" />
+            <DefaultButton onClick={toggleDeleteDialog} text="Cancel" />
+          </DialogFooter>
+        </Dialog>
+      )}
     </Stack>
   )
 }
