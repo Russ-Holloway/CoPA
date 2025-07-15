@@ -958,27 +958,44 @@ async def generate_title(conversation_messages) -> str:
         return messages[-2]["content"]
 
 
-# Disabled delete endpoints - return user-friendly messages instead of errors
+# Disabled delete endpoints - return 403 Forbidden to prevent UI confusion
 @bp.route("/history/delete", methods=["DELETE"])
 async def delete_conversation_disabled():
-    """Disabled delete endpoint - returns user-friendly message"""
+    """Disabled delete endpoint - returns 403 Forbidden to prevent UI confusion"""
+    # Extract conversation_id from request if present for logging
+    try:
+        request_json = await request.get_json()
+        conversation_id = request_json.get("conversation_id", "unknown")
+        logging.info(f"Blocked delete request for conversation {conversation_id}")
+    except:
+        logging.info("Blocked delete request (no conversation_id)")
+    
     return jsonify({
-        "message": "Chat history deletion has been disabled by the administrator. Your conversation history is preserved for your records."
-    }), 200
+        "error": "Chat history deletion has been disabled by the administrator. Your conversation history is preserved for your records."
+    }), 403
 
 @bp.route("/history/delete_all", methods=["DELETE"])
 async def delete_all_conversations_disabled():
-    """Disabled delete all endpoint - returns user-friendly message"""
+    """Disabled delete all endpoint - returns 403 Forbidden to prevent UI confusion"""
+    logging.info("Blocked delete all request")
     return jsonify({
-        "message": "Chat history deletion has been disabled by the administrator. Your conversation history is preserved for your records."
-    }), 200
+        "error": "Chat history deletion has been disabled by the administrator. Your conversation history is preserved for your records."
+    }), 403
 
 @bp.route("/history/clear", methods=["POST"])
 async def clear_messages_disabled():
-    """Disabled clear messages endpoint - returns user-friendly message"""
+    """Disabled clear messages endpoint - returns 403 Forbidden to prevent UI confusion"""
+    # Extract conversation_id from request if present for logging
+    try:
+        request_json = await request.get_json()
+        conversation_id = request_json.get("conversation_id", "unknown")
+        logging.info(f"Blocked clear request for conversation {conversation_id}")
+    except:
+        logging.info("Blocked clear request (no conversation_id)")
+    
     return jsonify({
-        "message": "Chat history clearing has been disabled by the administrator. Your conversation history is preserved for your records."
-    }), 200
+        "error": "Chat history clearing has been disabled by the administrator. Your conversation history is preserved for your records."
+    }), 403
 
 
 app = create_app()
