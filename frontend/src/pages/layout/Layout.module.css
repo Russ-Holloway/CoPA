@@ -36,12 +36,17 @@
   position: relative;
   z-index: 1;
   height: 100%;
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.8) 0%, rgba(102, 126, 234, 0.6) 70%, rgba(102, 126, 234, 0.3) 100%);
+  border-radius: 0;
 }
 
 .headerLeftLogo {
   display: flex;
   align-items: center;
   height: 100%;
+  position: absolute;
+  left: 20px;
+  z-index: 2;
 }
 
 .headerCenterContent {
@@ -57,6 +62,9 @@
   align-items: center;
   gap: 16px;
   height: 100%;
+  position: absolute;
+  right: 20px;
+  z-index: 2;
 }
 
 .headerTitle {

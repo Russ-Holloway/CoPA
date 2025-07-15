@@ -461,3 +461,31 @@ After successful deployment:
 4. **Check Application Insights**
    - Verify telemetry is being collected
    - Check for any errors or warnings
+
+---
+
+## Police Force Customization
+
+CoPPA now supports environment variable-based customization for police force branding. This allows Azure administrators to easily configure:
+
+- **Police Force Logo**: Custom logo displayed in the header (admin-only visible)
+- **Police Force Tagline**: Custom tagline for the police force (admin-only visible)
+
+### Environment Variables
+
+```bash
+# Police Force Logo URL
+UI_POLICE_FORCE_LOGO=https://your-storage.blob.core.windows.net/images/force-logo.png
+
+# Police Force Custom Tagline
+UI_POLICE_FORCE_TAGLINE=Serving and Protecting Our Community
+```
+
+### Key Features
+
+- **Admin-Only Visibility**: Both logo and tagline are only visible to users with admin permissions
+- **Environment Variable Based**: Easy to configure through Azure App Service settings
+- **Fallback Support**: Falls back to defaults if environment variables are not set
+- **Multiple Hosting Options**: Supports Azure Blob Storage, CDN, or base64 encoded images
+
+For detailed configuration instructions, see [docs/police-force-customization.md](docs/police-force-customization.md)

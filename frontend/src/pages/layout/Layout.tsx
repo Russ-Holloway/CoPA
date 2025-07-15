@@ -45,8 +45,8 @@ const Layout = () => {
   useEffect(() => {
     if (!appStateContext?.state.isLoading) {
       setLogo(ui?.logo || Contoso)
-      // Set the force logo - always show it for now
-      setForceLogo(ForceLogo)
+      // Set the force logo from environment variable or fallback to default
+      setForceLogo(ui?.police_force_logo || ForceLogo)
     }
   }, [appStateContext?.state.isLoading])
 
@@ -88,8 +88,9 @@ const Layout = () => {
             <Link to="/" style={{ textDecoration: 'none' }}>
               <h1 className={styles.headerTitle}>CoPPA</h1>
               <p className={styles.headerSubtitle}>CoPPA is configured to assist with policing queries and provide guidance from official sources</p>
-              {ui?.subtitle && (
-                <p className={styles.headerCustomSubtitle}>{ui.subtitle}</p>
+              {/* Custom tagline only visible to admins */}
+              {ui?.is_admin && ui?.police_force_tagline && (
+                <p className={styles.headerCustomSubtitle}>{ui.police_force_tagline}</p>
               )}
             </Link>
           </div>
@@ -100,7 +101,10 @@ const Layout = () => {
                 text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
               />
             )}
-            <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
+            {/* Police Force logo only visible to admins */}
+            {ui?.is_admin && forceLogo && (
+              <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
+            )}
           </div>
         </div>
       </header>

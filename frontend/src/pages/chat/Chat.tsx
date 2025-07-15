@@ -766,14 +766,6 @@ const Chat = () => {
                 <div className={styles.chatEmptyStateLogo}>
                   <h1 className={styles.chatEmptyStateTitle}>CoPPA</h1>
                 </div>
-                <h2 className={styles.chatEmptyStateSubtitle}>{ui?.chat_description}</h2>
-                <div className={styles.customTaglinePlaceholder}>
-                  <input 
-                    type="text" 
-                    placeholder="Enter your custom tagline here..." 
-                    className={styles.taglineInput}
-                  />
-                </div>
               </Stack>
             ) : (
               <div className={styles.chatMessageStream} style={{ marginBottom: isLoading ? '40px' : '0px' }} role="log">

@@ -371,7 +371,7 @@ a {
 }
 
 .clearChatButton {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   border: none;
   border-radius: 16px;
   padding: 14px 28px;
@@ -380,7 +380,7 @@ a {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -390,7 +390,8 @@ a {
 
 .clearChatButton:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .clearChatButton:disabled {
