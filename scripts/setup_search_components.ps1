@@ -1,509 +1,222 @@
-# Bulletproof Setup Search Components Script for ARM Template Deployment
-# This script is designed to run reliably in the ARM template deployment environment
-# with comprehensive error handling and retry logic
-
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$searchServiceName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$searchServiceKey,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$dataSourceName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$indexName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$indexerName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$skillset1Name,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$skillset2Name,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$storageAccountName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$storageAccountKey,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$storageContainerName,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$openAIEndpoint,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$openAIKey,
-    
-    [Parameter(Mandatory = $true)]
-    [string]$openAIEmbeddingDeployment,
-    
-    [Parameter(Mandatory = $false)]
-    [string]$openAIGptDeployment = "gpt-4o"
+    [Parameter(Mandatory=$true)]
+    [string] $SearchServiceName,
+    [Parameter(Mandatory=$true)]
+    [string] $SearchServiceSku,
+    [Parameter(Mandatory=$true)]
+    [string] $SearchIndexName,
+    [Parameter(Mandatory=$true)]
+    [string] $SearchIndexerName,
+    [Parameter(Mandatory=$true)]
+    [string] $SearchDataSourceName,
+    [Parameter(Mandatory=$true)]
+    [string] $StorageAccountName,
+    [Parameter(Mandatory=$true)]
+    [string] $StorageContainerName,
+    [Parameter(Mandatory=$true)]
+    [string] $ResourceGroupName
 )
 
-# Set error action preference for better error handling
-$ErrorActionPreference = "Continue"
-
-Write-Output "=== Policing Assistant Search Setup Script ==="
-Write-Output "Search Service: $searchServiceName"
-Write-Output "Storage Account: $storageAccountName"
-Write-Output "OpenAI Endpoint: $openAIEndpoint"
-Write-Output "Embedding Deployment: $openAIEmbeddingDeployment"
-Write-Output ""
-
-# Set constants
-$searchApiVersion = "2023-11-01"  # Updated API version
-$searchServiceEndpoint = "https://$searchServiceName.search.windows.net"
-$headers = @{
-    "Content-Type" = "application/json"
-    "api-key"      = $searchServiceKey
-}
-
-# Retry function for better reliability
-function Invoke-WithRetry {
-    param(
-        [scriptblock]$ScriptBlock,
-        [string]$Operation,
-        [int]$MaxRetries = 5,
-        [int]$DelaySeconds = 30
-    )
-    
-    for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
-        try {
-            Write-Output "[$Operation] Attempt $attempt of $MaxRetries"
-            $result = & $ScriptBlock
-            Write-Output "[$Operation] Success on attempt $attempt"
-            return $result
-        }
-        catch {
-            Write-Output "[$Operation] Attempt $attempt failed: $($_.Exception.Message)"
-            if ($attempt -eq $MaxRetries) {
-                Write-Output "[$Operation] All attempts failed. Last error: $($_.Exception.Message)"
-                throw $_
-            }
-            Write-Output "[$Operation] Waiting $DelaySeconds seconds before retry..."
-            Start-Sleep -Seconds $DelaySeconds
-        }
-    }
-}
-
-# Wait for OpenAI deployment to be ready
-function Wait-ForOpenAIDeployment {
-    param([string]$deploymentName, [int]$timeoutMinutes = 20)
-    
-    Write-Output "Waiting for OpenAI deployment '$deploymentName' to be ready..."
-    $timeoutTime = (Get-Date).AddMinutes($timeoutMinutes)
-    
-    while ((Get-Date) -lt $timeoutTime) {
-        try {
-            $openAIHeaders = @{ "api-key" = $openAIKey }
-            $deploymentsUri = "$openAIEndpoint/openai/deployments?api-version=2023-12-01-preview"
-            $deployments = Invoke-RestMethod -Method GET -Uri $deploymentsUri -Headers $openAIHeaders -TimeoutSec 30
-            
-            foreach ($deployment in $deployments.data) {
-                if ($deployment.id -eq $deploymentName -and $deployment.status -eq "succeeded") {
-                    Write-Output "✓ OpenAI deployment '$deploymentName' is ready"
-                    return $true
-                }
-            }
-            
-            Write-Output "⏳ OpenAI deployment '$deploymentName' not ready yet, waiting..."
-            Start-Sleep -Seconds 60
-        }
-        catch {
-            Write-Output "⏳ Waiting for OpenAI service to be accessible..."
-            Start-Sleep -Seconds 60
-        }
-    }
-    
-    Write-Output "⚠ OpenAI deployment '$deploymentName' not confirmed ready within timeout, proceeding anyway"
-    return $false
-}
-
-# Helper function to make Search REST API calls
-function Invoke-SearchREST {
-    param(
-        [string]$Method,
-        [string]$Uri,
-        [object]$Body = $null,
-        [string]$Operation = "API Call"
-    )
-    
-    $params = @{
-        Method      = $Method
-        Uri         = $Uri
-        Headers     = $headers
-        ContentType = "application/json"
-        TimeoutSec  = 60
-    }
-    
-    if ($Body) {
-        $params.Body = ConvertTo-Json -InputObject $Body -Depth 20
-    }
-    
-    try {
-        Write-Output "[$Operation] $Method $Uri"
-        $response = Invoke-RestMethod @params
-        Write-Output "[$Operation] Success"
-        return $response
-    }
-    catch {
-        $statusCode = "Unknown"
-        $errorMessage = $_.Exception.Message
-        
-        if ($_.Exception.Response) {
-            $statusCode = [int]$_.Exception.Response.StatusCode
-            if ($_.Exception.Response.GetResponseStream) {
-                try {
-                    $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
-                    $responseText = $reader.ReadToEnd()
-                    Write-Output "[$Operation] Error Response: $responseText"
-                }
-                catch {
-                    Write-Output "[$Operation] Could not read error response"
-                }
-            }
-        }
-        
-        Write-Output "[$Operation] Failed with status $statusCode`: $errorMessage"
-        throw $_
-    }
-}
-
-# Main execution with comprehensive error handling
+ 
+# Set error action preference to stop on error
+$ErrorActionPreference = "Stop"
+ 
 try {
-    Write-Output ""
-    Write-Output "=== Phase 1: Connectivity Tests ==="
-    
-    # Test Search Service connectivity
-    Invoke-WithRetry -Operation "Search Service Test" -ScriptBlock {
-        $testUri = "$searchServiceEndpoint/indexes?api-version=$searchApiVersion"
-        Invoke-RestMethod -Method GET -Uri $testUri -Headers $headers -TimeoutSec 30 | Out-Null
-        Write-Output "✓ Search service is accessible"
+    # Get the search service admin API key
+    Write-Host "Getting search service admin API key..."
+    $searchService = Get-AzResource -ResourceType 'Microsoft.Search/searchServices' -ResourceName $SearchServiceName -ResourceGroupName $ResourceGroupName
+    if (-not $searchService) {
+        throw "Search service '$SearchServiceName' not found in resource group '$ResourceGroupName'."
     }
-    
-    # Wait for and test OpenAI deployment
-    Invoke-WithRetry -Operation "OpenAI Service Test" -ScriptBlock {
-        Wait-ForOpenAIDeployment -deploymentName $openAIEmbeddingDeployment -timeoutMinutes 15
-        Write-Output "✓ OpenAI service is accessible"
+    $adminKeyResponse = Invoke-AzRestMethod -Uri "https://management.azure.com$($searchService.ResourceId)/listAdminKeys?api-version=2023-11-01" -Method Post
+    $adminKey = ($adminKeyResponse.Content | ConvertFrom-Json).primaryKey
+    if (-not $adminKey) {
+        throw "Failed to retrieve admin key for search service '$SearchServiceName'."
     }
-    
-    Write-Output ""
-    Write-Output "=== Phase 2: Create Search Components ==="
-    
-    # 1. Create Data Source
-    Write-Output "Creating data source..."
-    $dataSource = @{
-        name = $dataSourceName
-        type = "azureblob"
+ 
+    # Get storage account key
+    Write-Host "Getting storage account key..."
+    $storageKeys = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName
+    if (-not $storageKeys -or $storageKeys.Count -eq 0) {
+        throw "Failed to retrieve keys for storage account '$StorageAccountName'."
+    }
+    $storageKey = $storageKeys[0].Value
+
+ 
+    # Create data source
+    Write-Host "Creating data source '$SearchDataSourceName'..."
+    $dataSourceDefinition = @{
+        name = $SearchDataSourceName
+        type = 'azureblob'
         credentials = @{
-            connectionString = "DefaultEndpointsProtocol=https;AccountName=$storageAccountName;AccountKey=$storageAccountKey;EndpointSuffix=core.windows.net"
+            connectionString = "DefaultEndpointsProtocol=https;AccountName=$StorageAccountName;AccountKey=$storageKey;EndpointSuffix=core.windows.net"
         }
         container = @{
-            name = $storageContainerName
+            name = $StorageContainerName
         }
     }
-    
-    Invoke-WithRetry -Operation "Create Data Source" -ScriptBlock {
-        $dataSourceUri = "$searchServiceEndpoint/datasources/$dataSourceName" + "?api-version=$searchApiVersion"
-        Invoke-SearchREST -Method "PUT" -Uri $dataSourceUri -Body $dataSource -Operation "Data Source Creation"
+    $dataSourcePayload = $dataSourceDefinition | ConvertTo-Json -Depth 10
+    $dataSourceHeaders = @{
+        'api-key' = $adminKey
+        'Content-Type' = 'application/json'
     }
-    
-    # 2. Create Index with updated vector search syntax
-    Write-Output "Creating search index..."
-    $index = @{
-        name = $indexName
+    $dataSourceResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/datasources/$SearchDataSourceName`?api-version=2023-11-01" -Method Put -Headers $dataSourceHeaders -Body $dataSourcePayload
+    Write-Host "Data source created successfully."
+ 
+    # Create index
+    Write-Host "Creating index '$SearchIndexName'..."
+    $indexDefinition = @{
+        name = $SearchIndexName
         fields = @(
             @{
-                name = "id"
-                type = "Edm.String"
+                name = 'id'
+                type = 'Edm.String'
                 key = $true
                 searchable = $false
-                filterable = $false
-                sortable = $false
-                facetable = $false
+                retrievable = $true
             },
             @{
-                name = "content"
-                type = "Edm.String"
+                name = 'content'
+                type = 'Edm.String'
                 searchable = $true
                 filterable = $false
                 sortable = $false
                 facetable = $false
-                analyzer = "en.microsoft"
+                retrievable = $true
+                analyzer = 'standard.lucene'
             },
             @{
-                name = "title"
-                type = "Edm.String"
-                searchable = $true
-                filterable = $true
-                sortable = $true
-                facetable = $false
-                analyzer = "en.microsoft"
-            },
-            @{
-                name = "url"
-                type = "Edm.String"
-                searchable = $false
-                filterable = $false
-                sortable = $false
-                facetable = $false
-            },
-            @{
-                name = "filename"
-                type = "Edm.String"
-                searchable = $true
-                filterable = $true
-                sortable = $true
-                facetable = $false
-            },
-            @{
-                name = "metadata_author"
-                type = "Edm.String"
-                searchable = $true
-                filterable = $true
-                sortable = $false
-                facetable = $false
-            },
-            @{
-                name = "metadata_creation_date"
-                type = "Edm.DateTimeOffset"
+                name = 'url'
+                type = 'Edm.String'
                 searchable = $false
                 filterable = $true
                 sortable = $true
                 facetable = $false
+                retrievable = $true
             },
             @{
-                name = "contentVector"
-                type = "Collection(Edm.Single)"
+                name = 'filepath'
+                type = 'Edm.String'
+                searchable = $false
+                filterable = $true
+                sortable = $true
+                facetable = $false
+                retrievable = $true
+            },
+            @{
+                name = 'title'
+                type = 'Edm.String'
                 searchable = $true
+                filterable = $true
+                sortable = $true
+                facetable = $true
+                retrievable = $true
+            },
+            @{
+                name = 'meta_json_string'
+                type = 'Edm.String'
+                searchable = $false
                 filterable = $false
                 sortable = $false
                 facetable = $false
-                vectorSearchDimensions = 1536
-                vectorSearchProfileName = "my-vector-profile"
+                retrievable = $true
+            },
+            @{
+                name = 'contentVector'
+                type = 'Collection(Edm.Single)'
+                searchable = $true
+                retrievable = $true
+                dimensions = 1536
+                vectorSearchConfiguration = 'my-vector-config'
             }
-        )
+        ),
         vectorSearch = @{
-            profiles = @(
+            algorithmConfigurations = @(
                 @{
-                    name = "my-vector-profile"
-                    algorithm = "my-hnsw-vector-config-1"
-                }
-            )
-            algorithms = @(
-                @{
-                    name = "my-hnsw-vector-config-1"
-                    kind = "hnsw"
-                    hnswParameters = @{
+                    name = 'my-vector-config'
+                    kind = 'hnsw'
+                    parameters = @{
                         m = 4
                         efConstruction = 400
                         efSearch = 500
-                        metric = "cosine"
-                    }
-                }
-            )
-        }
-        semantic = @{
-            configurations = @(
-                @{
-                    name = "default"
-                    prioritizedFields = @{
-                        titleField = @{
-                            fieldName = "title"
-                        }
-                        contentFields = @(
-                            @{
-                                fieldName = "content"
-                            }
-                        )
+                        metric = 'cosine'
                     }
                 }
             )
         }
     }
-    
-    Invoke-WithRetry -Operation "Create Index" -ScriptBlock {
-        $indexUri = "$searchServiceEndpoint/indexes/$indexName" + "?api-version=$searchApiVersion"
-        Invoke-SearchREST -Method "PUT" -Uri $indexUri -Body $index -Operation "Index Creation"
+    $indexPayload = $indexDefinition | ConvertTo-Json -Depth 10
+    $indexHeaders = @{
+        'api-key' = $adminKey
+        'Content-Type' = 'application/json'
     }
-    
-    # 3. Create Skillset - Simple and reliable
-    Write-Output "Creating skillset..."
-    $skillset = @{
-        name = $skillset1Name
-        description = "Policing Assistant skillset for document processing"
-        skills = @(
-            @{
-                "@odata.type" = "#Microsoft.Skills.Text.SplitSkill"
-                name = "split-text"
-                description = "Split content into manageable chunks"
-                context = "/document"
-                textSplitMode = "pages"
-                maximumPageLength = 4000
-                pageOverlapLength = 500
-                inputs = @(
-                    @{
-                        name = "text"
-                        source = "/document/content"
-                    }
-                )
-                outputs = @(
-                    @{
-                        name = "textItems"
-                        targetName = "pages"
-                    }
-                )
-            },
-            @{
-                "@odata.type" = "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill"
-                name = "text-embedding"
-                description = "Generate embeddings using Azure OpenAI"
-                context = "/document"
-                resourceUri = $openAIEndpoint
-                apiKey = $openAIKey
-                deploymentId = $openAIEmbeddingDeployment
-                inputs = @(
-                    @{
-                        name = "text"
-                        source = "/document/content"
-                    }
-                )
-                outputs = @(
-                    @{
-                        name = "embedding"
-                        targetName = "contentVector"
-                    }
-                )
-            }
-        )
-    }
-    
-    Invoke-WithRetry -Operation "Create Skillset" -ScriptBlock {
-        $skillsetUri = "$searchServiceEndpoint/skillsets/$skillset1Name" + "?api-version=$searchApiVersion"
-        Invoke-SearchREST -Method "PUT" -Uri $skillsetUri -Body $skillset -Operation "Skillset Creation"
-    }
-    
-    # 4. Create Indexer
-    Write-Output "Creating indexer..."
-    $indexer = @{
-        name = $indexerName
-        dataSourceName = $dataSourceName
-        targetIndexName = $indexName
-        skillsetName = $skillset1Name
+    $indexResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/indexes/$SearchIndexName`?api-version=2023-11-01" -Method Put -Headers $indexHeaders -Body $indexPayload
+    Write-Host "Index created successfully."
+ 
+    # Create indexer
+    Write-Host "Creating indexer '$SearchIndexerName'..."
+    $indexerDefinition = @{
+        name = $SearchIndexerName
+        dataSourceName = $SearchDataSourceName
+        targetIndexName = $SearchIndexName
+        schedule = @{
+            interval = 'PT1H'
+        }
         parameters = @{
-            configuration = @{
-                dataToExtract = "contentAndMetadata"
-                parsingMode = "default"
-                imageAction = "none"  # Simplified for reliability
-            }
-            batchSize = 1  # Process one document at a time for reliability
+            batchSize = 100
             maxFailedItems = 10
-            maxFailedItemsPerBatch = 1
+            maxFailedItemsPerBatch = 10
+            configuration = @{
+                parsingMode = 'default'
+                indexedFileNameExtensions = '.pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.txt,.html,.htm,.csv,.json,.xml'
+                excludedFileNameExtensions = '.png,.jpg,.jpeg,.gif,.mp3,.mp4,.avi'
+            }
         }
         fieldMappings = @(
             @{
-                sourceFieldName = "metadata_storage_name"
-                targetFieldName = "filename"
+                sourceFieldName = 'metadata_storage_path'
+                targetFieldName = 'filepath'
             },
             @{
-                sourceFieldName = "metadata_storage_path"
-                targetFieldName = "url"
+                sourceFieldName = 'metadata_storage_name'
+                targetFieldName = 'title'
             },
             @{
-                sourceFieldName = "metadata_title"
-                targetFieldName = "title"
+                sourceFieldName = 'metadata_storage_path'
+                targetFieldName = 'id'
+                mappingFunction = @{
+                    name = 'base64Encode'
+                }
             },
             @{
-                sourceFieldName = "metadata_author"
-                targetFieldName = "metadata_author"
-            },
-            @{
-                sourceFieldName = "metadata_creation_date"
-                targetFieldName = "metadata_creation_date"
+                sourceFieldName = 'metadata_storage_path'
+                targetFieldName = 'url'
             }
         )
         outputFieldMappings = @(
             @{
-                sourceFieldName = "/document/pages/*"
-                targetFieldName = "content"
-                mappingFunction = @{
-                    name = "merge"
-                }
-            },
-            @{
-                sourceFieldName = "/document/contentVector"
-                targetFieldName = "contentVector"
+                sourceFieldName = '/document/content'
+                targetFieldName = 'content'
             }
         )
-        schedule = @{
-            interval = "PT2H"  # Run every 2 hours
-        }
     }
-    
-    Invoke-WithRetry -Operation "Create Indexer" -ScriptBlock {
-        $indexerUri = "$searchServiceEndpoint/indexers/$indexerName" + "?api-version=$searchApiVersion"
-        Invoke-SearchREST -Method "PUT" -Uri $indexerUri -Body $indexer -Operation "Indexer Creation"
+    $indexerPayload = $indexerDefinition | ConvertTo-Json -Depth 10
+    $indexerHeaders = @{
+        'api-key' = $adminKey
+        'Content-Type' = 'application/json'
     }
-    
-    Write-Output ""
-    Write-Output "=== Phase 3: Test Indexer ==="
-    
-    # Run the indexer to test everything works
-    try {
-        Write-Output "Starting indexer for initial test run..."
-        $runIndexerUri = "$searchServiceEndpoint/indexers/$indexerName/run?api-version=$searchApiVersion"
-        Invoke-SearchREST -Method "POST" -Uri $runIndexerUri -Operation "Start Indexer"
-        
-        # Wait a moment and check status
-        Start-Sleep -Seconds 10
-        
-        $statusUri = "$searchServiceEndpoint/indexers/$indexerName/status?api-version=$searchApiVersion"
-        $status = Invoke-SearchREST -Method "GET" -Uri $statusUri -Operation "Check Indexer Status"
-        
-        Write-Output "Indexer status: $($status.lastResult.status)"
-        
-        if ($status.lastResult.status -eq "success" -or $status.lastResult.status -eq "inProgress") {
-            Write-Output "✓ Indexer is running successfully"
-        } else {
-            Write-Output "⚠ Indexer status: $($status.lastResult.status)"
-            if ($status.lastResult.errorMessage) {
-                Write-Output "⚠ Indexer error: $($status.lastResult.errorMessage)"
-            }
-        }
-    }
-    catch {
-        Write-Output "⚠ Could not start indexer test run: $($_.Exception.Message)"
-        Write-Output "This is not critical - the indexer can be started manually later"
-    }
-    
-    Write-Output ""
-    Write-Output "=== Setup Complete ==="
-    Write-Output "✓ Data source created: $dataSourceName"
-    Write-Output "✓ Index created: $indexName"
-    Write-Output "✓ Skillset created: $skillset1Name"
-    Write-Output "✓ Indexer created: $indexerName"
-    Write-Output ""
-    Write-Output "🎉 Search components setup completed successfully!"
-    Write-Output "To add documents, upload them to the '$storageContainerName' container in storage account '$storageAccountName'"
-    Write-Output "The indexer will automatically process new documents every 2 hours, or can be run manually."
-    
+    $indexerResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/indexers/$SearchIndexerName`?api-version=2023-11-01" -Method Put -Headers $indexerHeaders -Body $indexerPayload
+    Write-Host "Indexer created successfully."
+ 
+    # Output the status information
+    $DeploymentScriptOutputs = @{}
+    $DeploymentScriptOutputs['searchServiceName'] = $SearchServiceName
+    $DeploymentScriptOutputs['searchIndexName'] = $SearchIndexName
+    $DeploymentScriptOutputs['searchIndexerName'] = $SearchIndexerName
+    $DeploymentScriptOutputs['searchDataSourceName'] = $SearchDataSourceName
+    Write-Host "Azure Search resources created successfully!"
 }
 catch {
-    Write-Output ""
-    Write-Output "❌ Setup failed with error: $($_.Exception.Message)"
-    Write-Output "This may be due to timing issues with resource provisioning."
-    Write-Output "The search components can be set up manually after deployment completes."
-    
-    # Don't fail the entire deployment for search setup issues
-    Write-Output "Continuing deployment despite search setup issues..."
-    exit 0
+    Write-Error "An error occurred: $_"
+    throw
 }
-
-Write-Output ""
-Write-Output "Search setup script completed."

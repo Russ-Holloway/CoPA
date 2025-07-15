@@ -1,13 +1,13 @@
-# Test Policing Assistant ARM Template
-# This script specifically tests the policing assistant deployment template
+# Test CoPPA ARM Template
+# This script specifically tests the CoPPA deployment template
 
-Write-Host "🚔 Policing Assistant - ARM Template Validation" -ForegroundColor Blue
-Write-Host "================================================" -ForegroundColor Blue
+Write-Host "🚔 CoPPA - ARM Template Validation" -ForegroundColor Blue
+Write-Host "===================================" -ForegroundColor Blue
 Write-Host ""
 
 # Set paths
 $TemplateFile = Join-Path $PSScriptRoot "..\infrastructure\deployment.json"
-$ResourceGroupName = "policing-assistant-test-" + (Get-Random -Maximum 9999)
+$ResourceGroupName = "coppa-test-" + (Get-Random -Maximum 9999)
 
 Write-Host "📁 Template: $TemplateFile" -ForegroundColor Gray
 Write-Host "📦 Test RG: $ResourceGroupName" -ForegroundColor Gray

@@ -1,6 +1,6 @@
-# Policing Assistant
+# CoPPA - College of Policing Assistant
 
-**Policing Assistant** is an advanced AI-powered Smart Assistant designed to enhance police decision-making and effectiveness. Built within a secure Microsoft Azure environment, this assistant integrates trusted data, policy, and user feedback to deliver actionable, transparent, and secure guidance.
+**CoPPA (College of Policing Assistant)** is an advanced AI-powered Smart Assistant designed to enhance police decision-making and effectiveness. Built within a secure Microsoft Azure environment, this assistant integrates trusted data, policy, and user feedback to deliver actionable, transparent, and secure guidance.
 
 ---
 
@@ -27,6 +27,20 @@
 
 ## Deployment
 
+### PDS Compliant Deployment (For UK Police Forces)
+
+**🚔 For all 44 UK Police Forces:** Use our PDS-compliant deployment that automatically generates resource names according to Police Digital Service standards.
+
+[![Deploy PDS Compliant](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fyour-repo%2Finfrastructure%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fyour-repo%2Finfrastructure%2FcreateUiDefinition-pds.json)
+
+📋 **[PDS Deployment Guide](docs/PDS-DEPLOYMENT-GUIDE.md)** - Complete guide for police forces  
+📋 **[Azure Naming Guidelines](docs/azure-naming-guidelines.md)** - PDS naming conventions  
+
+**Quick PDS Validation:**
+```powershell
+.\scripts\validate-pds-naming.ps1 -ForceCode "btp" -Environment "prod" -InstanceNumber "01"
+```
+
 ### One-Click Azure Deployment
 
 Click the button below to deploy directly to Azure with the correct GPT-4o model:
@@ -37,8 +51,9 @@ Click the button below to deploy directly to Azure with the correct GPT-4o model
 
 ### Post-Deployment Setup
 
-After deployment completes, you need to configure authentication:
+After deployment completes, you only need to configure authentication. The search components are automatically set up during deployment.
 
+#### Authentication Setup (Required)
 **🚀 Quick Setup:** Run the automated authentication script:
 ```powershell
 .\scripts\setup_azure_ad_auth.ps1 -WebAppName "your-web-app-name" -ResourceGroupName "your-resource-group"
@@ -46,6 +61,16 @@ After deployment completes, you need to configure authentication:
 
 **📋 Quick Reference:** [Azure AD Quick Reference](AZURE_AD_QUICK_REFERENCE.md)  
 **📖 Full Guide:** [Azure AD Setup Guide](AZURE_AD_SETUP_GUIDE.md)
+
+#### Search Components (Automatically Configured)
+The Azure Cognitive Search components (index, data source, skillsets, and indexers) are automatically set up during deployment through a built-in deployment script. **No manual setup is required.**
+
+If you need to troubleshoot or reconfigure search components:
+```powershell
+.\scripts\setup-search-components.ps1 -ResourceGroupName "your-resource-group-name" -SearchServiceName "your-search-service-name" -StorageAccountName "your-storage-account-name" -OpenAIServiceName "your-openai-service-name"
+```
+
+**📖 Full Guide:** [Search Components Setup Guide](docs/search_components_setup.md)
 
 ---
 
@@ -110,8 +135,8 @@ After deployment completes, you need to configure authentication:
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/Russ-Holloway/Policing-Assistant.git
-   cd Policing-Assistant
+   git clone https://github.com/Russ-Holloway/CoPPA.git
+   cd CoPPA
    ```
 
 2. **Install Dependencies:**
@@ -224,7 +249,7 @@ This project may contain trademarks or logos for projects, products, or services
 
 ## Disclaimer
 
-Policing Assistant is an advisory tool. Advice is based on curated, up-to-date data, but ultimate responsibility for decisions remains with the user.  
+CoPPA (College of Policing Assistant) is an advisory tool. Advice is based on curated, up-to-date data, but ultimate responsibility for decisions remains with the user.  
 **Do not use this tool as a sole source for critical or time-sensitive decisions.**  
 _Example scenarios where caution is required:_  
 - Making legal decisions without human review  
@@ -274,6 +299,14 @@ This section provides technical details about the deployment process:
 
 ### Deployment Method
 The one-click deployment method provides convenient deployment directly from the GitHub repository through Azure Blob Storage with proper CORS configuration.
+
+### Automated Components Setup
+- **Search Components**: The deployment automatically configures Azure Cognitive Search using a PowerShell deployment script:
+  - Creates a search index with vector search capabilities
+  - Sets up a data source connected to blob storage
+  - Configures skillsets for document processing and embedding generation
+  - Creates and runs an indexer to process documents
+  - No manual setup required after deployment
 
 ### Access Requirements
 - The deployment uses a SAS token for Azure Blob Storage valid until June 16, 2026
