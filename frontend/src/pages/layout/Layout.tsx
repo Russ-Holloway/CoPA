@@ -81,8 +81,10 @@ const Layout = () => {
     <div className={styles.layout}>
       <header className={styles.header} role={'banner'}>
         <div className={styles.headerContainer}>
-          <div className={styles.headerTitleContainer}>
+          <div className={styles.headerLeftLogo}>
             <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
+          </div>
+          <div className={styles.headerCenterContent}>
             <Link to="/" style={{ textDecoration: 'none' }}>
               <h1 className={styles.headerTitle}>CoPPA</h1>
               <p className={styles.headerSubtitle}>CoPPA is configured to assist with policing queries and provide guidance from official sources</p>
@@ -91,19 +93,14 @@ const Layout = () => {
               )}
             </Link>
           </div>
-          <div className={styles.forceLogoContainer}>
-            <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
-              {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
-                <HistoryButton
-                  onClick={handleHistoryClick}
-                  text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
-                />
-              )}
-              {ui?.show_share_button && <ShareButton onClick={handleShareClick} text={shareLabel} />}
-            </Stack>
-            {forceLogo && (
-              <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
+          <div className={styles.headerRightContainer}>
+            {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
+              <HistoryButton
+                onClick={handleHistoryClick}
+                text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
+              />
             )}
+            <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
           </div>
         </div>
       </header>

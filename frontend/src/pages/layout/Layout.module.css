@@ -35,20 +35,35 @@
   padding: 0 20px;
   position: relative;
   z-index: 1;
+  height: 100%;
 }
 
-.headerTitleContainer {
+.headerLeftLogo {
   display: flex;
   align-items: center;
-  text-decoration: none;
-  position: relative;
+  height: 100%;
+}
+
+.headerCenterContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.headerRightContainer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
 }
 
 .headerTitle {
   font-style: normal;
   font-weight: 700;
-  font-size: 32px;
-  line-height: 40px;
+  font-size: 36px;
+  line-height: 44px;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   margin: 0;
@@ -59,12 +74,15 @@
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
-  line-height: 22px;
+  line-height: 20px;
   color: rgba(255, 255, 255, 0.9);
   margin: 0;
   margin-top: 6px;
-  max-width: 600px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 800px;
 }
 
 .headerCustomSubtitle {
@@ -80,20 +98,13 @@
 }
 
 .headerIcon {
-  height: 64px;
+  height: 80px;
   width: auto;
-  margin-right: 20px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
-.forceLogoContainer {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
 .forceLogo {
-  height: 64px;
+  height: 80px;
   width: auto;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
@@ -184,13 +195,12 @@
     padding: 0 16px;
   }
 
-  .headerTitleContainer {
-    margin-left: 0;
+  .headerLeftLogo {
+    flex-shrink: 0;
   }
 
   .headerIcon {
-    height: 48px;
-    margin-right: 12px;
+    height: 56px;
   }
 
   .headerTitle {
@@ -200,21 +210,22 @@
 
   .headerSubtitle {
     font-size: 14px;
-    line-height: 20px;
+    line-height: 18px;
+    max-width: 300px;
   }
 
   .headerCustomSubtitle {
     font-size: 12px;
     line-height: 16px;
+    max-width: 300px;
   }
 
-  .shareButtonContainer {
-    flex-direction: column;
+  .headerRightContainer {
     gap: 8px;
   }
 
   .forceLogo {
-    height: 48px;
+    height: 56px;
   }
 
   .header {
