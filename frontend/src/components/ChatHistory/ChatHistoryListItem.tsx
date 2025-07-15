@@ -1,5 +1,5 @@
+import { useContext, useState, useRef, useEffect } from 'react'
 import * as React from 'react'
-import { useContext, useState } from 'react'
 import {
   List,
   Separator,
@@ -41,8 +41,8 @@ const formatMonth = (month: string) => {
 }
 
 export const ChatHistoryListItemCell: React.FC<ChatHistoryListItemCellProps> = ({ item, onSelect }) => {
-  const [isHovered, setIsHovered] = React.useState(false)
-  const appStateContext = React.useContext(AppStateContext)
+  const [isHovered, setIsHovered] = useState(false)
+  const appStateContext = useContext(AppStateContext)
   const isSelected = item?.id === appStateContext?.state.currentChat?.id
 
   if (!item) {
@@ -84,7 +84,7 @@ export const ChatHistoryListItemCell: React.FC<ChatHistoryListItemCellProps> = (
 export const ChatHistoryListItemGroups: React.FC<ChatHistoryListItemGroupsProps> = ({ groupedChatHistory }) => {
   const appStateContext = useContext(AppStateContext)
   const observerTarget = useRef(null)
-  const [, setSelectedItem] = React.useState<Conversation | null>(null)
+  const [, setSelectedItem] = useState<Conversation | null>(null)
   const [offset, setOffset] = useState<number>(25)
   const [observerCounter, setObserverCounter] = useState(0)
   const [showSpinner, setShowSpinner] = useState(false)
