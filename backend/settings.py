@@ -46,6 +46,7 @@ class _UiSettings(BaseSettings):
     chat_logo: Optional[str] = None
     chat_title: str = "Start chatting with CoPPA"
     chat_description: str = "CoPPA is configured to assist with policing queries and provide guidance from official sources"
+    subtitle: Optional[str] = None
     favicon: str = "/favicon.ico"
     show_share_button: bool = True
     show_chat_history_button: bool = True

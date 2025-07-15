@@ -85,7 +85,10 @@ const Layout = () => {
             <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
             <Link to="/" style={{ textDecoration: 'none' }}>
               <h1 className={styles.headerTitle}>CoPPA</h1>
-              <p className={styles.headerSubtitle}>College of Policing Assistant</p>
+              <p className={styles.headerSubtitle}>CoPPA is configured to assist with policing queries and provide guidance from official sources</p>
+              {ui?.subtitle && (
+                <p className={styles.headerCustomSubtitle}>{ui.subtitle}</p>
+              )}
             </Link>
           </div>
           <div className={styles.forceLogoContainer}>
