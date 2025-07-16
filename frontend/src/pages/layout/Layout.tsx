@@ -89,8 +89,8 @@ const Layout = () => {
             <Link to="/" style={{ textDecoration: 'none' }}>
               <h1 className={styles.headerTitle}>CoPPA</h1>
               <p className={styles.headerSubtitle}>CoPPA is configured to assist with policing queries and provide guidance from official sources</p>
-              {/* Custom tagline only visible to admins */}
-              {ui?.is_admin && ui?.police_force_tagline && (
+              {/* Custom tagline displayed when configured */}
+              {ui?.police_force_tagline && (
                 <p className={styles.headerCustomSubtitle}>{ui.police_force_tagline}</p>
               )}
             </Link>
@@ -102,8 +102,8 @@ const Layout = () => {
                 text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
               />
             )}
-            {/* Police Force logo only visible to admins */}
-            {ui?.is_admin && forceLogo && (
+            {/* Police Force logo displayed when configured */}
+            {forceLogo && (
               <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
             )}
           </div>
