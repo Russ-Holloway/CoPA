@@ -44,6 +44,13 @@ const Layout = () => {
 
   useEffect(() => {
     if (!appStateContext?.state.isLoading) {
+      console.log('=== DEBUGGING INFO ===');
+      console.log('UI object:', ui);
+      console.log('Police force logo:', ui?.police_force_logo);
+      console.log('Police force tagline:', ui?.police_force_tagline);
+      console.log('Force logo state will be:', ui?.police_force_logo || ForceLogo);
+      console.log('=== END DEBUG ===');
+      
       setLogo(ui?.logo || Contoso)
       // Set the force logo from environment variable or fallback to default
       setForceLogo(ui?.police_force_logo || ForceLogo)
