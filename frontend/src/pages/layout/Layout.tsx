@@ -48,7 +48,7 @@ const Layout = () => {
       // Set the force logo from environment variable or fallback to default
       setForceLogo(ui?.police_force_logo || ForceLogo)
     }
-  }, [appStateContext?.state.isLoading])
+  }, [appStateContext?.state.isLoading, ui])
 
   useEffect(() => {
     if (copyClicked) {
