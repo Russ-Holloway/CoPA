@@ -1002,3 +1002,12 @@ async def clear_messages_disabled():
 
 
 app = create_app()
+
+if __name__ == "__main__":
+    import hypercorn.asyncio
+    from hypercorn.config import Config
+    
+    config = Config()
+    config.bind = ["0.0.0.0:8000"]
+    
+    asyncio.run(hypercorn.asyncio.serve(app, config))

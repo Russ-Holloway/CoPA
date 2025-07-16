@@ -82,7 +82,10 @@ const Layout = () => {
       <header className={styles.header} role={'banner'}>
         <div className={styles.headerContainer}>
           <div className={styles.headerLeftLogo}>
-            <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
+            {/* Police Force logo positioned on the far left */}
+            {ui?.is_admin && forceLogo && (
+              <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
+            )}
           </div>
           <div className={styles.headerCenterContent}>
             <Link to="/" style={{ textDecoration: 'none' }}>
@@ -101,10 +104,8 @@ const Layout = () => {
                 text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
               />
             )}
-            {/* Police Force logo only visible to admins */}
-            {ui?.is_admin && forceLogo && (
-              <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
-            )}
+            {/* College of Policing logo positioned on the far right */}
+            <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
           </div>
         </div>
       </header>
