@@ -30,9 +30,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 5px;
   position: relative;
   z-index: 1;
   height: 100%;
@@ -44,7 +45,7 @@
   justify-content: flex-start;
   height: 100%;
   position: absolute;
-  left: 30px;
+  left: 10px;
   z-index: 2;
 }
 
@@ -62,7 +63,7 @@
   gap: 16px;
   height: 100%;
   position: absolute;
-  right: 30px;
+  right: 10px;
   z-index: 2;
 }
 
