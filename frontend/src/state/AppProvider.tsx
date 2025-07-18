@@ -85,8 +85,8 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
 
   useEffect(() => {
     // Check for cosmosdb config and fetch initial data here
-    const fetchChatHistory = async (offset = 0): Promise<Conversation[] | null> => {
-      const result = await historyList(offset)
+    const fetchChatHistory = async (offset = 0, includeCompleted = true): Promise<Conversation[] | null> => {
+      const result = await historyList(offset, includeCompleted)
         .then(response => {
           if (response) {
             dispatch({ type: 'FETCH_CHAT_HISTORY', payload: response })

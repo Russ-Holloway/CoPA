@@ -59,6 +59,8 @@ export type Conversation = {
   title: string
   messages: ChatMessage[]
   date: string
+  status?: 'active' | 'completed'
+  completedAt?: string
 }
 
 export enum ChatCompletionType {

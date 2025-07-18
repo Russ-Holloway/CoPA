@@ -35,8 +35,8 @@ export const fetchChatHistoryInit = (): Conversation[] | null => {
   return chatHistorySampleData
 }
 
-export const historyList = async (offset = 0): Promise<Conversation[] | null> => {
-  const response = await fetch(`/history/list?offset=${offset}`, {
+export const historyList = async (offset = 0, includeCompleted = false): Promise<Conversation[] | null> => {
+  const response = await fetch(`/history/list?offset=${offset}&include_completed=${includeCompleted}`, {
     method: 'GET'
   })
     .then(async res => {
@@ -234,7 +234,7 @@ export const historyClear = async (convId: string): Promise<Response> => {
       return res
     })
     .catch(_err => {
-      console.error('There was an issue fetching your data.')
+      console.error('There was an issue finalizing your conversation.')
       const errRes: Response = {
         ...new Response(),
         ok: false,
@@ -326,6 +326,22 @@ export const frontendSettings = async (): Promise<Response | null> => {
     })
 
   return response
+}
+
+export const createNewConversation = async (title?: string): Promise<string | null> => {
+  const response = await fetch('/conversations/new', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ title: title || 'New Conversation' })
+  })
+
+  if (response.ok) {
+    const result = await response.json()
+    return result.conversation_id
+  }
+  return null
 }
 export const historyMessageFeedback = async (messageId: string, feedback: string): Promise<Response> => {
   const response = await fetch('/history/message_feedback', {
