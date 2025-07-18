@@ -35,6 +35,19 @@
   border: 1px solid #d1d1d1;
 }
 
+.feedbackButtonRoot {
+  width: 180px;
+  border: 1px solid #d1d1d1;
+}
+
+.feedbackButtonRoot:hover {
+  border: 1px solid #d1d1d1;
+}
+
+.feedbackButtonRoot:active {
+  border: 1px solid #d1d1d1;
+}
+
 @media (max-width: 480px) {
   .shareButtonRoot {
     width: auto;
@@ -42,6 +55,11 @@
   }
 
   .historyButtonRoot {
+    width: auto;
+    padding: 0 8px;
+  }
+
+  .feedbackButtonRoot {
     width: auto;
     padding: 0 8px;
   }

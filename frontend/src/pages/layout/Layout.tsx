@@ -6,7 +6,7 @@ import { CopyRegular } from '@fluentui/react-icons'
 import { CosmosDBStatus } from '../../api'
 import Contoso from '../../assets/Contoso.svg'
 import ForceLogo from '../../assets/ForceLogo.svg'
-import { HistoryButton, ShareButton } from '../../components/common/Button'
+import { HistoryButton, ShareButton, FeedbackButton } from '../../components/common/Button'
 import { AppStateContext } from '../../state/AppProvider'
 
 import styles from './Layout.module.css'
@@ -18,6 +18,7 @@ const Layout = () => {
   const [shareLabel, setShareLabel] = useState<string | undefined>('Share')
   const [hideHistoryLabel, setHideHistoryLabel] = useState<string>('Hide chat history')
   const [showHistoryLabel, setShowHistoryLabel] = useState<string>('Show chat history')
+  const [feedbackLabel, setFeedbackLabel] = useState<string>('Send Feedback')
   const [logo, setLogo] = useState('')
   const [forceLogo, setForceLogo] = useState('')
   const appStateContext = useContext(AppStateContext)
@@ -40,6 +41,16 @@ const Layout = () => {
 
   const handleHistoryClick = () => {
     appStateContext?.dispatch({ type: 'TOGGLE_CHAT_HISTORY' })
+  }
+
+  const handleFeedbackClick = () => {
+    const feedbackEmail = ui?.feedback_email
+    if (feedbackEmail) {
+      const subject = encodeURIComponent('CoPPA Feedback')
+      const body = encodeURIComponent('Hi,\n\nI would like to provide feedback about CoPPA:\n\n\n\nThank you.')
+      const mailtoUrl = `mailto:${feedbackEmail}?subject=${subject}&body=${body}`
+      window.open(mailtoUrl, '_blank')
+    }
   }
 
   useEffect(() => {
@@ -71,10 +82,12 @@ const Layout = () => {
         setShareLabel(undefined)
         setHideHistoryLabel('Hide history')
         setShowHistoryLabel('Show history')
+        setFeedbackLabel('Feedback')
       } else {
         setShareLabel('Share')
         setHideHistoryLabel('Hide chat history')
         setShowHistoryLabel('Show chat history')
+        setFeedbackLabel('Send Feedback')
       }
     }
 
@@ -103,6 +116,12 @@ const Layout = () => {
               <HistoryButton
                 onClick={handleHistoryClick}
                 text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
+              />
+            )}
+            {ui?.feedback_email && (
+              <FeedbackButton
+                onClick={handleFeedbackClick}
+                text={feedbackLabel}
               />
             )}
             {/* Police Force logo displayed when configured */}

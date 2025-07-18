@@ -135,6 +135,7 @@ export type UI = {
   is_admin?: boolean
   police_force_logo?: string
   police_force_tagline?: string
+  feedback_email?: string
 }
 
 export type FrontendSettings = {
