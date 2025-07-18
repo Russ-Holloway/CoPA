@@ -104,6 +104,12 @@ const Layout = () => {
           <div className={styles.headerLeftLogo}>
             {/* College of Policing logo positioned on the far left */}
             <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
+            {ui?.feedback_email && (
+              <FeedbackButton
+                onClick={handleFeedbackClick}
+                text={feedbackLabel}
+              />
+            )}
           </div>
           <div className={styles.headerCenterContent}>
             <Link to="/" style={{ textDecoration: 'none' }}>
@@ -116,12 +122,6 @@ const Layout = () => {
               <HistoryButton
                 onClick={handleHistoryClick}
                 text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
-              />
-            )}
-            {ui?.feedback_email && (
-              <FeedbackButton
-                onClick={handleFeedbackClick}
-                text={feedbackLabel}
               />
             )}
             {/* Police Force logo displayed when configured */}
