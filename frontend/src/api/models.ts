@@ -137,6 +137,7 @@ export type UI = {
   is_admin?: boolean
   police_force_logo?: string
   police_force_tagline?: string
+  police_force_tagline_2?: string
   feedback_email?: string
 }
 

@@ -59,6 +59,7 @@ const Layout = () => {
       console.log('UI object:', ui);
       console.log('Police force logo:', ui?.police_force_logo);
       console.log('Police force tagline:', ui?.police_force_tagline);
+      console.log('Police force tagline 2:', ui?.police_force_tagline_2);
       console.log('Force logo state will be:', ui?.police_force_logo || ForceLogo);
       console.log('=== END DEBUG ===');
       
