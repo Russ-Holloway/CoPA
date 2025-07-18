@@ -765,6 +765,10 @@ const Chat = () => {
               <Stack className={styles.chatEmptyState}>
                 <div className={styles.chatEmptyStateLogo}>
                   <h1 className={styles.chatEmptyStateTitle}>CoPPA</h1>
+                  {/* Police force tagline displayed below CoPPA title when configured */}
+                  {ui?.police_force_tagline && (
+                    <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
+                  )}
                 </div>
               </Stack>
             ) : (

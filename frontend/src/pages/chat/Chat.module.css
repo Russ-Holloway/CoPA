@@ -62,6 +62,18 @@
   max-width: 600px;
 }
 
+.chatEmptyStateTagline {
+  margin-top: 12px;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
+  letter-spacing: -0.01em;
+  color: #475569;
+  max-width: 600px;
+}
+
 .chatIcon {
   height: 80px;
   width: auto;
@@ -372,26 +384,43 @@ a {
 
 .clearChatButton {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  border-radius: 16px;
-  padding: 16px 32px;
+  border: 2px solid #ffffff;
+  border-radius: 12px;
+  padding: 18px 36px;
   color: #ffffff;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 6px 20px rgba(102, 126, 234, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 24px 0;
   min-width: 160px;
+  position: relative;
+  overflow: hidden;
 }
 
 .clearChatButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 8px 25px rgba(102, 126, 234, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-color: #f0f9ff;
+}
+
+.clearChatButton:active {
+  transform: translateY(1px);
+  box-shadow: 
+    0 2px 8px rgba(102, 126, 234, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .clearChatButton:disabled {
@@ -399,8 +428,10 @@ a {
   color: #94a3b8;
   cursor: not-allowed;
   transform: none;
-  box-shadow: 0 2px 8px rgba(148, 163, 184, 0.2);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 
+    0 2px 8px rgba(148, 163, 184, 0.2),
+    inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 2px solid #e2e8f0;
 }
 
 .clearChatButtonText {
@@ -473,9 +504,14 @@ a {
   }
 
   .clearChatButton {
-    padding: 12px 24px;
+    padding: 14px 28px;
     font-size: 14px;
     min-width: 120px;
+    border-width: 2px;
+    box-shadow: 
+      0 4px 16px rgba(102, 126, 234, 0.3),
+      0 1px 3px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .taglineInput {
