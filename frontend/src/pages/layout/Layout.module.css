@@ -9,10 +9,10 @@
 .header {
   background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, #667eea 50%, #764ba2 100%);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 30px 0;
+  padding: 35px 0;
   position: relative;
   overflow: hidden;
-  min-height: 120px;
+  min-height: 150px;
 }
 
 .header::before {
@@ -43,10 +43,10 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 16px;
+  gap: 20px;
   height: 100%;
   position: absolute;
-  left: 10px;
+  left: 15px;
   z-index: 2;
 }
 
@@ -61,18 +61,18 @@
 .headerRightContainer {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   height: 100%;
   position: absolute;
-  right: 10px;
+  right: 15px;
   z-index: 2;
 }
 
 .headerTitle {
   font-style: normal;
   font-weight: 700;
-  font-size: 36px;
-  line-height: 44px;
+  font-size: 45px;
+  line-height: 55px;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   margin: 0;
@@ -82,16 +82,16 @@
 .headerSubtitle {
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 20px;
+  line-height: 25px;
   color: rgba(255, 255, 255, 0.9);
   margin: 0;
-  margin-top: 6px;
+  margin-top: 8px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 800px;
+  max-width: 1000px;
 }
 
 .headerCustomSubtitle {
@@ -107,13 +107,13 @@
 }
 
 .headerIcon {
-  height: 100px;
+  height: 125px;
   width: auto;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .forceLogo {
-  height: 100px;
+  height: 125px;
   width: auto;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
@@ -205,44 +205,44 @@
   }
 
   .headerLeftLogo {
-    left: 16px;
+    left: 20px;
   }
 
   .headerRightContainer {
-    right: 16px;
+    right: 20px;
   }
 
   .headerIcon {
-    height: 70px;
+    height: 85px;
   }
 
   .headerTitle {
-    font-size: 28px;
-    line-height: 36px;
+    font-size: 35px;
+    line-height: 45px;
   }
 
   .headerSubtitle {
-    font-size: 14px;
-    line-height: 18px;
-    max-width: 300px;
+    font-size: 17px;
+    line-height: 22px;
+    max-width: 375px;
   }
 
   .headerCustomSubtitle {
-    font-size: 12px;
-    line-height: 16px;
-    max-width: 300px;
+    font-size: 15px;
+    line-height: 20px;
+    max-width: 375px;
   }
 
   .headerRightContainer {
-    gap: 8px;
+    gap: 10px;
   }
 
   .forceLogo {
-    height: 70px;
+    height: 85px;
   }
 
   .header {
-    padding: 20px 0;
-    min-height: 100px;
+    padding: 25px 0;
+    min-height: 125px;
   }
 }
