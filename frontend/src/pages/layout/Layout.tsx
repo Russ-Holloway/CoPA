@@ -96,10 +96,6 @@ const Layout = () => {
             <Link to="/" style={{ textDecoration: 'none' }}>
               <h1 className={styles.headerTitle}>CoPPA</h1>
               <p className={styles.headerSubtitle}>CoPPA is configured to assist with policing queries and provide guidance from official sources</p>
-              {/* Custom tagline displayed when configured */}
-              {ui?.police_force_tagline && (
-                <p className={styles.headerCustomSubtitle}>{ui.police_force_tagline}</p>
-              )}
             </Link>
           </div>
           <div className={styles.headerRightContainer}>
