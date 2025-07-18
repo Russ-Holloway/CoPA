@@ -641,6 +641,7 @@ def get_frontend_settings():
             "chat_history_enabled": cosmos_available,
             "chat_history_required": True,  # Indicate that chat history is required for conversations
             "chat_history_delete_enabled": False,  # Disable delete functionality for chat history
+            "chat_history_clear_enabled": cosmos_available,  # Enable clear functionality to finalize conversations
         }
         
         return jsonify(dynamic_settings), 200
@@ -835,12 +836,13 @@ async def rename_conversation():
 @require_cosmos_db
 async def list_conversations():
     offset = request.args.get("offset", 0)
+    include_completed = request.args.get("include_completed", "false").lower() == "true"
     authenticated_user = get_authenticated_user_details(request_headers=request.headers)
     user_id = authenticated_user["user_principal_id"]
 
     ## get the conversations from cosmos
     conversations = await current_app.cosmos_conversation_client.get_conversations(
-        user_id, offset=offset, limit=25
+        user_id, offset=offset, limit=25, include_completed=include_completed
     )
     if not isinstance(conversations, list):
         return jsonify({"error": f"No conversations for {user_id} were found"}), 404
@@ -987,19 +989,65 @@ async def delete_all_conversations_disabled():
     }), 403
 
 @bp.route("/history/clear", methods=["POST"])
-async def clear_messages_disabled():
-    """Disabled clear messages endpoint - returns 403 Forbidden to prevent UI confusion"""
-    # Extract conversation_id from request if present for logging
+@require_cosmos_db
+async def finalize_conversation():
+    """Finalize current conversation and create a new one"""
+    authenticated_user = get_authenticated_user_details(request_headers=request.headers)
+    user_id = authenticated_user["user_principal_id"]
+    
     try:
         request_json = await request.get_json()
-        conversation_id = request_json.get("conversation_id", "unknown")
-        logging.info(f"Blocked clear request for conversation {conversation_id}")
-    except:
-        logging.info("Blocked clear request (no conversation_id)")
+        conversation_id = request_json.get("conversation_id")
+        
+        if not conversation_id:
+            return jsonify({"error": "conversation_id is required"}), 400
+        
+        # Finalize the current conversation
+        success, message = await current_app.cosmos_conversation_client.finalize_conversation(conversation_id, user_id)
+        
+        if not success:
+            return jsonify({"error": message}), 400
+        
+        # Create a new conversation for future messages
+        new_conversation = await current_app.cosmos_conversation_client.create_new_conversation(user_id)
+        
+        if not new_conversation:
+            return jsonify({"error": "Failed to create new conversation"}), 500
+        
+        return jsonify({
+            "message": "Conversation finalized successfully",
+            "new_conversation_id": new_conversation["id"]
+        })
+        
+    except Exception as e:
+        logging.exception("Exception in /history/clear")
+        return jsonify({"error": str(e)}), 500
+
+
+@bp.route("/conversations/new", methods=["POST"])
+@require_cosmos_db
+async def create_new_conversation():
+    """Create a new conversation"""
+    authenticated_user = get_authenticated_user_details(request_headers=request.headers)
+    user_id = authenticated_user["user_principal_id"]
     
-    return jsonify({
-        "error": "Chat history clearing has been disabled by the administrator. Your conversation history is preserved for your records."
-    }), 403
+    try:
+        request_json = await request.get_json()
+        title = request_json.get("title", "New Conversation")
+        
+        conversation = await current_app.cosmos_conversation_client.create_new_conversation(user_id, title)
+        
+        if conversation:
+            return jsonify({
+                "conversation_id": conversation["id"],
+                "status": "success"
+            })
+        else:
+            return jsonify({"status": "error", "message": "Failed to create conversation"}), 500
+            
+    except Exception as e:
+        logging.exception("Exception in /conversations/new")
+        return jsonify({"error": str(e)}), 500
 
 
 app = create_app()

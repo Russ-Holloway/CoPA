@@ -52,7 +52,8 @@ class CosmosConversationClient():
             'createdAt': datetime.utcnow().isoformat(),  
             'updatedAt': datetime.utcnow().isoformat(),  
             'userId': user_id,
-            'title': title
+            'title': title,
+            'status': 'active'
         }
         ## TODO: add some error handling based on the output of the upsert_item call
         resp = await self.container_client.upsert_item(conversation)  
@@ -88,14 +89,19 @@ class CosmosConversationClient():
             return response_list
 
 
-    async def get_conversations(self, user_id, limit, sort_order = 'DESC', offset = 0):
+    async def get_conversations(self, user_id, limit, sort_order = 'DESC', offset = 0, include_completed = False):
         parameters = [
             {
                 'name': '@userId',
                 'value': user_id
             }
         ]
-        query = f"SELECT * FROM c where c.userId = @userId and c.type='conversation' order by c.updatedAt {sort_order}"
+        
+        if include_completed:
+            query = f"SELECT * FROM c where c.userId = @userId and c.type='conversation' order by c.updatedAt {sort_order}"
+        else:
+            query = f"SELECT * FROM c where c.userId = @userId and c.type='conversation' and (c.status = 'active' or IS_NULL(c.status)) order by c.updatedAt {sort_order}"
+            
         if limit is not None:
             query += f" offset {offset} limit {limit}" 
         
@@ -181,3 +187,27 @@ class CosmosConversationClient():
 
         return messages
 
+
+    async def finalize_conversation(self, conversation_id: str, user_id: str):
+        """Mark a conversation as finalized/completed"""
+        try:
+            conversation = await self.get_conversation(user_id, conversation_id)
+            if not conversation:
+                return False, "Conversation not found"
+            
+            conversation["status"] = "completed"
+            conversation["completedAt"] = datetime.utcnow().isoformat()
+            conversation["updatedAt"] = datetime.utcnow().isoformat()
+            
+            resp = await self.upsert_conversation(conversation)
+            return bool(resp), "Conversation finalized successfully" if resp else "Failed to finalize conversation"
+            
+        except Exception as e:
+            return False, f"Error finalizing conversation: {str(e)}"
+
+    async def create_new_conversation(self, user_id: str, title: str = "New Conversation"):
+        """Create a new conversation and return its details"""
+        try:
+            return await self.create_conversation(user_id, title)
+        except Exception as e:
+            return False

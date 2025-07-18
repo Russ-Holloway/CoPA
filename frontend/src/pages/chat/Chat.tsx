@@ -27,6 +27,8 @@ import {
   Conversation,
   historyGenerate,
   historyUpdate,
+  historyClear,
+  createNewConversation,
   ChatHistoryLoadingState,
   CosmosDBStatus,
   ErrorMessage,
@@ -587,14 +589,34 @@ const Chat = () => {
     return tryGetRaiPrettyError(errorMessage)
   }
 
-  const newChat = () => {
-    setProcessMessages(messageStatus.Processing)
-    setMessages([])
-    setIsCitationPanelOpen(false)
-    setIsIntentsPanelOpen(false)
-    setActiveCitation(undefined)
-    appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
-    setProcessMessages(messageStatus.Done)
+  const newChat = async () => {
+    try {
+      setProcessMessages(messageStatus.Processing)
+      
+      // If there's a current conversation with messages, finalize it
+      const currentConversationId = appStateContext?.state.currentChat?.id
+      if (currentConversationId && messages.length > 0) {
+        await historyClear(currentConversationId)
+      }
+
+      // Clear the UI
+      setMessages([])
+      setIsCitationPanelOpen(false)
+      setIsIntentsPanelOpen(false)
+      setActiveCitation(undefined)
+      appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
+      setProcessMessages(messageStatus.Done)
+
+    } catch (error) {
+      console.error("Error starting new chat:", error)
+      // Fallback: just clear the UI
+      setMessages([])
+      setIsCitationPanelOpen(false)
+      setIsIntentsPanelOpen(false)
+      setActiveCitation(undefined)
+      appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
+      setProcessMessages(messageStatus.Done)
+    }
   }
 
   const stopGenerating = () => {
