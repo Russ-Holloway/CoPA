@@ -104,12 +104,6 @@ const Layout = () => {
           <div className={styles.headerLeftLogo}>
             {/* College of Policing logo positioned on the far left */}
             <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
-            {ui?.feedback_email && (
-              <FeedbackButton
-                onClick={handleFeedbackClick}
-                text={feedbackLabel}
-              />
-            )}
           </div>
           <div className={styles.headerCenterContent}>
             <Link to="/" style={{ textDecoration: 'none' }}>
@@ -118,6 +112,12 @@ const Layout = () => {
             </Link>
           </div>
           <div className={styles.headerRightContainer}>
+            {ui?.feedback_email && (
+              <FeedbackButton
+                onClick={handleFeedbackClick}
+                text={feedbackLabel}
+              />
+            )}
             {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
               <HistoryButton
                 onClick={handleHistoryClick}
