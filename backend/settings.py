@@ -53,6 +53,7 @@ class _UiSettings(BaseSettings):
     # Police force specific settings
     police_force_logo: Optional[str] = None
     police_force_tagline: Optional[str] = None
+    feedback_email: Optional[str] = None
 
 
 class _ChatHistorySettings(BaseSettings):
