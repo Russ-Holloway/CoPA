@@ -791,6 +791,10 @@ const Chat = () => {
                   {ui?.police_force_tagline && (
                     <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
                   )}
+                  {/* Police force second tagline displayed below first tagline when configured */}
+                  {ui?.police_force_tagline_2 && (
+                    <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline_2}</p>
+                  )}
                 </div>
               </Stack>
             ) : (
