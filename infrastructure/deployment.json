@@ -76,6 +76,7 @@
         "HostingPlanSku": "B3",
         "WebsiteName": "[concat('app-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "ApplicationInsightsName": "[concat('appi-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
+        "LogAnalyticsWorkspaceName": "[concat('log-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "AzureSearchService": "[concat('srch-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "AzureOpenAIResource": "[concat('cog-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "AzureSearchSku": "standard",
@@ -351,15 +352,35 @@
             ]
         },
         {
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2022-10-01",
+            "name": "[variables('LogAnalyticsWorkspaceName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "PerGB2018"
+                },
+                "retentionInDays": 30,
+                "features": {
+                    "searchVersion": 1,
+                    "legacy": 0
+                }
+            }
+        },
+        {
             "type": "Microsoft.Insights/components",
             "apiVersion": "2020-02-02",
             "name": "[variables('ApplicationInsightsName')]",
             "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('LogAnalyticsWorkspaceName'))]"
+            ],
             "tags": {
                 "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('WebsiteName')))]": "Resource"
             },
             "properties": {
-                "Application_Type": "web"
+                "Application_Type": "web",
+                "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('LogAnalyticsWorkspaceName'))]"
             },
             "kind": "web"
         },
@@ -650,6 +671,10 @@
             "properties": {
                 "azPowerShellVersion": "6.4",
                 "timeout": "PT10M",
+                "storageAccountSettings": {
+                    "storageAccountName": "[variables('StorageAccountName')]",
+                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value]"
+                },
                 "arguments": "[concat('-storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -containerName \"', variables('StorageContainerName'), '\"')]",
                 "primaryScriptUri": "[variables('sampleDocumentScriptUri')]",
                 "cleanupPreference": "OnSuccess",
@@ -679,6 +704,10 @@
             "properties": {
                 "azPowerShellVersion": "6.4",
                 "timeout": "PT60M",
+                "storageAccountSettings": {
+                    "storageAccountName": "[variables('StorageAccountName')]",
+                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value]"
+                },
                 "arguments": "[concat('-searchServiceName \"', variables('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', variables('AzureSearchDataSourceName'), '\" -indexName \"', variables('AzureSearchIndexName'), '\" -indexerName \"', variables('AzureSearchIndexerName'), '\" -skillset1Name \"', variables('AzureSearchSkillset1Name'), '\" -skillset2Name \"', variables('AzureSearchSkillset2Name'), '\" -storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', variables('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\" -openAIGptDeployment \"', variables('AzureOpenAIModelDeploymentName'), '\"')]",
                 "primaryScriptUri": "[variables('deploymentScriptUri')]",
                 "cleanupPreference": "OnSuccess",
