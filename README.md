@@ -38,7 +38,7 @@
 
 **Quick PDS Validation:**
 ```powershell
-.\scripts\validate-pds-naming.ps1 -ForceCode "btp" -Environment "prod" -InstanceNumber "01"
+.\scripts\validate-pds-compliance.ps1 -ForceCode "btp" -Environment "prod" -InstanceNumber "01"
 ```
 
 ### Post-Deployment Setup
