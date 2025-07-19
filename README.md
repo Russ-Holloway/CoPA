@@ -35,16 +35,44 @@
 
 **🎯 Simplified Deployment Process:**
 1. **Create Resource Group:** Use PDS naming like `rg-btp-prod-01`, `rg-met-prod-01`, etc.
-2. **Click Deploy:** All resource names are automatically generated to PDS standards
+2. **Click Deploy:** All Azure resources are automatically created with PDS-compliant names
 3. **Choose OpenAI Models:** Select your preferred chat and embedding models
-4. **Deploy:** Everything else happens automatically!
+4. **Deploy:** Infrastructure deployment completes automatically!
+5. **Deploy Code:** Upload your application code to the created App Service (manual step)
 
 📋 **[PDS Deployment Guide](docs/PDS-DEPLOYMENT-GUIDE.md)** - Complete guide for police forces  
 📋 **[Azure Naming Guidelines](docs/azure-naming-guidelines.md)** - PDS naming conventions
 
 ### Post-Deployment Setup
 
-After deployment completes, you only need to configure authentication. The search components are automatically set up during deployment.
+After infrastructure deployment completes, you need to deploy your application code and configure authentication.
+
+#### Code Deployment (Required)
+The ARM template creates the Azure infrastructure but doesn't automatically deploy application code. You have several options:
+
+**Option 1: GitHub Actions (Recommended)**
+```yaml
+# Set up GitHub Actions workflow for automated deployment
+- uses: azure/webapps-deploy@v2
+  with:
+    app-name: 'your-app-name'
+    package: '.'
+```
+
+**Option 2: Azure CLI**
+```bash
+# Deploy using Azure CLI
+az webapp deployment source config-zip \
+  --resource-group your-resource-group \
+  --name your-app-name \
+  --src app.zip
+```
+
+**Option 3: Visual Studio Code**
+- Install Azure App Service extension
+- Right-click on your app folder and select "Deploy to Web App"
+
+**📖 Full Guide:** [Code Deployment Guide](docs/code-deployment-guide.md)
 
 #### Authentication Setup (Required)
 **🚀 Quick Setup:** Run the automated authentication script:

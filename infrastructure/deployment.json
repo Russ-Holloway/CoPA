@@ -120,9 +120,7 @@
         "AzureSearchVectorFields": "",
         "AzureSearchPermittedGroupsField": "",
         "AzureSearchStrictness": 3,
-        "WebAppEnableChatHistory": true,
-        "GitRepoUrl": "https://github.com/Russ-Holloway/Policing-Assistant",
-        "GitBranch": "main"
+        "WebAppEnableChatHistory": true
     },
     "resources": [
         {
@@ -334,22 +332,7 @@
                     "pythonVersion": "3.11",
                     "linuxFxVersion": "PYTHON|3.11"
                 }
-            },
-            "resources": [
-                {
-                    "type": "sourcecontrols",
-                    "apiVersion": "2020-06-01",
-                    "name": "web",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
-                    ],
-                    "properties": {
-                        "repoUrl": "[variables('GitRepoUrl')]",
-                        "branch": "[variables('GitBranch')]",
-                        "isManualIntegration": true
-                    }
-                }
-            ]
+            }
         },
         {
             "type": "Microsoft.OperationalInsights/workspaces",

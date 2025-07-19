@@ -2,7 +2,10 @@
 
 ## 🚨 Issues Identified
 1. **Error**: `The resource 'Microsoft.Storage/storageAccounts/stbtpprod01' is not defined in the template`
-2. **Error**: `Resource 'btp-deploy-identity-prod-01' was disallowed by policy. Policy identifiers: '[PDS] Naming Convention - User Assigned Identity'`
+2. **Error**: `Resource 'btp-deplo- ✅ Storage Account: `st*` pattern enforced
+- ✅ Deployment Scripts: Use existing PDS-compliant storage account (no temp storage creation)
+- ✅ GitHub Source Control: Removed automatic configuration (eliminates admin access errors)
+- ✅ All other resources follow appropriate PDS naming conventionsdentity-prod-01' was disallowed by policy. Policy identifiers: '[PDS] Naming Convention - User Assigned Identity'`
 
 ## 🔧 Root Cause Analysis
 1. **Hardcoded Storage Account Name**: The storage account resource was hardcoded as `"stpolicing001"` instead of using the dynamic variable
@@ -140,6 +143,37 @@ This prevents Application Insights from creating auto-managed resource groups an
 
 This prevents deployment scripts from creating temporary storage accounts with non-PDS-compliant random names ✅
 
+### 8. Fixed GitHub Source Control Access Error
+**Problem:** App Service deployment was trying to configure GitHub source control, causing error:
+`Admin access is required for repository https://github.com/Russ-Holloway/Policing-Assistant`
+❌ (Users don't have admin access to the repository)
+
+**Solution:** Removed automatic GitHub source control configuration from the deployment template
+
+**Removed Configuration:**
+```json
+{
+    "type": "sourcecontrols",
+    "apiVersion": "2020-06-01",
+    "name": "web",
+    "properties": {
+        "repoUrl": "[variables('GitRepoUrl')]",
+        "branch": "[variables('GitBranch')]",
+        "isManualIntegration": true
+    }
+}
+```
+
+**Also Removed Unused Variables:**
+- `GitRepoUrl`: No longer needed without source control
+- `GitBranch`: No longer needed without source control
+
+**Benefits:**
+- Deployment no longer requires GitHub repository admin access ✅
+- Users can deploy their own code instead of automatically pulling from repository ✅
+- Eliminates source control deployment failures ✅
+- Simplifies deployment process ✅
+
 ## 🧪 Validation Results
 - ✅ JSON syntax validation passed
 - ✅ Resource references now match variable definitions
@@ -148,6 +182,7 @@ This prevents deployment scripts from creating temporary storage accounts with n
 - ✅ User Assigned Identity complies with PDS policy
 - ✅ Application Insights managed resource group issue resolved
 - ✅ Deployment Scripts now use existing PDS-compliant storage account
+- ✅ GitHub source control configuration removed (eliminates admin access requirement)
 
 ## 🎯 Expected Resource Names (Example: rg-btp-prod-01)
 - **Storage Account**: `stbtpprod01` ✅ (st + btp + prod + 01)
