@@ -1,13 +1,15 @@
 # Deployment Template Fix Summary
 
-## 🚨 Issue Identified
-**Error**: `The resource 'Microsoft.Storage/storageAccounts/stbtpprod01' is not defined in the template`
+## 🚨 Issues Identified
+1. **Error**: `The resource 'Microsoft.Storage/storageAccounts/stbtpprod01' is not defined in the template`
+2. **Error**: `Resource 'btp-deploy-identity-prod-01' was disallowed by policy. Policy identifiers: '[PDS] Naming Convention - User Assigned Identity'`
 
 ## 🔧 Root Cause Analysis
 1. **Hardcoded Storage Account Name**: The storage account resource was hardcoded as `"stpolicing001"` instead of using the dynamic variable
 2. **Incorrect Parameter Extraction**: The ForceCode parameter extraction logic was flawed
 3. **Container Name Mismatch**: Storage container was also hardcoded
 4. **Cosmos DB Naming**: Needed to standardize Cosmos DB naming pattern
+5. **PDS Policy Violation**: User Assigned Identity didn't follow required `id-*` naming pattern
 
 ## ✅ Fixes Applied
 
@@ -61,11 +63,25 @@ This correctly extracts `rg-btp-prod-01` → `btp`
 - Database Name: `db_conversation_history` (consistent)
 - Container Name: `conversations` (consistent)
 
+### 5. Fixed User Assigned Identity PDS Policy Compliance
+**Before:**
+```json
+"deployScriptIdentityName": "[concat(parameters('ForceCode'), '-deploy-identity-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
+```
+This created: `btp-deploy-identity-prod-01` ❌ (Policy rejected - must start with `id-`)
+
+**After:**
+```json
+"deployScriptIdentityName": "[concat('id-', parameters('ForceCode'), '-deploy-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
+```
+This creates: `id-btp-deploy-prod-01` ✅ (Policy compliant)
+
 ## 🧪 Validation Results
 - ✅ JSON syntax validation passed
 - ✅ Resource references now match variable definitions
 - ✅ Parameter extraction logic corrected
 - ✅ Cosmos DB naming follows required pattern
+- ✅ User Assigned Identity complies with PDS policy
 
 ## 🎯 Expected Resource Names (Example: rg-btp-prod-01)
 - **Storage Account**: `stbtpprod01` ✅ (st + btp + prod + 01)
@@ -75,6 +91,7 @@ This correctly extracts `rg-btp-prod-01` → `btp`
 - **Cosmos DB Account**: `db-app-btp-coppa` ✅
 - **Cosmos Database**: `db_conversation_history` ✅ (consistent)
 - **Cosmos Container**: `conversations` ✅ (consistent)
+- **User Assigned Identity**: `id-btp-deploy-prod-01` ✅ (PDS compliant)
 
 ## 🚀 Next Steps
 1. **Upload the fixed deployment.json** to your storage account
