@@ -5,23 +5,24 @@
         "ForceCode": {
             "type": "string",
             "metadata": {
-                "description": "Police force code (2-3 lowercase letters, e.g., 'btp', 'met', 'gmp')"
+                "description": "Police force code (automatically generated from resource group name)"
             },
+            "defaultValue": "[take(toLower(replace(replace(resourceGroup().name, 'rg-', ''), '-', '')), 3)]",
             "minLength": 2,
             "maxLength": 3
         },
         "EnvironmentSuffix": {
             "type": "string",
             "metadata": {
-                "description": "Environment suffix (dev, test, prod)"
+                "description": "Environment suffix (fixed to production)"
             },
-            "allowedValues": ["dev", "test", "prod"],
-            "defaultValue": "prod"
+            "defaultValue": "prod",
+            "allowedValues": ["prod"]
         },
         "InstanceNumber": {
             "type": "string",
             "metadata": {
-                "description": "Instance number (01, 02, etc.)"
+                "description": "Instance number (automatically set to 01)"
             },
             "defaultValue": "01",
             "minLength": 2,
