@@ -88,8 +88,6 @@
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "00000000-0000-0000-0000-000000000003",
         "storageRoleAssignmentId": "00000000-0000-0000-0000-000000000004",
-        "deploymentScriptUri": "https://stcoppadeployment.blob.core.windows.net/coppa-deployment/setup_search_components.ps1?sv=2024-11-04&ss=bt&srt=sco&sp=rltf&se=2026-08-01T18:11:42Z&st=2025-07-19T09:56:42Z&spr=https&sig=8ZzA5IXoU%2FGgPS0XOkC738gYQY67DFv%2FWD0%2BI9zkioI%3D",
-        "sampleDocumentScriptUri": "https://stcoppadeployment.blob.core.windows.net/coppa-deployment/copy_sample_document.ps1?sv=2024-11-04&ss=bt&srt=sco&sp=rltf&se=2026-08-01T18:11:42Z&st=2025-07-19T09:56:42Z&spr=https&sig=8ZzA5IXoU%2FGgPS0XOkC738gYQY67DFv%2FWD0%2BI9zkioI%3D",
         "deployScriptIdentityName": "[concat('id-', parameters('ForceCode'), '-deploy-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "AzureOpenAIEmbeddingName": "[parameters('AzureOpenAIEmbeddingName')]",
         "AzureSearchDataSourceName": "[parameters('SearchDataSourceName')]",
@@ -634,67 +632,6 @@
                         }
                     ]
                 }
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2020-10-01",
-            "name": "createSampleDocument",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('StorageAccountName'), 'default', variables('StorageContainerName'))]"
-            ],
-            "kind": "AzurePowerShell",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
-                }
-            },
-            "properties": {
-                "azPowerShellVersion": "6.4",
-                "timeout": "PT10M",
-                "storageAccountSettings": {
-                    "storageAccountName": "[variables('StorageAccountName')]",
-                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value]"
-                },
-                "arguments": "[concat('-storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -containerName \"', variables('StorageContainerName'), '\"')]",
-                "primaryScriptUri": "[variables('sampleDocumentScriptUri')]",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2020-10-01",
-            "name": "setupSearchComponents",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('StorageAccountName'), 'default', variables('StorageContainerName'))]",
-                "managedIdentityDeployment"
-            ],
-            "kind": "AzurePowerShell",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
-                }
-            },
-            "properties": {
-                "azPowerShellVersion": "6.4",
-                "timeout": "PT60M",
-                "storageAccountSettings": {
-                    "storageAccountName": "[variables('StorageAccountName')]",
-                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value]"
-                },
-                "arguments": "[concat('-searchServiceName \"', variables('AzureSearchService'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey, '\" -dataSourceName \"', variables('AzureSearchDataSourceName'), '\" -indexName \"', variables('AzureSearchIndexName'), '\" -indexerName \"', variables('AzureSearchIndexerName'), '\" -skillset1Name \"', variables('AzureSearchSkillset1Name'), '\" -skillset2Name \"', variables('AzureSearchSkillset2Name'), '\" -storageAccountName \"', variables('StorageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', variables('StorageContainerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"', parameters('AzureOpenAIEmbeddingName'), '\" -openAIGptDeployment \"', variables('AzureOpenAIModelDeploymentName'), '\"')]",
-                "primaryScriptUri": "[variables('deploymentScriptUri')]",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
             }
         }
     ]
