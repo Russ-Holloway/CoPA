@@ -31,7 +31,7 @@
 
 **🚔 For all 44 UK Police Forces:** Use our PDS-compliant deployment that automatically generates resource names according to Police Digital Service standards.
 
-[![Deploy PDS Compliant](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fyour-repo%2Finfrastructure%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2Fyour-repo%2Finfrastructure%2FcreateUiDefinition-pds.json)
+[![Deploy PDS Compliant](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-06-19T11%3A57%3A11Z%26se%3D2026-06-19T19%3A57%3A11Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Dc%26sig%3DQZ4ZQi9NqinJzhSNH69n9%252Fv9geabtrlXDaf86blN848%253D/createUIDefinitionUri/https%3A%2F%2Fstbtpukssandopenai.blob.core.windows.net%2Fpolicing-assistant-azure-deployment-template%2FcreateUiDefinition-pds.json%3Fsp%3Dr%26st%3D2025-06-19T11%3A57%3A11Z%26se%3D2026-06-19T19%3A57%3A11Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Dc%26sig%3DQZ4ZQi9NqinJzhSNH69n9%252Fv9geabtrlXDaf86blN848%253D)
 
 📋 **[PDS Deployment Guide](docs/PDS-DEPLOYMENT-GUIDE.md)** - Complete guide for police forces  
 📋 **[Azure Naming Guidelines](docs/azure-naming-guidelines.md)** - PDS naming conventions  
