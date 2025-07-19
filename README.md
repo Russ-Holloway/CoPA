@@ -83,13 +83,18 @@ az webapp deployment source config-zip \
 **📋 Quick Reference:** [Azure AD Quick Reference](AZURE_AD_QUICK_REFERENCE.md)  
 **📖 Full Guide:** [Azure AD Setup Guide](AZURE_AD_SETUP_GUIDE.md)
 
-#### Search Components (Automatically Configured)
-The Azure Cognitive Search components (index, data source, skillsets, and indexers) are automatically set up during deployment through a built-in deployment script. **No manual setup is required.**
+#### Search Components Setup (Required)
+After infrastructure deployment, you'll need to manually configure the Azure Cognitive Search components:
 
-If you need to troubleshoot or reconfigure search components:
 ```powershell
 .\scripts\setup-search-components.ps1 -ResourceGroupName "your-resource-group-name" -SearchServiceName "your-search-service-name" -StorageAccountName "your-storage-account-name" -OpenAIServiceName "your-openai-service-name"
 ```
+
+This will create:
+- Search index with vector search capabilities
+- Data source connected to blob storage
+- Skillsets for document processing and embedding generation
+- Indexers to process documents
 
 **📖 Full Guide:** [Search Components Setup Guide](docs/search_components_setup.md)
 
@@ -322,12 +327,11 @@ This section provides technical details about the deployment process:
 The one-click deployment method provides convenient deployment directly from the GitHub repository through Azure Blob Storage with proper CORS configuration.
 
 ### Automated Components Setup
-- **Search Components**: The deployment automatically configures Azure Cognitive Search using a PowerShell deployment script:
-  - Creates a search index with vector search capabilities
-  - Sets up a data source connected to blob storage
-  - Configures skillsets for document processing and embedding generation
-  - Creates and runs an indexer to process documents
-  - No manual setup required after deployment
+- **Infrastructure Only**: The deployment creates all Azure resources (App Service, Search, OpenAI, Storage, etc.) with PDS-compliant naming
+- **Manual Configuration Required**: After deployment, you need to manually set up:
+  - Search components using the provided PowerShell scripts
+  - Authentication configuration
+  - Application code deployment
 
 ### Access Requirements
 - The deployment uses a SAS token for Azure Blob Storage valid until August 1, 2026

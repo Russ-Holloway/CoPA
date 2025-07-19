@@ -3,7 +3,7 @@
 ## 🚨 Issues Identified
 1. **Error**: `The resource 'Microsoft.Storage/storageAccounts/stbtpprod01' is not defined in the template`
 2. **Error**: `Resource 'btp-deplo- ✅ Storage Account: `st*` pattern enforced
-- ✅ Deployment Scripts: Use existing PDS-compliant storage account (no temp storage creation)
+- ✅ Deployment Scripts: Removed for manual setup (faster deployment, eliminates script failures)
 - ✅ GitHub Source Control: Removed automatic configuration (eliminates admin access errors)
 - ✅ All other resources follow appropriate PDS naming conventionsdentity-prod-01' was disallowed by policy. Policy identifiers: '[PDS] Naming Convention - User Assigned Identity'`
 
@@ -174,6 +174,27 @@ This prevents deployment scripts from creating temporary storage accounts with n
 - Eliminates source control deployment failures ✅
 - Simplifies deployment process ✅
 
+### 9. Removed Deployment Scripts for Manual Search Setup
+**Change:** Removed both `createSampleDocument` and `setupSearchComponents` deployment scripts at user request.
+
+**Removed Scripts:**
+- **createSampleDocument**: Previously created sample documents in storage
+- **setupSearchComponents**: Previously configured Azure Search index, data sources, skillsets, and indexers
+
+**Removed Variables:**
+- `deploymentScriptUri`: URI for search setup script
+- `sampleDocumentScriptUri`: URI for sample document creation script
+
+**Benefits:**
+- Faster infrastructure deployment (no long-running scripts) ✅
+- More control over search setup timing ✅
+- Eliminates potential script execution failures during deployment ✅
+- Users can customize search configuration as needed ✅
+
+**Post-Deployment Requirement:**
+- Users must now manually run `setup-search-components.ps1` after infrastructure deployment
+- Search components setup is now a separate, controlled step
+
 ## 🧪 Validation Results
 - ✅ JSON syntax validation passed
 - ✅ Resource references now match variable definitions
@@ -183,6 +204,7 @@ This prevents deployment scripts from creating temporary storage accounts with n
 - ✅ Application Insights managed resource group issue resolved
 - ✅ Deployment Scripts now use existing PDS-compliant storage account
 - ✅ GitHub source control configuration removed (eliminates admin access requirement)
+- ✅ Deployment scripts removed for manual search setup (faster deployment, more control)
 
 ## 🎯 Expected Resource Names (Example: rg-btp-prod-01)
 - **Storage Account**: `stbtpprod01` ✅ (st + btp + prod + 01)
