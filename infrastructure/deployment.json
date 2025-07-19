@@ -1,6 +1,5 @@
 {
-    "$schema": "https://schema.managemen        "deploymentScriptUri": "https://stazurecoppadeployment.blob.core.windows.net/coppa-azure-deployment/setup_search_components.ps1?sv=2024-11-04&ss=bfqt&srt=sco&sp=rltfx&se=2027-08-01T16:40:10Z&st=2025-07-19T08:25:10Z&spr=https&sig=PHr2qzGyNQGP8AEOxixlE6oM3vWF3DMfyvmDYlfb514%3D",
-        "sampleDocumentScriptUri": "https://stazurecoppadeployment.blob.core.windows.net/coppa-azure-deployment/copy_sample_document.ps1?sv=2024-11-04&ss=bfqt&srt=sco&sp=rltfx&se=2027-08-01T16:40:10Z&st=2025-07-19T08:25:10Z&spr=https&sig=PHr2qzGyNQGP8AEOxixlE6oM3vWF3DMfyvmDYlfb514%3D",azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "ResourceGroupName": {
@@ -41,8 +40,8 @@
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "00000000-0000-0000-0000-000000000003",
         "storageRoleAssignmentId": "00000000-0000-0000-0000-000000000004",
-        "deploymentScriptUri": "https://stazurecoppadeployment.blob.core.windows.net/coppa-deployment-files/setup_search_components.ps1?sv=2024-11-04&ss=b&srt=sco&sp=r&se=2026-08-01T17:17:16Z&st=2025-07-19T09:02:16Z&spr=https&sig=ARoPRVPEuzz1LRWox%2FbogZGH26%2BEEcZLhpiKk5UvlHs%3D",
-        "sampleDocumentScriptUri": "https://stazurecoppadeployment.blob.core.windows.net/coppa-deployment-files/copy_sample_document.ps1?sv=2024-11-04&ss=b&srt=sco&sp=r&se=2026-08-01T17:17:16Z&st=2025-07-19T09:02:16Z&spr=https&sig=ARoPRVPEuzz1LRWox%2FbogZGH26%2BEEcZLhpiKk5UvlHs%3D",
+        "deploymentScriptUri": "https://stcoppadeployment.blob.core.windows.net/coppa-deployment/setup_search_components.ps1?sv=2024-11-04&ss=bt&srt=sco&sp=rltf&se=2026-08-01T18:11:42Z&st=2025-07-19T09:56:42Z&spr=https&sig=8ZzA5IXoU%2FGgPS0XOkC738gYQY67DFv%2FWD0%2BI9zkioI%3D",
+        "sampleDocumentScriptUri": "https://stcoppadeployment.blob.core.windows.net/coppa-deployment/copy_sample_document.ps1?sv=2024-11-04&ss=bt&srt=sco&sp=rltf&se=2026-08-01T18:11:42Z&st=2025-07-19T09:56:42Z&spr=https&sig=8ZzA5IXoU%2FGgPS0XOkC738gYQY67DFv%2FWD0%2BI9zkioI%3D",
         "deployScriptIdentityName": "[concat(parameters('ForceCode'), '-deploy-identity-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "AzureOpenAIEmbeddingName": "[parameters('AzureOpenAIEmbeddingName')]",
         "AzureSearchDataSourceName": "[parameters('SearchDataSourceName')]",

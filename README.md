@@ -31,7 +31,7 @@
 
 **🚔 For all 44 UK Police Forces:** Use our PDS-compliant deployment that automatically generates resource names according to Police Digital Service standards.
 
-[![Deploy PDS Compliant](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstazurecoppadeployment.blob.core.windows.net%2Fcoppa-deployment-files%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-07-19T09%3A35%3A33Z%26se%3D2026-08-01T17%3A50%3A33Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Dc%26sig%3DbA3T8akzRt1JO0yoinBY%252BJVduwFw%252Bn%252F8An2vvy2cnMo%253D/createUIDefinitionUri/https%3A%2F%2Fstazurecoppadeployment.blob.core.windows.net%2Fcoppa-deployment-files%2FcreateUiDefinition-pds.json%3Fsp%3Dr%26st%3D2025-07-19T09%3A35%3A33Z%26se%3D2026-08-01T17%3A50%3A33Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Dc%26sig%3DbA3T8akzRt1JO0yoinBY%252BJVduwFw%252Bn%252F8An2vvy2cnMo%253D)
+[![Deploy PDS Compliant](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstcoppadeployment.blob.core.windows.net%2Fcoppa-deployment%2Fdeployment.json%3Fsv%3D2024-11-04%26ss%3Dbt%26srt%3Dsco%26sp%3Drltf%26se%3D2026-08-01T18%3A11%3A42Z%26st%3D2025-07-19T09%3A56%3A42Z%26spr%3Dhttps%26sig%3D8ZzA5IXoU%252FGgPS0XOkC738gYQY67DFv%252FWD0%252BI9zkioI%253D/createUIDefinitionUri/https%3A%2F%2Fstcoppadeployment.blob.core.windows.net%2Fcoppa-deployment%2FcreateUiDefinition-pds.json%3Fsv%3D2024-11-04%26ss%3Dbt%26srt%3Dsco%26sp%3Drltf%26se%3D2026-08-01T18%3A11%3A42Z%26st%3D2025-07-19T09%3A56%3A42Z%26spr%3Dhttps%26sig%3D8ZzA5IXoU%252FGgPS0XOkC738gYQY67DFv%252FWD0%252BI9zkioI%253D)
 
 📋 **[PDS Deployment Guide](docs/PDS-DEPLOYMENT-GUIDE.md)** - Complete guide for police forces  
 📋 **[Azure Naming Guidelines](docs/azure-naming-guidelines.md)** - PDS naming conventions  
@@ -40,14 +40,6 @@
 ```powershell
 .\scripts\validate-pds-naming.ps1 -ForceCode "btp" -Environment "prod" -InstanceNumber "01"
 ```
-
-### One-Click Azure Deployment
-
-Click the button below to deploy directly to Azure with the correct GPT-4o model:
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstazurecoppadeployment.blob.core.windows.net%2Fcoppa-deployment-files%2Fdeployment.json%3Fsp%3Dr%26st%3D2025-07-19T09%3A35%3A33Z%26se%3D2026-08-01T17%3A50%3A33Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Dc%26sig%3DbA3T8akzRt1JO0yoinBY%252BJVduwFw%252Bn%252F8An2vvy2cnMo%253D/createUIDefinitionUri/https%3A%2F%2Fstazurecoppadeployment.blob.core.windows.net%2Fcoppa-deployment-files%2FcreateUiDefinition.json%3Fsp%3Dr%26st%3D2025-07-19T09%3A35%3A33Z%26se%3D2026-08-01T17%3A50%3A33Z%26spr%3Dhttps%26sv%3D2024-11-04%26sr%3Dc%26sig%3DbA3T8akzRt1JO0yoinBY%252BJVduwFw%252Bn%252F8An2vvy2cnMo%253D)
-
-> **Note:** The deployment button provides a simple one-click experience. Just select your resource group (or create a new one), then click "Review + create" to deploy. All parameters are pre-configured for optimal performance with GPT-4o. No need to modify any parameters - the deployment uses the latest GPT-4o model with appropriate settings automatically.
 
 ### Post-Deployment Setup
 
@@ -309,7 +301,7 @@ The one-click deployment method provides convenient deployment directly from the
   - No manual setup required after deployment
 
 ### Access Requirements
-- The deployment uses a SAS token for Azure Blob Storage valid until June 16, 2026
+- The deployment uses a SAS token for Azure Blob Storage valid until August 1, 2026
 
 ### Resource Types
 The deployment template creates the following Azure resources:

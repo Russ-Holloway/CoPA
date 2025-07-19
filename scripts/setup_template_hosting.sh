@@ -32,9 +32,9 @@ fi
 echo "Setting CORS policy to allow all origins..."
 az storage cors add --services b --origins "*" --methods GET HEAD OPTIONS --allowed-headers "*" --exposed-headers "*" --max-age 3600 --account-name $storage_account_name --account-key $storage_key
 
-# Upload createUiDefinition.json
-echo "Uploading createUiDefinition.json to container..."
-az storage blob upload --file "./infrastructure/createUiDefinition.json" --container-name $container_name --name "createUiDefinition.json" --account-name $storage_account_name --account-key $storage_key --content-type "application/json" --overwrite
+# Upload createUiDefinition-pds.json
+echo "Uploading createUiDefinition-pds.json to container..."
+az storage blob upload --file "./infrastructure/createUiDefinition-pds.json" --container-name $container_name --name "createUiDefinition-pds.json" --account-name $storage_account_name --account-key $storage_key --content-type "application/json" --overwrite
 
 # Check if deployment.json exists, upload if not
 deployment_exists=$(az storage blob exists --container-name $container_name --name "deployment.json" --account-name $storage_account_name --account-key $storage_key --query "exists" --output tsv)
@@ -49,7 +49,7 @@ storage_endpoint=$(az storage account show --name $storage_account_name --resour
 
 # Output URLs
 deployment_url="${storage_endpoint}${container_name}/deployment.json"
-create_ui_url="${storage_endpoint}${container_name}/createUiDefinition.json"
+create_ui_url="${storage_endpoint}${container_name}/createUiDefinition-pds.json"
 
 echo "Template URLs:"
 echo "Deployment Template URL: $deployment_url"

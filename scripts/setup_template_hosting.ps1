@@ -111,12 +111,12 @@ $corsRules = @(
 )
 Set-AzStorageCORSRule -ServiceType Blob -CorsRules $corsRules -Context $ctx
 
-# Path to createUiDefinition.json file
-$createUiDefinitionJsonPath = Join-Path (Get-Location).Path "infrastructure/createUiDefinition.json"
+# Path to createUiDefinition-pds.json file
+$createUiDefinitionJsonPath = Join-Path (Get-Location).Path "infrastructure/createUiDefinition-pds.json"
 $deploymentJsonPath = Join-Path (Get-Location).Path "infrastructure/deployment.json"
 
 # Validate JSON files before uploading
-$createUiDefinitionValid = Test-JsonValid -FilePath $createUiDefinitionJsonPath -FileDescription "createUiDefinition.json"
+$createUiDefinitionValid = Test-JsonValid -FilePath $createUiDefinitionJsonPath -FileDescription "createUiDefinition-pds.json"
 $deploymentJsonValid = Test-JsonValid -FilePath $deploymentJsonPath -FileDescription "deployment.json"
 
 if (-not ($createUiDefinitionValid -and $deploymentJsonValid)) {
@@ -219,19 +219,19 @@ function Test-BlobCORS {
     Start-Process $tempHtmlPath
 }
 
-# Upload createUiDefinition.json to the container
-Write-Host "Uploading createUiDefinition.json to the container"
+# Upload createUiDefinition-pds.json to the container
+Write-Host "Uploading createUiDefinition-pds.json to the container"
 Set-AzStorageBlobContent -File $createUiDefinitionJsonPath `
     -Container $containerName `
-    -Blob "createUiDefinition.json" `
+    -Blob "createUiDefinition-pds.json" `
     -Context $ctx `
     -Properties @{"ContentType" = "application/json"} `
     -Force
 
 # Verify content type was set correctly
-$blob = Get-AzStorageBlob -Container $containerName -Blob "createUiDefinition.json" -Context $ctx
+$blob = Get-AzStorageBlob -Container $containerName -Blob "createUiDefinition-pds.json" -Context $ctx
 if ($blob.Properties.ContentType -ne "application/json") {
-    Write-Host "Setting content type for createUiDefinition.json to application/json"
+    Write-Host "Setting content type for createUiDefinition-pds.json to application/json"
     $blob.ICloudBlob.Properties.ContentType = "application/json"
     $blob.ICloudBlob.SetProperties()
 }
@@ -496,7 +496,7 @@ function Generate-DeploymentReport {
 
 # Output template URLs
 $deploymentUrl = $ctx.BlobEndPoint + "$containerName/deployment.json"
-$createUiDefinitionUrl = $ctx.BlobEndPoint + "$containerName/createUiDefinition.json"
+$createUiDefinitionUrl = $ctx.BlobEndPoint + "$containerName/createUiDefinition-pds.json"
 
 # Output the Azure Portal deployment link
 $encodedCreateUiDefinitionUrl = [System.Web.HttpUtility]::UrlEncode($createUiDefinitionUrl)
@@ -528,7 +528,7 @@ if ($testCors -eq "Y" -or $testCors -eq "y") {
     # Test primary Azure Portal domain first
     Test-BlobCORS -BlobName "deployment.json" -Origin $originsToTest[0]
     Start-Sleep -Seconds 2  # Add delay between browser openings
-    Test-BlobCORS -BlobName "createUiDefinition.json" -Origin $originsToTest[0]
+    Test-BlobCORS -BlobName "createUiDefinition-pds.json" -Origin $originsToTest[0]
     
     # Offer to test with additional origins
     Write-Host "Would you like to test with additional Azure Portal domains? (Y/N)"
@@ -545,7 +545,7 @@ if ($testCors -eq "Y" -or $testCors -eq "y") {
     Write-Host "Performing direct CORS headers check with PowerShell..."
     
     $deploymentUrlToCurl = $ctx.BlobEndPoint + "$containerName/deployment.json"
-    $createUiDefinitionUrlToCurl = $ctx.BlobEndPoint + "$containerName/createUiDefinition.json"
+    $createUiDefinitionUrlToCurl = $ctx.BlobEndPoint + "$containerName/createUiDefinition-pds.json"
     
     foreach ($origin in $originsToTest) {
         try {
