@@ -2,6 +2,31 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "ForceCode": {
+            "type": "string",
+            "metadata": {
+                "description": "Police force code (2-3 lowercase letters, e.g., 'btp', 'met', 'gmp')"
+            },
+            "minLength": 2,
+            "maxLength": 3
+        },
+        "EnvironmentSuffix": {
+            "type": "string",
+            "metadata": {
+                "description": "Environment suffix (dev, test, prod)"
+            },
+            "allowedValues": ["dev", "test", "prod"],
+            "defaultValue": "prod"
+        },
+        "InstanceNumber": {
+            "type": "string",
+            "metadata": {
+                "description": "Instance number (01, 02, etc.)"
+            },
+            "defaultValue": "01",
+            "minLength": 2,
+            "maxLength": 2
+        },
         "ResourceGroupName": {
             "type": "string",
             "metadata": {
@@ -22,19 +47,40 @@
                 "description": "The name of the OpenAI embedding model to deploy."
             },
             "defaultValue": "text-embedding-ada-002"
+        },
+        "SearchDataSourceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the search data source"
+            },
+            "defaultValue": "[concat(parameters('ForceCode'), '-search-ds-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
+        },
+        "SearchIndexName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the search index"
+            },
+            "defaultValue": "[concat(parameters('ForceCode'), '-search-idx-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
+        },
+        "SearchIndexerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the search indexer"
+            },
+            "defaultValue": "[concat(parameters('ForceCode'), '-search-idxr-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
         }
     },
     "variables": {
-        "HostingPlanName": "policing-app-plan",
+        "HostingPlanName": "[concat('asp-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "HostingPlanSku": "B3",
-        "WebsiteName": "policing-assistant",
-        "ApplicationInsightsName": "policing-assistant-app-insights",
-        "AzureSearchService": "policing-assistant-search-service",
-        "AzureOpenAIResource": "[concat('policing-ai-', uniqueString(resourceGroup().id))]",
+        "WebsiteName": "[concat('app-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
+        "ApplicationInsightsName": "[concat('appi-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
+        "AzureSearchService": "[concat('srch-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
+        "AzureOpenAIResource": "[concat('cog-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "AzureSearchSku": "standard",
-        "StorageAccountName": "stpolicing001",
+        "StorageAccountName": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'))]",
         "StorageContainerName": "docs",
-        "cosmosdb_account_name": "policingassistant-cosmos-db",
+        "cosmosdb_account_name": "[concat('cosmos-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
@@ -49,7 +95,6 @@
         "AzureSearchIndexerName": "[parameters('SearchIndexerName')]",
         "AzureSearchSkillset1Name": "[concat(parameters('ForceCode'), '-skillset-1-', parameters('EnvironmentSuffix'))]",
         "AzureSearchSkillset2Name": "[concat(parameters('ForceCode'), '-skillset-2-', parameters('EnvironmentSuffix'))]",
-        "AzureSearchSkillset2Name": "police-skillset-2",
         "AzureSearchUseSemanticSearch": "true",
         "AzureSearchSemanticSearchConfig": "default",
         "AzureSearchIndexIsPrechunked": "false",
