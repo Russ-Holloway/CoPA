@@ -1,4 +1,4 @@
-import { FormEvent, useContext, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useContext, useEffect, useMemo, useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -33,6 +33,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
 
   const [isRefAccordionOpen, { toggle: toggleIsRefAccordionOpen }] = useBoolean(false)
   const filePathTruncationLimit = 50
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   const parsedAnswer = useMemo(() => parseAnswer(answer), [answer])
   const [chevronIsExpanded, setChevronIsExpanded] = useState(isRefAccordionOpen)
@@ -44,6 +45,17 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   const FEEDBACK_ENABLED =
     appStateContext?.state.frontendSettings?.feedback_enabled && appStateContext?.state.isCosmosDBAvailable?.cosmosDB
   const SANITIZE_ANSWER = appStateContext?.state.frontendSettings?.sanitize_answer
+
+  // Focus management for dialog
+  useEffect(() => {
+    if (isFeedbackDialogOpen && dialogRef.current) {
+      // Small delay to allow dialog to render
+      setTimeout(() => {
+        const firstFocusableElement = dialogRef.current?.querySelector('input, button, textarea, select, a[href]') as HTMLElement
+        firstFocusableElement?.focus()
+      }, 100)
+    }
+  }, [isFeedbackDialogOpen])
 
   const handleChevronClick = () => {
     setChevronIsExpanded(!chevronIsExpanded)
@@ -396,18 +408,26 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
         dialogContentProps={{
           title: 'Submit Feedback',
           showCloseButton: true
+        }}
+        modalProps={{
+          isBlocking: true
         }}>
-        <Stack tokens={{ childrenGap: 4 }}>
-          <div>Your feedback will improve this experience.</div>
+        <div ref={dialogRef}>
+          <Stack tokens={{ childrenGap: 4 }}>
+            <div id="feedback-description">Your feedback will improve this experience.</div>
 
-          {!showReportInappropriateFeedback ? <UnhelpfulFeedbackContent /> : <ReportInappropriateFeedbackContent />}
+            {!showReportInappropriateFeedback ? <UnhelpfulFeedbackContent /> : <ReportInappropriateFeedbackContent />}
 
-          <div>By pressing submit, your feedback will be visible to the application owner.</div>
+            <div>By pressing submit, your feedback will be visible to the application owner.</div>
 
-          <DefaultButton disabled={negativeFeedbackList.length < 1} onClick={onSubmitNegativeFeedback}>
-            Submit
-          </DefaultButton>
-        </Stack>
+            <DefaultButton 
+              disabled={negativeFeedbackList.length < 1} 
+              onClick={onSubmitNegativeFeedback}
+              aria-describedby="feedback-description">
+              Submit
+            </DefaultButton>
+          </Stack>
+        </div>
       </Dialog>
     </>
   )

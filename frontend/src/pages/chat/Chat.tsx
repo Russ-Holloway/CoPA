@@ -65,6 +65,8 @@ const Chat = () => {
   const [errorMsg, setErrorMsg] = useState<ErrorMessage | null>()
   const [logo, setLogo] = useState('')
   const [answerId, setAnswerId] = useState<string>('')
+  const [announceMessage, setAnnounceMessage] = useState<string>('')
+  const [loadingDescription, setLoadingDescription] = useState<string>('Processing your request')
 
   const errorDialogContentProps = {
     type: DialogType.close,
@@ -155,6 +157,8 @@ const Chat = () => {
       assistantContent += resultMessage.content
       assistantMessage = { ...assistantMessage, ...resultMessage }
       assistantMessage.content = assistantContent
+      setAnnounceMessage('New response received from assistant')
+      setLoadingDescription('Response generated successfully')
 
       if (resultMessage.context) {
         toolMessage = {
@@ -182,6 +186,8 @@ const Chat = () => {
   const makeApiRequestWithoutCosmosDB = async (question: ChatMessage["content"], conversationId?: string) => {
     setIsLoading(true)
     setShowLoadingMessage(true)
+    setLoadingDescription('Processing your question')
+    setAnnounceMessage('Question submitted, generating response')
     const abortController = new AbortController()
     abortFuncs.current.unshift(abortController)
 
@@ -309,6 +315,8 @@ const Chat = () => {
   const makeApiRequestWithCosmosDB = async (question: ChatMessage["content"], conversationId?: string) => {
     setIsLoading(true)
     setShowLoadingMessage(true)
+    setLoadingDescription('Processing your question with chat history')
+    setAnnounceMessage('Question submitted, generating response with conversation context')
     const abortController = new AbortController()
     abortFuncs.current.unshift(abortController)
     const questionContent = typeof question === 'string' ? question : question
@@ -592,6 +600,8 @@ const Chat = () => {
   const newChat = async () => {
     try {
       setProcessMessages(messageStatus.Processing)
+      setAnnounceMessage('Clearing current chat and starting new conversation')
+      setLoadingDescription('Clearing chat history')
       
       // If there's a current conversation with messages, finalize it
       const currentConversationId = appStateContext?.state.currentChat?.id
@@ -606,9 +616,11 @@ const Chat = () => {
       setActiveCitation(undefined)
       appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
       setProcessMessages(messageStatus.Done)
+      setAnnounceMessage('New chat started successfully. Ready for your question')
 
     } catch (error) {
       console.error("Error starting new chat:", error)
+      setAnnounceMessage('Error clearing chat. Please try again')
       // Fallback: just clear the UI
       setMessages([])
       setIsCitationPanelOpen(false)
@@ -753,22 +765,34 @@ const Chat = () => {
 
   return (
     <div className={styles.container} role="main">
+      {/* Live region for accessibility announcements */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {announceMessage}
+      </div>
+      
+      {/* Loading status announcements */}
+      <div aria-live="polite" className="sr-only">
+        {showLoadingMessage && loadingDescription}
+      </div>
+      
       {showAuthMessage ? (
         <Stack className={styles.chatEmptyState}>
           <ShieldLockRegular
             className={styles.chatIcon}
             style={{ color: 'darkorange', height: '200px', width: '200px' }}
+            aria-hidden="true"
           />
           <h1 className={styles.chatEmptyStateTitle}>Authentication Not Configured</h1>
           <h2 className={styles.chatEmptyStateSubtitle}>
             This app does not have authentication configured. Please add an identity provider by finding your app in the{' '}
-            <a href="https://portal.azure.com/" target="_blank">
+            <a href="https://portal.azure.com/" target="_blank" rel="noopener noreferrer">
               Azure Portal
             </a>
             and following{' '}
             <a
               href="https://learn.microsoft.com/en-us/azure/app-service/scenario-secure-app-authentication-app-service#3-configure-authentication-and-authorization"
-              target="_blank">
+              target="_blank"
+              rel="noopener noreferrer">
               these instructions
             </a>
             .
@@ -782,6 +806,18 @@ const Chat = () => {
         </Stack>
       ) : (
         <Stack horizontal className={styles.chatRoot}>
+          {/* Clear Chat Button - positioned to the left of main chat area */}
+          <Stack className={styles.clearChatSidebar}>
+            <button
+              className={styles.clearChatButton}
+              onClick={newChat}
+              disabled={disabledButton()}
+              aria-label="clear chat button"
+            >
+              <span className={styles.clearChatButtonText}>Clear Chat</span>
+            </button>
+          </Stack>
+
           <div className={styles.chatContainer}>
             {!messages || messages.length < 1 ? (
               <Stack className={styles.chatEmptyState}>
@@ -852,7 +888,8 @@ const Chat = () => {
               </div>
             )}
 
-            <Stack horizontal className={styles.chatInput}>
+            {/* Centered Input Area */}
+            <Stack className={styles.chatInputCentered}>
               {isLoading && messages.length > 0 && (
                 <Stack
                   horizontal
@@ -868,21 +905,6 @@ const Chat = () => {
                   </span>
                 </Stack>
               )}
-              <Stack>
-                <button
-                  className={styles.clearChatButton}
-                  onClick={newChat}
-                  disabled={disabledButton()}
-                  aria-label="clear chat button"
-                >
-                  <span className={styles.clearChatButtonText}>Clear Chat</span>
-                </button>
-                <Dialog
-                  hidden={hideErrorDialog}
-                  onDismiss={handleErrorDialogClose}
-                  dialogContentProps={errorDialogContentProps}
-                  modalProps={modalProps}></Dialog>
-              </Stack>
               <QuestionInput
                 clearOnSend
                 placeholder="Type a new question..."
@@ -988,6 +1010,11 @@ const Chat = () => {
             appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && <ChatHistoryPanel />}
         </Stack>
       )}
+      <Dialog
+        hidden={hideErrorDialog}
+        onDismiss={handleErrorDialogClose}
+        dialogContentProps={errorDialogContentProps}
+        modalProps={modalProps}></Dialog>
     </div>
   )
 }
