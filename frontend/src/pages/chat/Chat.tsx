@@ -14,7 +14,6 @@ import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import styles from './Chat.module.css'
 import Contoso from '../../assets/Contoso.svg'
 import { XSSAllowTags } from '../../constants/sanatizeAllowables'
-import { DarkModeToggle } from '../../components/DarkModeToggle/DarkModeToggle'
 
 import {
   ChatMessage,
@@ -28,6 +27,8 @@ import {
   Conversation,
   historyGenerate,
   historyUpdate,
+  historyClear,
+  createNewConversation,
   ChatHistoryLoadingState,
   CosmosDBStatus,
   ErrorMessage,
@@ -588,14 +589,34 @@ const Chat = () => {
     return tryGetRaiPrettyError(errorMessage)
   }
 
-  const newChat = () => {
-    setProcessMessages(messageStatus.Processing)
-    setMessages([])
-    setIsCitationPanelOpen(false)
-    setIsIntentsPanelOpen(false)
-    setActiveCitation(undefined)
-    appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
-    setProcessMessages(messageStatus.Done)
+  const newChat = async () => {
+    try {
+      setProcessMessages(messageStatus.Processing)
+      
+      // If there's a current conversation with messages, finalize it
+      const currentConversationId = appStateContext?.state.currentChat?.id
+      if (currentConversationId && messages.length > 0) {
+        await historyClear(currentConversationId)
+      }
+
+      // Clear the UI
+      setMessages([])
+      setIsCitationPanelOpen(false)
+      setIsIntentsPanelOpen(false)
+      setActiveCitation(undefined)
+      appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
+      setProcessMessages(messageStatus.Done)
+
+    } catch (error) {
+      console.error("Error starting new chat:", error)
+      // Fallback: just clear the UI
+      setMessages([])
+      setIsCitationPanelOpen(false)
+      setIsIntentsPanelOpen(false)
+      setActiveCitation(undefined)
+      appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
+      setProcessMessages(messageStatus.Done)
+    }
   }
 
   const stopGenerating = () => {
@@ -770,6 +791,10 @@ const Chat = () => {
                   {ui?.police_force_tagline && (
                     <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
                   )}
+                  {/* Police force second tagline displayed below first tagline when configured */}
+                  {ui?.police_force_tagline_2 && (
+                    <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline_2}</p>
+                  )}
                 </div>
               </Stack>
             ) : (
@@ -827,7 +852,7 @@ const Chat = () => {
               </div>
             )}
 
-            <Stack className={`${styles.chatInput} ${messages && messages.length > 0 ? styles.chatInputSticky : styles.chatInputCentered}`}>
+            <Stack horizontal className={styles.chatInput}>
               {isLoading && messages.length > 0 && (
                 <Stack
                   horizontal
@@ -843,45 +868,34 @@ const Chat = () => {
                   </span>
                 </Stack>
               )}
-              
-              {/* Main input area with side controls and input */}
-              <Stack horizontal className={styles.inputRow}>
-                {/* Left side controls */}
-                <Stack className={styles.sideControls}>
-                  <DarkModeToggle className={styles.darkModeToggleWrapper} />
-                  <button
-                    className={styles.clearChatButton}
-                    onClick={newChat}
-                    disabled={disabledButton()}
-                    aria-label="clear chat button"
-                  >
-                    <span className={styles.clearChatButtonText}>Clear Chat</span>
-                  </button>
-                </Stack>
-                
-                {/* Main input area */}
-                <Stack.Item grow className={styles.inputArea}>
-                  <QuestionInput
-                    clearOnSend
-                    placeholder="Type a new question..."
-                    disabled={isLoading}
-                    onSend={(question, id) => {
-                      appStateContext?.state.isCosmosDBAvailable?.cosmosDB
-                        ? makeApiRequestWithCosmosDB(question, id)
-                        : makeApiRequestWithoutCosmosDB(question, id)
-                    }}
-                    conversationId={
-                      appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
-                    }
-                  />
-                </Stack.Item>
+              <Stack>
+                <button
+                  className={styles.clearChatButton}
+                  onClick={newChat}
+                  disabled={disabledButton()}
+                  aria-label="clear chat button"
+                >
+                  <span className={styles.clearChatButtonText}>Clear Chat</span>
+                </button>
+                <Dialog
+                  hidden={hideErrorDialog}
+                  onDismiss={handleErrorDialogClose}
+                  dialogContentProps={errorDialogContentProps}
+                  modalProps={modalProps}></Dialog>
               </Stack>
-              
-              <Dialog
-                hidden={hideErrorDialog}
-                onDismiss={handleErrorDialogClose}
-                dialogContentProps={errorDialogContentProps}
-                modalProps={modalProps}></Dialog>
+              <QuestionInput
+                clearOnSend
+                placeholder="Type a new question..."
+                disabled={isLoading}
+                onSend={(question, id) => {
+                  appStateContext?.state.isCosmosDBAvailable?.cosmosDB
+                    ? makeApiRequestWithCosmosDB(question, id)
+                    : makeApiRequestWithoutCosmosDB(question, id)
+                }}
+                conversationId={
+                  appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
+                }
+              />
             </Stack>
           </div>
           {/* Citation Panel */}
