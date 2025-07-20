@@ -48,18 +48,29 @@
   outline-offset: 2px;
 }
 
-/* Dark Mode Toggle Wrapper - positioned below Clear Chat with proper spacing */
-.darkModeToggleWrapper {
-  margin-top: 24px; /* Spacing to prevent accidental clicks */
-  display: flex;
+/* Controls Container for Dark Mode Toggle and Clear Chat */
+.controlsContainer {
+  gap: 16px;
+  align-items: center;
   justify-content: center;
   width: 100%;
 }
 
+/* Dark Mode Toggle Wrapper - positioned next to Clear Chat */
+.darkModeToggleWrapper {
+  display: flex;
+  justify-content: center;
+}
+
 /* Media query for mobile responsiveness */
 @media (max-width: 768px) {
+  .controlsContainer {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
   .darkModeToggleWrapper {
-    margin-top: 20px;
+    width: 100%;
   }
 }
 

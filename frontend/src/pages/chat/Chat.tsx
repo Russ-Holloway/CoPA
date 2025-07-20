@@ -14,6 +14,7 @@ import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import styles from './Chat.module.css'
 import Contoso from '../../assets/Contoso.svg'
 import { XSSAllowTags } from '../../constants/sanatizeAllowables'
+import { DarkModeToggle } from '../../components/DarkModeToggle/DarkModeToggle'
 
 import {
   ChatMessage,
@@ -842,7 +843,8 @@ const Chat = () => {
                   </span>
                 </Stack>
               )}
-              <Stack>
+              <Stack horizontal className={styles.controlsContainer}>
+                <DarkModeToggle className={styles.darkModeToggleWrapper} />
                 <button
                   className={styles.clearChatButton}
                   onClick={newChat}
@@ -851,12 +853,12 @@ const Chat = () => {
                 >
                   <span className={styles.clearChatButtonText}>Clear Chat</span>
                 </button>
-                <Dialog
-                  hidden={hideErrorDialog}
-                  onDismiss={handleErrorDialogClose}
-                  dialogContentProps={errorDialogContentProps}
-                  modalProps={modalProps}></Dialog>
               </Stack>
+              <Dialog
+                hidden={hideErrorDialog}
+                onDismiss={handleErrorDialogClose}
+                dialogContentProps={errorDialogContentProps}
+                modalProps={modalProps}></Dialog>
               <QuestionInput
                 clearOnSend
                 placeholder="Type a new question..."
