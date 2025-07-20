@@ -14,6 +14,7 @@ import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import styles from './Chat.module.css'
 import Contoso from '../../assets/Contoso.svg'
 import { XSSAllowTags } from '../../constants/sanatizeAllowables'
+import { DarkModeToggle } from '../../components/DarkModeToggle/DarkModeToggle'
 
 import {
   ChatMessage,
@@ -806,7 +807,7 @@ const Chat = () => {
         </Stack>
       ) : (
         <Stack horizontal className={styles.chatRoot}>
-          {/* Clear Chat Button - positioned to the left of main chat area */}
+          {/* Clear Chat Button and Dark Mode Toggle - positioned to the left of main chat area */}
           <Stack className={styles.clearChatSidebar}>
             <button
               className={styles.clearChatButton}
@@ -816,6 +817,11 @@ const Chat = () => {
             >
               <span className={styles.clearChatButtonText}>Clear Chat</span>
             </button>
+            
+            {/* Dark Mode Toggle - positioned below Clear Chat button with spacing */}
+            <div className={styles.darkModeToggleWrapper}>
+              <DarkModeToggle />
+            </div>
           </Stack>
 
           <div className={styles.chatContainer}>
