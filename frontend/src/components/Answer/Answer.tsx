@@ -322,28 +322,30 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
         )}
         <Stack horizontal className={styles.answerFooter}>
           {!!parsedAnswer?.citations.length && (
-            <Stack.Item onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? toggleIsRefAccordionOpen() : null)}>
-              <Stack style={{ width: '100%' }}>
-                <Stack horizontal horizontalAlign="start" verticalAlign="center">
-                  <Text
-                    className={styles.accordionTitle}
-                    onClick={toggleIsRefAccordionOpen}
-                    aria-label="Open references"
-                    tabIndex={0}
-                    role="button">
-                    <span>
-                      {parsedAnswer.citations.length > 1
-                        ? parsedAnswer.citations.length + ' references'
-                        : '1 reference'}
+            <Stack.Item style={{ width: '100%', marginBottom: '10px' }}>
+              <div className={styles.citationWrapper}>
+                {parsedAnswer.citations.map((citation, idx) => {
+                  return (
+                    <span
+                      key={idx}
+                      title={createCitationFilepath(citation, idx + 1)}
+                      tabIndex={0}
+                      role="link"
+                      onClick={() => onCitationClicked(citation)}
+                      onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? onCitationClicked(citation) : null)}
+                      className={styles.citationContainer}
+                      aria-label={createCitationFilepath(citation, idx + 1)}
+                      style={{ 
+                        cursor: 'pointer', 
+                        color: 'var(--primary-color, #0078d4)',
+                        textDecoration: 'underline',
+                        marginRight: '10px'
+                      }}>
+                      Citation {idx + 1}
                     </span>
-                  </Text>
-                  <FontIcon
-                    className={styles.accordionIcon}
-                    onClick={handleChevronClick}
-                    iconName={chevronIsExpanded ? 'ChevronDown' : 'ChevronRight'}
-                  />
-                </Stack>
-              </Stack>
+                  )
+                })}
+              </div>
             </Stack.Item>
           )}
           <Stack.Item className={styles.answerDisclaimerContainer}>
@@ -373,26 +375,6 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           )}
         </Stack>
-        {chevronIsExpanded && (
-          <div className={styles.citationWrapper}>
-            {parsedAnswer?.citations.map((citation, idx) => {
-              return (
-                <span
-                  title={createCitationFilepath(citation, ++idx)}
-                  tabIndex={0}
-                  role="link"
-                  key={idx}
-                  onClick={() => onCitationClicked(citation)}
-                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? onCitationClicked(citation) : null)}
-                  className={styles.citationContainer}
-                  aria-label={createCitationFilepath(citation, idx)}>
-                  <div className={styles.citation}>{idx}</div>
-                  {createCitationFilepath(citation, idx, true)}
-                </span>
-              )
-            })}
-          </div>
-        )}
       </Stack>
       <Dialog
         onDismiss={() => {
