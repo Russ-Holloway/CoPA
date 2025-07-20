@@ -141,6 +141,20 @@
   display: flex;
   flex-direction: column;
   margin-top: 0;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+/* Ensure all child elements inherit dark mode styling */
+.chatMessageStream * {
+  color: inherit;
+}
+
+/* Override any default white backgrounds in dark mode */
+:global(.dark-mode) .chatMessageStream div,
+:global(.dark-mode) .chatMessageStream p,
+:global(.dark-mode) .chatMessageStream span {
+  background-color: transparent !important;
 }
 
 .chatMessageUser {
@@ -174,6 +188,23 @@
   margin-bottom: 16px;
   max-width: 80%;
   display: flex;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+/* Style the GPT message content */
+.chatMessageGpt > div,
+.chatMessageGpt p,
+.chatMessageGpt span {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* Specific styling for message content in dark mode */
+:global(.dark-mode) .chatMessageGpt,
+:global(.dark-mode) .chatMessageGpt * {
+  background: transparent !important;
+  color: var(--text-primary) !important;
 }
 
 .chatMessageError {
@@ -331,10 +362,10 @@
   align-items: flex-start;
   padding: 16px 16px;
   gap: 8px;
-  background: #ffffff;
+  background: var(--bg-secondary);
   box-shadow:
-    0px 2px 4px rgba(0, 0, 0, 0.14),
-    0px 0px 2px rgba(0, 0, 0, 0.12);
+    0px 2px 4px var(--shadow-light),
+    0px 0px 2px var(--shadow-light);
   border-radius: 8px;
   flex: auto;
   order: 0;
@@ -343,6 +374,8 @@
   max-width: 30%;
   overflow-y: scroll;
   max-height: calc(100vh - 100px);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .citationPanelHeaderContainer {
@@ -548,7 +581,8 @@ a {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  background: #ffffff;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .taglineInput::placeholder {

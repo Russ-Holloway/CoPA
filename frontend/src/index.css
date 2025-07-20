@@ -135,3 +135,14 @@ html {
   border-color: #fbbf24 !important;
   box-shadow: 0 0 0 3px var(--shadow-light) !important;
 }
+
+/* Ensure proper dark mode inheritance */
+.dark-mode {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Override FluentUI Stack components in dark mode to be transparent */
+.dark-mode .ms-Stack {
+  background-color: transparent !important;
+}
