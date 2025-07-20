@@ -1,4 +1,4 @@
-import { FormEvent, useContext, useEffect, useMemo, useState, useRef } from 'react'
+import { FormEvent, useContext, useEffect, useMemo, useState, useRef, Fragment } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -41,6 +41,9 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false)
   const [showReportInappropriateFeedback, setShowReportInappropriateFeedback] = useState(false)
   const [negativeFeedbackList, setNegativeFeedbackList] = useState<Feedback[]>([])
+  const [isReferencesAccordionOpen, setIsReferencesAccordionOpen] = useState(false)
+  const [sidePanelOpen, setSidePanelOpen] = useState(false)
+  const [activeCitation, setActiveCitation] = useState<Citation | null>(null)
   const appStateContext = useContext(AppStateContext)
   const FEEDBACK_ENABLED =
     appStateContext?.state.frontendSettings?.feedback_enabled && appStateContext?.state.isCosmosDBAvailable?.cosmosDB
@@ -253,23 +256,65 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
       )
     }
   }
+
+  // Helper: Split answer into sentences and associate citations
+  const getSentencesWithCitations = () => {
+    // Use a regex to split into sentences (handles . ! ?)
+    const sentences = parsedAnswer?.markdownFormatText?.match(/[^.!?]+[.!?]+(\s|$)/g) || []
+    const citations = parsedAnswer?.citations || []
+    // If there are more sentences than citations, fill with undefined
+    return sentences.map((sentence, idx) => ({
+      sentence: sentence.trim(),
+      citation: citations[idx]
+    }))
+  }
+
+  const handleCitationButtonClick = (citation: Citation) => {
+    setActiveCitation(citation)
+    setSidePanelOpen(true)
+    onCitationClicked(citation) // still call parent handler
+  }
+
+  const handleCloseSidePanel = () => {
+    setSidePanelOpen(false)
+    setActiveCitation(null)
+  }
+
+  // Helper to fetch document content (mock/demo)
+  const [docContent, setDocContent] = useState<string | null>(null)
+  const [docError, setDocError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (sidePanelOpen && activeCitation) {
+      setDocContent(null)
+      setDocError(null)
+      const path = encodeURIComponent(activeCitation.filepath || '')
+      const part = encodeURIComponent(activeCitation.part_index ?? activeCitation.chunk_id ?? '')
+      fetch(`/api/documents?path=${path}&part=${part}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch document content')
+          return res.text()
+        })
+        .then(html => setDocContent(html))
+        .catch(err => setDocError('Unable to load document content.'))
+    } else {
+      setDocContent(null)
+      setDocError(null)
+    }
+  }, [sidePanelOpen, activeCitation])
+
   return (
     <>
       <Stack className={styles.answerContainer} tabIndex={0}>
         <Stack.Item>
           <Stack horizontal grow>
             <Stack.Item grow>
-              {parsedAnswer && <ReactMarkdown
-                linkTarget="_blank"
-                remarkPlugins={[remarkGfm, supersub]}
-                children={
-                  SANITIZE_ANSWER
-                    ? DOMPurify.sanitize(parsedAnswer?.markdownFormatText, { ALLOWED_TAGS: XSSAllowTags, ALLOWED_ATTR: XSSAllowAttributes })
-                    : parsedAnswer?.markdownFormatText
-                }
-                className={styles.answerText}
-                components={components}
-              />}
+              {/* Render answer with inline citation numbers */}
+              {getSentencesWithCitations().map(({ sentence }, idx) => (
+                <Fragment key={idx}>
+                  <span>{sentence} <sup>[{idx + 1}]</sup> </span>
+                </Fragment>
+              ))}
             </Stack.Item>
             <Stack.Item className={styles.answerHeader}>
               {FEEDBACK_ENABLED && answer.message_id !== undefined && (
@@ -311,28 +356,20 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
         )}
         <Stack horizontal className={styles.answerFooter}>
           {!!parsedAnswer?.citations.length && (
-            <Stack.Item onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? toggleIsRefAccordionOpen() : null)}>
-              <Stack style={{ width: '100%' }}>
-                <Stack horizontal horizontalAlign="start" verticalAlign="center">
-                  <Text
-                    className={styles.accordionTitle}
-                    onClick={toggleIsRefAccordionOpen}
-                    aria-label="Open references"
-                    tabIndex={0}
-                    role="button">
-                    <span>
-                      {parsedAnswer.citations.length > 1
-                        ? parsedAnswer.citations.length + ' references'
-                        : '1 reference'}
-                    </span>
-                  </Text>
-                  <FontIcon
-                    className={styles.accordionIcon}
-                    onClick={handleChevronClick}
-                    iconName={chevronIsExpanded ? 'ChevronDown' : 'ChevronRight'}
-                  />
-                </Stack>
-              </Stack>
+            <Stack.Item>
+              <Text
+                onClick={toggleIsRefAccordionOpen}
+                style={{ 
+                  cursor: 'pointer', 
+                  color: '#0078d4', 
+                  textDecoration: 'underline',
+                  marginRight: '8px'
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label="Open references">
+                {parsedAnswer.citations.length} references
+              </Text>
             </Stack.Item>
           )}
           <Stack.Item className={styles.answerDisclaimerContainer}>
@@ -362,27 +399,79 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           )}
         </Stack>
+        {/* Citation buttons that appear when references are clicked */}
         {chevronIsExpanded && (
-          <div className={styles.citationWrapper}>
-            {parsedAnswer?.citations.map((citation, idx) => {
-              return (
-                <span
-                  title={createCitationFilepath(citation, ++idx)}
-                  tabIndex={0}
-                  role="link"
-                  key={idx}
-                  onClick={() => onCitationClicked(citation)}
-                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? onCitationClicked(citation) : null)}
-                  className={styles.citationContainer}
-                  aria-label={createCitationFilepath(citation, idx)}>
-                  <div className={styles.citation}>{idx}</div>
-                  {createCitationFilepath(citation, idx, true)}
-                </span>
-              )
-            })}
-          </div>
+          <Stack horizontal wrap tokens={{ childrenGap: 8 }} style={{ marginTop: '12px' }}>
+            {parsedAnswer?.citations.map((citation, idx) => (
+              <DefaultButton
+                key={idx}
+                onClick={() => handleCitationButtonClick(citation)}
+                style={{
+                  padding: '6px 12px',
+                  minWidth: 'auto',
+                  marginRight: '8px',
+                  marginBottom: '8px',
+                  backgroundColor: '#0078d4',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px'
+                }}>
+                {idx + 1}
+              </DefaultButton>
+            ))}
+          </Stack>
         )}
+        {/* Remove the old References Section and citation wrapper */}
       </Stack>
+      {/* Side Panel for Citation Source */}
+      {sidePanelOpen && activeCitation && (
+        <div className={styles.sidePanel} style={{
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          width: '40%',
+          height: '100vh',
+          backgroundColor: '#fff',
+          boxShadow: '-2px 0 10px rgba(0,0,0,0.1)',
+          zIndex: 1000,
+          padding: '0',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div className={styles.sidePanelHeader} style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px',
+            borderBottom: '1px solid #e1e1e1',
+            backgroundColor: '#f8f8f8'
+          }}>
+            <Stack>
+              <Text variant="large" style={{ fontWeight: 600, margin: 0 }}>Citations</Text>
+              <Text style={{ fontSize: '14px', color: '#666', margin: 0 }}>{activeCitation.filepath || 'Unknown document'}</Text>
+            </Stack>
+            <DefaultButton 
+              onClick={handleCloseSidePanel}
+              iconProps={{ iconName: 'Cancel' }}
+              style={{ minWidth: 'auto' }}
+            />
+          </div>
+          <div className={styles.sidePanelContent} style={{
+            flex: 1,
+            padding: '16px',
+            overflow: 'auto'
+          }}>
+            {docError ? (
+              <span style={{ color: 'red' }}>{docError}</span>
+            ) : docContent ? (
+              <div dangerouslySetInnerHTML={{ __html: docContent }} />
+            ) : (
+              <span>Loading document content...</span>
+            )}
+          </div>
+        </div>
+      )}
       <Dialog
         onDismiss={() => {
           resetFeedbackDialog()
