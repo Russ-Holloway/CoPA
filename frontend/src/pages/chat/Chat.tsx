@@ -782,6 +782,18 @@ const Chat = () => {
         </Stack>
       ) : (
         <Stack horizontal className={styles.chatRoot}>
+          {/* Clear Chat Button - positioned to the left of main chat area */}
+          <Stack className={styles.clearChatSidebar}>
+            <button
+              className={styles.clearChatButton}
+              onClick={newChat}
+              disabled={disabledButton()}
+              aria-label="clear chat button"
+            >
+              <span className={styles.clearChatButtonText}>Clear Chat</span>
+            </button>
+          </Stack>
+
           <div className={styles.chatContainer}>
             {!messages || messages.length < 1 ? (
               <Stack className={styles.chatEmptyState}>
@@ -852,7 +864,8 @@ const Chat = () => {
               </div>
             )}
 
-            <Stack horizontal className={styles.chatInput}>
+            {/* Centered Input Area */}
+            <Stack className={styles.chatInputCentered}>
               {isLoading && messages.length > 0 && (
                 <Stack
                   horizontal
@@ -868,21 +881,6 @@ const Chat = () => {
                   </span>
                 </Stack>
               )}
-              <Stack>
-                <button
-                  className={styles.clearChatButton}
-                  onClick={newChat}
-                  disabled={disabledButton()}
-                  aria-label="clear chat button"
-                >
-                  <span className={styles.clearChatButtonText}>Clear Chat</span>
-                </button>
-                <Dialog
-                  hidden={hideErrorDialog}
-                  onDismiss={handleErrorDialogClose}
-                  dialogContentProps={errorDialogContentProps}
-                  modalProps={modalProps}></Dialog>
-              </Stack>
               <QuestionInput
                 clearOnSend
                 placeholder="Type a new question..."
@@ -988,6 +986,11 @@ const Chat = () => {
             appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && <ChatHistoryPanel />}
         </Stack>
       )}
+      <Dialog
+        hidden={hideErrorDialog}
+        onDismiss={handleErrorDialogClose}
+        dialogContentProps={errorDialogContentProps}
+        modalProps={modalProps}></Dialog>
     </div>
   )
 }

@@ -14,6 +14,16 @@
   gap: 20px;
 }
 
+.clearChatSidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 20px 0;
+  width: 140px;
+  flex-shrink: 0;
+}
+
 .chatContainer {
   flex: 1;
   display: flex;
@@ -33,7 +43,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 60px 40px;
+  padding: 20px 40px 20px 40px;
 }
 
 .chatEmptyStateTitle {
@@ -42,7 +52,7 @@
   font-size: 48px;
   text-align: center;
   line-height: 56px;
-  margin: 24px 0 0 0;
+  margin: 0 0 16px 0;
   color: #2c3e50;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
@@ -160,6 +170,30 @@
   max-width: 1028px;
   margin-bottom: 50px;
   margin-top: 8px;
+}
+
+.clearChatContainer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 24px;
+  padding-right: 24px;
+  margin-bottom: 10px;
+}
+
+.chatInputCentered {
+  position: sticky;
+  flex: 0 0 100px;
+  padding-top: 12px;
+  padding-bottom: 24px;
+  padding-left: 24px;
+  padding-right: 24px;
+  width: calc(100% - 48px);
+  max-width: 1028px;
+  margin: 0 auto 50px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .clearChatBroom {
