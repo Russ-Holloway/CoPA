@@ -827,7 +827,7 @@ const Chat = () => {
               </div>
             )}
 
-            <Stack className={styles.chatInput}>
+            <Stack className={`${styles.chatInput} ${messages && messages.length > 0 ? styles.chatInputSticky : styles.chatInputCentered}`}>
               {isLoading && messages.length > 0 && (
                 <Stack
                   horizontal

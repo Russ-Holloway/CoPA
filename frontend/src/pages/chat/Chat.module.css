@@ -105,9 +105,10 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 20px 40px 20px 40px;
+  padding: 20px 40px 40px 40px;
+  padding-top: 40px;
 }
 
 .chatEmptyStateTitle {
@@ -258,7 +259,6 @@
 }
 
 .chatInput {
-  position: sticky;
   flex: 0 0 auto;
   padding: 24px;
   width: 100%;
@@ -267,6 +267,18 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* When there are messages, stick to bottom */
+.chatInputSticky {
+  position: sticky;
+  bottom: 0;
+}
+
+/* When empty state, position higher */
+.chatInputCentered {
+  position: relative;
+  margin-top: 20px;
 }
 
 /* New layout styles for side controls and input */
