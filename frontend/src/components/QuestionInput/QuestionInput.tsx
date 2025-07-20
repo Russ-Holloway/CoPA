@@ -60,6 +60,11 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
     setStatusMessage('Question sent successfully')
     setHasError(false)
     setErrorMessage('')
+    
+    // Clear status message after 3 seconds
+    setTimeout(() => {
+      setStatusMessage('')
+    }, 3000)
   }
 
   const onEnterPress = (ev: React.KeyboardEvent<Element>) => {
@@ -78,7 +83,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
   return (
     <Stack horizontal className={styles.questionInputContainer}>
       {/* Screen reader only status announcements */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
+      <div aria-live="polite" aria-atomic="true" className={styles.srOnly}>
         {statusMessage}
       </div>
       

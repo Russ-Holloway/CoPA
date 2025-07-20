@@ -160,6 +160,11 @@ const Chat = () => {
       assistantMessage.content = assistantContent
       setAnnounceMessage('New response received from assistant')
       setLoadingDescription('Response generated successfully')
+      
+      // Clear announcement after 3 seconds
+      setTimeout(() => {
+        setAnnounceMessage('')
+      }, 3000)
 
       if (resultMessage.context) {
         toolMessage = {
@@ -618,10 +623,20 @@ const Chat = () => {
       appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
       setProcessMessages(messageStatus.Done)
       setAnnounceMessage('New chat started successfully. Ready for your question')
+      
+      // Clear announcement after 3 seconds
+      setTimeout(() => {
+        setAnnounceMessage('')
+      }, 3000)
 
     } catch (error) {
       console.error("Error starting new chat:", error)
       setAnnounceMessage('Error clearing chat. Please try again')
+      
+      // Clear error announcement after 5 seconds
+      setTimeout(() => {
+        setAnnounceMessage('')
+      }, 5000)
       // Fallback: just clear the UI
       setMessages([])
       setIsCitationPanelOpen(false)
@@ -767,12 +782,12 @@ const Chat = () => {
   return (
     <div className={styles.container} role="main">
       {/* Live region for accessibility announcements */}
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
+      <div aria-live="polite" aria-atomic="true" className={styles.srOnly}>
         {announceMessage}
       </div>
       
       {/* Loading status announcements */}
-      <div aria-live="polite" className="sr-only">
+      <div aria-live="polite" className={styles.srOnly}>
         {showLoadingMessage && loadingDescription}
       </div>
       
