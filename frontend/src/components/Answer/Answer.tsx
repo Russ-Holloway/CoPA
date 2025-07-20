@@ -38,10 +38,12 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   const parsedAnswer = useMemo(() => {
     const result = parseAnswer(answer)
     // Debug logging to help troubleshoot citation issues
-    console.log('Answer object:', answer)
-    console.log('Parsed result:', result)
     if (answer.citations && answer.citations.length > 0) {
-      console.log('Citations available:', answer.citations)
+      console.log('Citations available in answer:', answer.citations.length)
+      console.log('Answer text:', answer.answer?.slice(0, 200) + '...')
+      console.log('Parsed citations:', result?.citations?.length || 0)
+    } else {
+      console.log('No citations found in answer object')
     }
     return result
   }, [answer])
