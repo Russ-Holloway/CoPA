@@ -3,8 +3,9 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--bg-primary);
   min-height: calc(100vh - 100px);
+  transition: background 0.3s ease;
 }
 
 .chatRoot {
@@ -47,17 +48,33 @@
   outline-offset: 2px;
 }
 
+/* Dark Mode Toggle Wrapper - positioned below Clear Chat with proper spacing */
+.darkModeToggleWrapper {
+  margin-top: 24px; /* Spacing to prevent accidental clicks */
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Media query for mobile responsiveness */
+@media (max-width: 768px) {
+  .darkModeToggleWrapper {
+    margin-top: 20px;
+  }
+}
+
 .chatContainer {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #ffffff;
+  background: var(--chat-container-bg);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px var(--shadow-light);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-primary);
   backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 .chatEmptyState {
@@ -76,11 +93,12 @@
   text-align: center;
   line-height: 56px;
   margin: 0 0 16px 0;
-  color: #2c3e50;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: var(--chat-empty-title);
+  background: var(--accent-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  transition: all 0.3s ease;
 }
 
 .chatEmptyStateSubtitle {
@@ -91,8 +109,9 @@
   line-height: 28px;
   text-align: center;
   letter-spacing: -0.01em;
-  color: #374151;
+  color: var(--text-secondary);
   max-width: 600px;
+  transition: color 0.3s ease;
 }
 
 .chatEmptyStateTagline {
@@ -134,21 +153,21 @@
   position: relative;
   display: flex;
   padding: 20px 24px;
-  background: #1f2937;
-  color: #ffffff;
+  background: var(--bg-user-message);
+  color: var(--text-user-message);
   border-radius: 16px 16px 4px 16px;
-  box-shadow: 0 4px 12px rgba(31, 41, 55, 0.3);
+  box-shadow: 0 4px 12px var(--shadow-user-message);
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #ffffff;
   max-width: 80%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-user-message);
   order: 0;
   flex-grow: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .chatMessageGpt {
@@ -444,8 +463,8 @@ a {
 }
 
 .clearChatButton {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: 2px solid #ffffff;
+  background: var(--accent-primary);
+  border: 2px solid var(--chat-container-bg);
   border-radius: 12px;
   padding: 18px 36px;
   color: #ffffff;
@@ -454,8 +473,8 @@ a {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 
-    0 6px 20px rgba(102, 126, 234, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 6px 20px var(--shadow-heavy),
+    0 2px 4px var(--shadow-light),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
@@ -469,11 +488,11 @@ a {
 .clearChatButton:hover {
   transform: translateY(-1px);
   box-shadow: 
-    0 8px 25px rgba(102, 126, 234, 0.4),
-    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 8px 25px var(--shadow-heavy),
+    0 4px 8px var(--shadow-medium),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  border-color: #f0f9ff;
+  background: var(--accent-secondary);
+  border-color: var(--bg-tertiary);
 }
 
 .clearChatButton:active {
