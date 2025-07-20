@@ -1,12 +1,14 @@
 .container {
   max-height: calc(100vh - 100px);
   width: 300px;
-  background: #ffffff;
+  background: var(--bg-secondary);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px var(--shadow-light);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-primary);
   overflow: hidden;
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .listContainer {
@@ -42,16 +44,17 @@
   align-items: center;
   width: 32px;
   height: 32px;
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
-  background-color: #ffffff;
+  background-color: var(--bg-tertiary);
   margin: auto 8px auto 0;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: var(--text-primary);
 }
 
 .itemButton:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-primary);
   border-color: transparent;
   color: #ffffff;
   transform: scale(1.05);
