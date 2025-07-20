@@ -827,7 +827,7 @@ const Chat = () => {
               </div>
             )}
 
-            <Stack horizontal className={styles.chatInput}>
+            <Stack className={`${styles.chatInput} ${messages && messages.length > 0 ? styles.chatInputSticky : styles.chatInputCentered}`}>
               {isLoading && messages.length > 0 && (
                 <Stack
                   horizontal
@@ -843,35 +843,45 @@ const Chat = () => {
                   </span>
                 </Stack>
               )}
-              <Stack horizontal className={styles.controlsContainer}>
-                <DarkModeToggle className={styles.darkModeToggleWrapper} />
-                <button
-                  className={styles.clearChatButton}
-                  onClick={newChat}
-                  disabled={disabledButton()}
-                  aria-label="clear chat button"
-                >
-                  <span className={styles.clearChatButtonText}>Clear Chat</span>
-                </button>
+              
+              {/* Main input area with side controls and input */}
+              <Stack horizontal className={styles.inputRow}>
+                {/* Left side controls */}
+                <Stack className={styles.sideControls}>
+                  <DarkModeToggle className={styles.darkModeToggleWrapper} />
+                  <button
+                    className={styles.clearChatButton}
+                    onClick={newChat}
+                    disabled={disabledButton()}
+                    aria-label="clear chat button"
+                  >
+                    <span className={styles.clearChatButtonText}>Clear Chat</span>
+                  </button>
+                </Stack>
+                
+                {/* Main input area */}
+                <Stack.Item grow className={styles.inputArea}>
+                  <QuestionInput
+                    clearOnSend
+                    placeholder="Type a new question..."
+                    disabled={isLoading}
+                    onSend={(question, id) => {
+                      appStateContext?.state.isCosmosDBAvailable?.cosmosDB
+                        ? makeApiRequestWithCosmosDB(question, id)
+                        : makeApiRequestWithoutCosmosDB(question, id)
+                    }}
+                    conversationId={
+                      appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
+                    }
+                  />
+                </Stack.Item>
               </Stack>
+              
               <Dialog
                 hidden={hideErrorDialog}
                 onDismiss={handleErrorDialogClose}
                 dialogContentProps={errorDialogContentProps}
                 modalProps={modalProps}></Dialog>
-              <QuestionInput
-                clearOnSend
-                placeholder="Type a new question..."
-                disabled={isLoading}
-                onSend={(question, id) => {
-                  appStateContext?.state.isCosmosDBAvailable?.cosmosDB
-                    ? makeApiRequestWithCosmosDB(question, id)
-                    : makeApiRequestWithoutCosmosDB(question, id)
-                }}
-                conversationId={
-                  appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
-                }
-              />
             </Stack>
           </div>
           {/* Citation Panel */}

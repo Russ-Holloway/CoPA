@@ -1,27 +1,26 @@
 .questionInputContainer {
   height: auto;
-  min-height: 160px;
+  min-height: 180px;
   position: relative;
-  margin: 20px 60px;
+  margin: 0;
   background: #ffffff;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   overflow: hidden;
-  max-width: 1000px;
-  width: calc(100% - 120px);
+  width: 100%;
 }
 
 .questionInputTextArea {
   width: calc(100% - 120px);
-  min-height: 80px;
-  margin: 20px 20px 20px 20px;
-  padding: 24px 32px;
+  min-height: 100px;
+  margin: 24px 24px 24px 24px;
+  padding: 28px 36px;
   border: 2px solid rgba(102, 126, 234, 0.2);
   border-radius: 12px;
-  font-size: 18px;
-  line-height: 28px;
+  font-size: 20px;
+  line-height: 32px;
   resize: none;
   transition: all 0.3s ease;
   background: #ffffff;
@@ -36,7 +35,7 @@
 
 .questionInputSendButtonContainer {
   position: absolute;
-  right: 24px;
+  right: 28px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -156,33 +155,33 @@
 
 @media (max-width: 480px) {
   .questionInputContainer {
-    margin: 16px 10px;
-    min-height: 200px;
-    width: calc(100% - 20px);
+    margin: 0;
+    min-height: 160px;
+    width: 100%;
   }
 
   .questionInputTextArea {
     font-size: 16px;
     line-height: 24px;
-    min-height: 140px;
-    padding: 28px 32px;
+    min-height: 100px;
+    padding: 24px 28px;
     width: calc(100% - 80px);
-    margin: 24px;
+    margin: 20px;
   }
 
   .questionInputSendButton {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
   }
 
   .questionInputSendButtonDisabled {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
   }
   
   .questionInputSendButtonContainer {
-    right: 20px;
+    right: 24px;
   }
 }
