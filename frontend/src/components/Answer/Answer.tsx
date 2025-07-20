@@ -35,7 +35,16 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   const filePathTruncationLimit = 50
   const dialogRef = useRef<HTMLDivElement>(null)
 
-  const parsedAnswer = useMemo(() => parseAnswer(answer), [answer])
+  const parsedAnswer = useMemo(() => {
+    const result = parseAnswer(answer)
+    // Debug logging to help troubleshoot citation issues
+    console.log('Answer object:', answer)
+    console.log('Parsed result:', result)
+    if (answer.citations && answer.citations.length > 0) {
+      console.log('Citations available:', answer.citations)
+    }
+    return result
+  }, [answer])
   const [chevronIsExpanded, setChevronIsExpanded] = useState(isRefAccordionOpen)
   const [feedbackState, setFeedbackState] = useState(initializeAnswerFeedback(answer))
   const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false)
