@@ -142,7 +142,7 @@
   z-index: 10;
 }
 
-.sr-only {
+.srOnly {
   position: absolute;
   width: 1px;
   height: 1px;
