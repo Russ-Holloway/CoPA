@@ -63,7 +63,7 @@
 .chatGroup {
   margin: auto 0;
   width: 100%;
-  color: #334155;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -83,6 +83,7 @@
   font-weight: 600;
   margin-bottom: 5px;
   padding-left: 15px;
+  color: var(--text-primary);
 }
 
 .chatTitle {
@@ -90,6 +91,7 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  color: var(--text-primary);
 }
 
 @media (max-width: 480px) {
