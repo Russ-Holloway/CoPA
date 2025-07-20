@@ -48,18 +48,42 @@
   outline-offset: 2px;
 }
 
-/* Dark Mode Toggle Wrapper - positioned below Clear Chat with proper spacing */
+/* Controls Container for Dark Mode Toggle and Clear Chat - now vertical */
+.controlsContainer {
+  gap: 12px;
+  align-items: stretch;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+
+/* Dark Mode Toggle Wrapper - positioned in side controls */
 .darkModeToggleWrapper {
-  margin-top: 24px; /* Spacing to prevent accidental clicks */
   display: flex;
-  justify-content: center;
-  width: 100%;
+  justify-content: flex-start;
 }
 
 /* Media query for mobile responsiveness */
 @media (max-width: 768px) {
+  .inputRow {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .sideControls {
+    flex-direction: row;
+    min-width: auto;
+    justify-content: center;
+  }
+  
+  .controlsContainer {
+    flex-direction: row;
+    gap: 12px;
+    justify-content: center;
+  }
+  
   .darkModeToggleWrapper {
-    margin-top: 20px;
+    width: auto;
   }
 }
 
@@ -81,9 +105,10 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 20px 40px 20px 40px;
+  padding: 20px 40px 40px 40px;
+  padding-top: 40px;
 }
 
 .chatEmptyStateTitle {
@@ -234,16 +259,44 @@
 }
 
 .chatInput {
+  flex: 0 0 auto;
+  padding: 24px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* When there are messages, stick to bottom */
+.chatInputSticky {
   position: sticky;
-  flex: 0 0 100px;
-  padding-top: 12px;
-  padding-bottom: 24px;
-  padding-left: 24px;
-  padding-right: 24px;
-  width: calc(100% - 100px);
-  max-width: 1028px;
-  margin-bottom: 50px;
-  margin-top: 8px;
+  bottom: 0;
+}
+
+/* When empty state, position higher */
+.chatInputCentered {
+  position: relative;
+  margin-top: 20px;
+}
+
+/* New layout styles for side controls and input */
+.inputRow {
+  align-items: flex-end;
+  gap: 24px;
+  width: 100%;
+}
+
+.sideControls {
+  flex-shrink: 0;
+  gap: 12px;
+  min-width: 160px;
+}
+
+.inputArea {
+  flex: 1;
+  min-width: 0; /* Allow input to shrink */
 }
 
 .clearChatContainer {

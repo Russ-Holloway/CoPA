@@ -28,8 +28,6 @@ import {
   Conversation,
   historyGenerate,
   historyUpdate,
-  historyClear,
-  createNewConversation,
   ChatHistoryLoadingState,
   CosmosDBStatus,
   ErrorMessage,
@@ -66,8 +64,6 @@ const Chat = () => {
   const [errorMsg, setErrorMsg] = useState<ErrorMessage | null>()
   const [logo, setLogo] = useState('')
   const [answerId, setAnswerId] = useState<string>('')
-  const [announceMessage, setAnnounceMessage] = useState<string>('')
-  const [loadingDescription, setLoadingDescription] = useState<string>('Processing your request')
 
   const errorDialogContentProps = {
     type: DialogType.close,
@@ -158,13 +154,6 @@ const Chat = () => {
       assistantContent += resultMessage.content
       assistantMessage = { ...assistantMessage, ...resultMessage }
       assistantMessage.content = assistantContent
-      setAnnounceMessage('New response received from assistant')
-      setLoadingDescription('Response generated successfully')
-      
-      // Clear announcement after 3 seconds
-      setTimeout(() => {
-        setAnnounceMessage('')
-      }, 3000)
 
       if (resultMessage.context) {
         toolMessage = {
@@ -192,13 +181,11 @@ const Chat = () => {
   const makeApiRequestWithoutCosmosDB = async (question: ChatMessage["content"], conversationId?: string) => {
     setIsLoading(true)
     setShowLoadingMessage(true)
-    setLoadingDescription('Processing your question')
-    setAnnounceMessage('Question submitted, generating response')
     const abortController = new AbortController()
     abortFuncs.current.unshift(abortController)
 
-    const questionContent = typeof question === 'string' ? question : question
-    question = typeof question === 'string' ? question : question
+    const questionContent = typeof question === 'string' ? question : [{ type: "text", text: question[0].text }, { type: "image_url", image_url: { url: question[1].image_url.url } }]
+    question = typeof question !== 'string' && question[0]?.text?.length > 0 ? question[0].text : question
 
     const userMessage: ChatMessage = {
       id: uuid(),
@@ -321,12 +308,10 @@ const Chat = () => {
   const makeApiRequestWithCosmosDB = async (question: ChatMessage["content"], conversationId?: string) => {
     setIsLoading(true)
     setShowLoadingMessage(true)
-    setLoadingDescription('Processing your question with chat history')
-    setAnnounceMessage('Question submitted, generating response with conversation context')
     const abortController = new AbortController()
     abortFuncs.current.unshift(abortController)
-    const questionContent = typeof question === 'string' ? question : question
-    question = typeof question === 'string' ? question : question
+    const questionContent = typeof question === 'string' ? question : [{ type: "text", text: question[0].text }, { type: "image_url", image_url: { url: question[1].image_url.url } }]
+    question = typeof question !== 'string' && question[0]?.text?.length > 0 ? question[0].text : question
 
     const userMessage: ChatMessage = {
       id: uuid(),
@@ -603,48 +588,14 @@ const Chat = () => {
     return tryGetRaiPrettyError(errorMessage)
   }
 
-  const newChat = async () => {
-    try {
-      setProcessMessages(messageStatus.Processing)
-      setAnnounceMessage('Clearing current chat and starting new conversation')
-      setLoadingDescription('Clearing chat history')
-      
-      // If there's a current conversation with messages, finalize it
-      const currentConversationId = appStateContext?.state.currentChat?.id
-      if (currentConversationId && messages.length > 0) {
-        await historyClear(currentConversationId)
-      }
-
-      // Clear the UI
-      setMessages([])
-      setIsCitationPanelOpen(false)
-      setIsIntentsPanelOpen(false)
-      setActiveCitation(undefined)
-      appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
-      setProcessMessages(messageStatus.Done)
-      setAnnounceMessage('New chat started successfully. Ready for your question')
-      
-      // Clear announcement after 3 seconds
-      setTimeout(() => {
-        setAnnounceMessage('')
-      }, 3000)
-
-    } catch (error) {
-      console.error("Error starting new chat:", error)
-      setAnnounceMessage('Error clearing chat. Please try again')
-      
-      // Clear error announcement after 5 seconds
-      setTimeout(() => {
-        setAnnounceMessage('')
-      }, 5000)
-      // Fallback: just clear the UI
-      setMessages([])
-      setIsCitationPanelOpen(false)
-      setIsIntentsPanelOpen(false)
-      setActiveCitation(undefined)
-      appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
-      setProcessMessages(messageStatus.Done)
-    }
+  const newChat = () => {
+    setProcessMessages(messageStatus.Processing)
+    setMessages([])
+    setIsCitationPanelOpen(false)
+    setIsIntentsPanelOpen(false)
+    setActiveCitation(undefined)
+    appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: null })
+    setProcessMessages(messageStatus.Done)
   }
 
   const stopGenerating = () => {
@@ -781,34 +732,22 @@ const Chat = () => {
 
   return (
     <div className={styles.container} role="main">
-      {/* Live region for accessibility announcements */}
-      <div aria-live="polite" aria-atomic="true" className={styles.srOnly}>
-        {announceMessage}
-      </div>
-      
-      {/* Loading status announcements */}
-      <div aria-live="polite" className={styles.srOnly}>
-        {showLoadingMessage && loadingDescription}
-      </div>
-      
       {showAuthMessage ? (
         <Stack className={styles.chatEmptyState}>
           <ShieldLockRegular
             className={styles.chatIcon}
             style={{ color: 'darkorange', height: '200px', width: '200px' }}
-            aria-hidden="true"
           />
           <h1 className={styles.chatEmptyStateTitle}>Authentication Not Configured</h1>
           <h2 className={styles.chatEmptyStateSubtitle}>
             This app does not have authentication configured. Please add an identity provider by finding your app in the{' '}
-            <a href="https://portal.azure.com/" target="_blank" rel="noopener noreferrer">
+            <a href="https://portal.azure.com/" target="_blank">
               Azure Portal
             </a>
             and following{' '}
             <a
               href="https://learn.microsoft.com/en-us/azure/app-service/scenario-secure-app-authentication-app-service#3-configure-authentication-and-authorization"
-              target="_blank"
-              rel="noopener noreferrer">
+              target="_blank">
               these instructions
             </a>
             .
@@ -822,23 +761,6 @@ const Chat = () => {
         </Stack>
       ) : (
         <Stack horizontal className={styles.chatRoot}>
-          {/* Clear Chat Button and Dark Mode Toggle - positioned to the left of main chat area */}
-          <Stack className={styles.clearChatSidebar}>
-            <button
-              className={styles.clearChatButton}
-              onClick={newChat}
-              disabled={disabledButton()}
-              aria-label="clear chat button"
-            >
-              <span className={styles.clearChatButtonText}>Clear Chat</span>
-            </button>
-            
-            {/* Dark Mode Toggle - positioned below Clear Chat button with spacing */}
-            <div className={styles.darkModeToggleWrapper}>
-              <DarkModeToggle />
-            </div>
-          </Stack>
-
           <div className={styles.chatContainer}>
             {!messages || messages.length < 1 ? (
               <Stack className={styles.chatEmptyState}>
@@ -847,10 +769,6 @@ const Chat = () => {
                   {/* Police force tagline displayed below CoPPA title when configured */}
                   {ui?.police_force_tagline && (
                     <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
-                  )}
-                  {/* Police force second tagline displayed below first tagline when configured */}
-                  {ui?.police_force_tagline_2 && (
-                    <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline_2}</p>
                   )}
                 </div>
               </Stack>
@@ -861,7 +779,7 @@ const Chat = () => {
                     {answer.role === 'user' ? (
                       <div className={styles.chatMessageUser} tabIndex={0}>
                         <div className={styles.chatMessageUserMessage}>
-                          {typeof answer.content === 'string' ? answer.content : ''}
+                          {typeof answer.content === "string" && answer.content ? answer.content : Array.isArray(answer.content) ? <>{answer.content[0].text} <img className={styles.uploadedImageChat} src={answer.content[1].image_url.url} alt="Uploaded Preview" /></> : null}
                         </div>
                       </div>
                     ) : answer.role === 'assistant' ? (
@@ -909,8 +827,7 @@ const Chat = () => {
               </div>
             )}
 
-            {/* Centered Input Area */}
-            <Stack className={styles.chatInputCentered}>
+            <Stack className={`${styles.chatInput} ${messages && messages.length > 0 ? styles.chatInputSticky : styles.chatInputCentered}`}>
               {isLoading && messages.length > 0 && (
                 <Stack
                   horizontal
@@ -926,19 +843,45 @@ const Chat = () => {
                   </span>
                 </Stack>
               )}
-              <QuestionInput
-                clearOnSend
-                placeholder="Type a new question..."
-                disabled={isLoading}
-                onSend={(question, id) => {
-                  appStateContext?.state.isCosmosDBAvailable?.cosmosDB
-                    ? makeApiRequestWithCosmosDB(question, id)
-                    : makeApiRequestWithoutCosmosDB(question, id)
-                }}
-                conversationId={
-                  appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
-                }
-              />
+              
+              {/* Main input area with side controls and input */}
+              <Stack horizontal className={styles.inputRow}>
+                {/* Left side controls */}
+                <Stack className={styles.sideControls}>
+                  <DarkModeToggle className={styles.darkModeToggleWrapper} />
+                  <button
+                    className={styles.clearChatButton}
+                    onClick={newChat}
+                    disabled={disabledButton()}
+                    aria-label="clear chat button"
+                  >
+                    <span className={styles.clearChatButtonText}>Clear Chat</span>
+                  </button>
+                </Stack>
+                
+                {/* Main input area */}
+                <Stack.Item grow className={styles.inputArea}>
+                  <QuestionInput
+                    clearOnSend
+                    placeholder="Type a new question..."
+                    disabled={isLoading}
+                    onSend={(question, id) => {
+                      appStateContext?.state.isCosmosDBAvailable?.cosmosDB
+                        ? makeApiRequestWithCosmosDB(question, id)
+                        : makeApiRequestWithoutCosmosDB(question, id)
+                    }}
+                    conversationId={
+                      appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
+                    }
+                  />
+                </Stack.Item>
+              </Stack>
+              
+              <Dialog
+                hidden={hideErrorDialog}
+                onDismiss={handleErrorDialogClose}
+                dialogContentProps={errorDialogContentProps}
+                modalProps={modalProps}></Dialog>
             </Stack>
           </div>
           {/* Citation Panel */}
@@ -1031,11 +974,6 @@ const Chat = () => {
             appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && <ChatHistoryPanel />}
         </Stack>
       )}
-      <Dialog
-        hidden={hideErrorDialog}
-        onDismiss={handleErrorDialogClose}
-        dialogContentProps={errorDialogContentProps}
-        modalProps={modalProps}></Dialog>
     </div>
   )
 }
