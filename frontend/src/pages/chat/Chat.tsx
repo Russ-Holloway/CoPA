@@ -185,8 +185,8 @@ const Chat = () => {
     const abortController = new AbortController()
     abortFuncs.current.unshift(abortController)
 
-    const questionContent = typeof question === 'string' ? question : [{ type: "text", text: question[0].text }, { type: "image_url", image_url: { url: question[1].image_url.url } }]
-    question = typeof question !== 'string' && question[0]?.text?.length > 0 ? question[0].text : question
+    const questionContent = typeof question === 'string' ? question : question
+    question = typeof question === 'string' ? question : question
 
     const userMessage: ChatMessage = {
       id: uuid(),
@@ -311,8 +311,8 @@ const Chat = () => {
     setShowLoadingMessage(true)
     const abortController = new AbortController()
     abortFuncs.current.unshift(abortController)
-    const questionContent = typeof question === 'string' ? question : [{ type: "text", text: question[0].text }, { type: "image_url", image_url: { url: question[1].image_url.url } }]
-    question = typeof question !== 'string' && question[0]?.text?.length > 0 ? question[0].text : question
+    const questionContent = typeof question === 'string' ? question : question
+    question = typeof question === 'string' ? question : question
 
     const userMessage: ChatMessage = {
       id: uuid(),
@@ -804,7 +804,7 @@ const Chat = () => {
                     {answer.role === 'user' ? (
                       <div className={styles.chatMessageUser} tabIndex={0}>
                         <div className={styles.chatMessageUserMessage}>
-                          {typeof answer.content === "string" && answer.content ? answer.content : Array.isArray(answer.content) ? <>{answer.content[0].text} <img className={styles.uploadedImageChat} src={answer.content[1].image_url.url} alt="Uploaded Preview" /></> : null}
+                          {typeof answer.content === 'string' ? answer.content : ''}
                         </div>
                       </div>
                     ) : answer.role === 'assistant' ? (

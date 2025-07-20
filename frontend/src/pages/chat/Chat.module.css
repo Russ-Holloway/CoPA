@@ -373,15 +373,6 @@ a {
   cursor: pointer;
 }
 
-.uploadedImageChat {
-  position: absolute;
-  right: -23px;
-  bottom: -35px;
-  max-width: 70%;
-  max-height: 70%;
-  border-radius: 4px;
-}
-
 .clearChatButton {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: 2px solid #ffffff;
