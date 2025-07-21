@@ -7,9 +7,12 @@ const config: Config.InitialOptions = {
     '^.+\\.tsx?$': 'ts-jest'
   },
   setupFilesAfterEnv: ['<rootDir>/polyfills.js', '<rootDir>/src/jest-setup.ts'],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
-  }
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!(react-syntax-highlighter)/)'
+  ]
 }
 
 export default config
