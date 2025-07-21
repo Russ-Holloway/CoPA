@@ -1,4 +1,4 @@
-import { FormEvent, useContext, useEffect, useMemo, useState, useRef, Fragment } from 'react'
+import { FormEvent, useContext, useEffect, useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -7,6 +7,7 @@ import { useBoolean } from '@fluentui/react-hooks'
 import { ThumbDislike20Filled, ThumbLike20Filled } from '@fluentui/react-icons'
 import DOMPurify from 'dompurify'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import supersub from 'remark-supersub'
 import { AskResponse, Citation, Feedback, historyMessageFeedback } from '../../api'
 import { XSSAllowTags, XSSAllowAttributes } from '../../constants/sanatizeAllowables'
@@ -266,14 +267,47 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
         <Stack.Item>
           <Stack horizontal grow>
             <Stack.Item grow>
-              {/* Render answer with inline citation numbers */}
-              {getSentencesWithCitations().map(({ sentence }, idx) => (
-                <Fragment key={idx}>
-                  <span>
-                    {sentence} <sup>[{idx + 1}]</sup>{' '}
-                  </span>
-                </Fragment>
-              ))}
+              {/* Render answer with proper markdown formatting */}
+              {parsedAnswer && parsedAnswer.markdownFormatText && (
+                <div className={styles.answerText}>
+                  <ReactMarkdown
+                    linkTarget="_blank"
+                    children={parsedAnswer.markdownFormatText}
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
+                    components={{
+                      a: ({ href, children }) => {
+                        // Check if this is a citation link (contains a number in brackets)
+                        const citationMatch = children?.toString().match(/\[(\d+)\]/)
+                        if (citationMatch) {
+                          const citationIndex = parseInt(citationMatch[1]) - 1
+                          const citation = parsedAnswer?.citations[citationIndex]
+                          if (citation) {
+                            return (
+                              <a
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  onCitationClicked(citation)
+                                }}
+                                className={styles.citationLink}
+                              >
+                                {children}
+                              </a>
+                            )
+                          }
+                        }
+                        // Regular external links
+                        return (
+                          <a href={href} target="_blank" rel="noopener noreferrer" className={styles.citationLink}>
+                            {children}
+                          </a>
+                        )
+                      }
+                    }}
+                  />
+                </div>
+              )}
             </Stack.Item>
             <Stack.Item className={styles.answerHeader}>
               {FEEDBACK_ENABLED && answer.message_id !== undefined && (

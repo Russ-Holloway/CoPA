@@ -28,6 +28,43 @@
   overflow-x: auto;
 }
 
+.answerText p {
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.answerText p:last-child {
+  margin-bottom: 0;
+}
+
+.answerText a {
+  color: #0078d4;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background-color: #f3f9ff;
+}
+
+.answerText a:hover {
+  background-color: #e1f5fe;
+  text-decoration: underline;
+}
+
+.citationLink {
+  color: #0078d4 !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  background-color: #f3f9ff !important;
+}
+
+.citationLink:hover {
+  background-color: #e1f5fe !important;
+  text-decoration: underline !important;
+}
+
 .answerHeader {
   position: relative;
 }
