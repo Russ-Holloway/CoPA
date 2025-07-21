@@ -12,6 +12,13 @@
   width: 100%;
 }
 
+/* Dark mode styling for question input container */
+:global(.dark-mode) .questionInputContainer {
+  background: #2d3748;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
 .questionInputTextArea {
   width: calc(100% - 200px);
   min-height: 100px;
@@ -24,6 +31,14 @@
   resize: none;
   transition: all 0.3s ease;
   background: #ffffff;
+  color: #1f2937;
+}
+
+/* Dark mode styling for question input text area */
+:global(.dark-mode) .questionInputTextArea {
+  background: #1a202c;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Force FluentUI TextField to respect our width */
@@ -39,6 +54,13 @@
   outline-offset: 2px;
   border-color: #1f2937;
   box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.3);
+}
+
+/* Dark mode focus styling */
+:global(.dark-mode) .questionInputTextArea:focus {
+  outline: 2px solid #667eea;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
 .questionInputSendButtonContainer {
