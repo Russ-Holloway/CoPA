@@ -28,7 +28,7 @@
 
 .headerContainer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
   max-width: none;
@@ -56,10 +56,6 @@
   align-items: center;
   text-align: center;
   justify-content: center;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   z-index: 3;
 }
 
