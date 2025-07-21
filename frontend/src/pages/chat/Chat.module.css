@@ -150,6 +150,8 @@
   align-items: center;
   gap: 40px;
   max-width: 1200px;
+  text-align: center;
+  position: relative;
 }
 
 .inputFullWidth {
@@ -175,6 +177,7 @@
   display: block;
   margin-bottom: 32px;
   width: fit-content;
+  position: relative;
 }
 
 .chatEmptyStateSubtitle {
@@ -683,6 +686,7 @@ a {
   justify-content: center;
   text-align: center;
   width: 100%;
+  position: relative;
 }
 
 .customTaglinePlaceholder {
