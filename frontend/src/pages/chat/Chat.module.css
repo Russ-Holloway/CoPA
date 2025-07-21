@@ -159,8 +159,8 @@
 }
 
 .inputFullWidth {
-  width: 75%;
-  max-width: 900px;
+  width: 90%;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -344,6 +344,8 @@
   align-items: center;
   width: 100%;
   max-width: 1400px;
+  margin: 40px auto;
+  padding: 20px;
 }
 
 /* New layout styles for side controls and input */
