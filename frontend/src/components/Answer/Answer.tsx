@@ -318,12 +318,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             <Stack.Item>
               <Text
                 onClick={toggleIsRefAccordionOpen}
-                style={{
-                  cursor: 'pointer',
-                  color: '#0078d4',
-                  textDecoration: 'underline',
-                  marginRight: '8px'
-                }}
+                className={styles.referencesText}
                 tabIndex={0}
                 role="button"
                 aria-label="Open references">
