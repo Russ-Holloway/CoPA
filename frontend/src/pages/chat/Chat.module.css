@@ -127,11 +127,12 @@
 .chatEmptyStateLayout {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   width: 100%;
   gap: 60px;
   min-height: 60vh;
+  padding-top: 0;
 }
 
 .sideControlsExternal {
@@ -146,12 +147,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 40px;
   max-width: 1200px;
   text-align: center;
   position: relative;
+  padding-top: 20px;
 }
 
 .inputFullWidth {
@@ -683,7 +685,7 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
   width: 100%;
   position: relative;
