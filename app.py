@@ -634,6 +634,7 @@ def get_frontend_settings():
                 "show_chat_history_button": app_settings.ui.show_chat_history_button and cosmos_available,
                 "police_force_logo": app_settings.ui.police_force_logo,
                 "police_force_tagline": app_settings.ui.police_force_tagline,
+                "police_force_tagline_2": app_settings.ui.police_force_tagline_2,
                 "feedback_email": app_settings.ui.feedback_email,
             },
             "sanitize_answer": app_settings.base_settings.sanitize_answer,
