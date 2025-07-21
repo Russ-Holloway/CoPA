@@ -23,7 +23,7 @@
   --scrollbar-track: rgba(0, 0, 0, 0.1);
   --scrollbar-thumb: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --scrollbar-thumb-hover: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-  
+
   /* User message colors - light theme */
   --bg-user-message: #667eea;
   --text-user-message: #ffffff;
@@ -51,7 +51,7 @@
   --scrollbar-track: rgba(255, 255, 255, 0.1);
   --scrollbar-thumb: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   --scrollbar-thumb-hover: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  
+
   /* User message colors - dark theme */
   --bg-user-message: #1f2937;
   --text-user-message: #ffffff;
@@ -80,7 +80,9 @@ html {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
 }
 
 #root {

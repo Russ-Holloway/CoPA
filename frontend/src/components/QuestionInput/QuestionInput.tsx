@@ -36,7 +36,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
       setStatusMessage('Cannot send message while processing')
       return
     }
-    
+
     if (!question.trim()) {
       setHasError(true)
       setErrorMessage('Please enter a question before sending')
@@ -45,7 +45,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
       return
     }
 
-    const questionTest: ChatMessage["content"] = question.toString();
+    const questionTest: ChatMessage['content'] = question.toString()
 
     if (conversationId && questionTest !== undefined) {
       onSend(questionTest, conversationId)
@@ -56,11 +56,11 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
     if (clearOnSend) {
       setQuestion('')
     }
-    
+
     setStatusMessage('Question sent successfully')
     setHasError(false)
     setErrorMessage('')
-    
+
     // Clear status message after 3 seconds
     setTimeout(() => {
       setStatusMessage('')
@@ -86,7 +86,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
       <div aria-live="polite" aria-atomic="true" className={styles.srOnly}>
         {statusMessage}
       </div>
-      
+
       <TextField
         componentRef={textAreaRef}
         className={styles.questionInputTextArea}
@@ -98,26 +98,21 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
         onChange={onQuestionChange}
         onKeyDown={onEnterPress}
         aria-invalid={hasError}
-        aria-describedby={hasError ? "question-error" : undefined}
+        aria-describedby={hasError ? 'question-error' : undefined}
         aria-label="Type your question here"
       />
-      
+
       {hasError && (
-        <div 
-          id="question-error" 
-          role="alert" 
-          aria-live="assertive"
-          className={styles.errorMessage}
-        >
+        <div id="question-error" role="alert" aria-live="assertive" className={styles.errorMessage}>
           {errorMessage}
         </div>
       )}
-      
+
       <div
         className={styles.questionInputSendButtonContainer}
         role="button"
         tabIndex={0}
-        aria-label={sendQuestionDisabled ? "Send button disabled" : "Send question"}
+        aria-label={sendQuestionDisabled ? 'Send button disabled' : 'Send question'}
         aria-disabled={sendQuestionDisabled}
         onClick={sendQuestion}
         onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? sendQuestion() : null)}>

@@ -1,13 +1,6 @@
 import { useContext, useState, useRef, useEffect } from 'react'
 import * as React from 'react'
-import {
-  List,
-  Separator,
-  Spinner,
-  SpinnerSize,
-  Stack,
-  Text
-} from '@fluentui/react'
+import { List, Separator, Spinner, SpinnerSize, Stack, Text } from '@fluentui/react'
 
 import { historyList } from '../../api'
 import { Conversation } from '../../api/models'
@@ -76,12 +69,13 @@ export const ChatHistoryListItemCell: React.FC<ChatHistoryListItemCellProps> = (
         <Stack horizontal verticalAlign={'center'} style={{ width: '100%' }}>
           <div className={styles.chatTitle}>{truncatedTitle}</div>
           {item.status === 'completed' && (
-            <div style={{ 
-              marginLeft: 'auto', 
-              fontSize: '10px', 
-              color: '#666', 
-              opacity: 0.7 
-            }}>
+            <div
+              style={{
+                marginLeft: 'auto',
+                fontSize: '10px',
+                color: '#666',
+                opacity: 0.7
+              }}>
               ✓
             </div>
           )}

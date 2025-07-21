@@ -228,7 +228,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   }
 
   const components = {
-    code({ node, ...props }: { node: any;[key: string]: any }) {
+    code({ node, ...props }: { node: any; [key: string]: any }) {
       let language
       if (props.className) {
         const match = props.className.match(/language-(\w+)/)
@@ -269,7 +269,9 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
               {/* Render answer with inline citation numbers */}
               {getSentencesWithCitations().map(({ sentence }, idx) => (
                 <Fragment key={idx}>
-                  <span>{sentence} <sup>[{idx + 1}]</sup> </span>
+                  <span>
+                    {sentence} <sup>[{idx + 1}]</sup>{' '}
+                  </span>
                 </Fragment>
               ))}
             </Stack.Item>
@@ -282,7 +284,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                     onClick={() => onLikeResponseClicked()}
                     style={
                       feedbackState === Feedback.Positive ||
-                        appStateContext?.state.feedbackState[answer.message_id] === Feedback.Positive
+                      appStateContext?.state.feedbackState[answer.message_id] === Feedback.Positive
                         ? { color: 'darkgreen', cursor: 'pointer' }
                         : { color: 'slategray', cursor: 'pointer' }
                     }
@@ -293,8 +295,8 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                     onClick={() => onDislikeResponseClicked()}
                     style={
                       feedbackState !== Feedback.Positive &&
-                        feedbackState !== Feedback.Neutral &&
-                        feedbackState !== undefined
+                      feedbackState !== Feedback.Neutral &&
+                      feedbackState !== undefined
                         ? { color: 'darkred', cursor: 'pointer' }
                         : { color: 'slategray', cursor: 'pointer' }
                     }
@@ -316,9 +318,9 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             <Stack.Item>
               <Text
                 onClick={toggleIsRefAccordionOpen}
-                style={{ 
-                  cursor: 'pointer', 
-                  color: '#0078d4', 
+                style={{
+                  cursor: 'pointer',
+                  color: '#0078d4',
                   textDecoration: 'underline',
                   marginRight: '8px'
                 }}
@@ -342,15 +344,9 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                     aria-label="Open Intents"
                     tabIndex={0}
                     role="button">
-                    <span>
-                      Show Intents
-                    </span>
+                    <span>Show Intents</span>
                   </Text>
-                  <FontIcon
-                    className={styles.accordionIcon}
-                    onClick={handleChevronClick}
-                    iconName={'ChevronRight'}
-                  />
+                  <FontIcon className={styles.accordionIcon} onClick={handleChevronClick} iconName={'ChevronRight'} />
                 </Stack>
               </Stack>
             </Stack.Item>

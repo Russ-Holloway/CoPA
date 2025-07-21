@@ -30,7 +30,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 1000;
-  box-shadow: 
+  box-shadow:
     0 6px 20px rgba(31, 41, 55, 0.3),
     0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -38,7 +38,7 @@
 .clearChatSidebar:hover {
   background: #111827;
   transform: translateY(-50%) translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 8px 25px rgba(31, 41, 55, 0.4),
     0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -69,19 +69,19 @@
     gap: 16px;
     align-items: stretch;
   }
-  
+
   .sideControls {
     flex-direction: row;
     min-width: auto;
     justify-content: center;
   }
-  
+
   .controlsContainer {
     flex-direction: row;
     gap: 12px;
     justify-content: center;
   }
-  
+
   .darkModeToggleWrapper {
     width: auto;
   }
@@ -206,7 +206,10 @@
   flex-grow: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
-  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .chatMessageGpt {
@@ -428,7 +431,9 @@
   overflow-y: scroll;
   max-height: calc(100vh - 100px);
   color: var(--text-primary);
-  transition: background 0.3s ease, color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
 }
 
 .citationPanelHeaderContainer {
@@ -558,7 +563,7 @@ a {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 
+  box-shadow:
     0 6px 20px var(--shadow-heavy),
     0 2px 4px var(--shadow-light),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -573,7 +578,7 @@ a {
 
 .clearChatButton:hover {
   transform: translateY(-1px);
-  box-shadow: 
+  box-shadow:
     0 8px 25px var(--shadow-heavy),
     0 4px 8px var(--shadow-medium),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -583,7 +588,7 @@ a {
 
 .clearChatButton:active {
   transform: translateY(1px);
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(102, 126, 234, 0.3),
     0 1px 2px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -594,7 +599,7 @@ a {
   color: #94a3b8;
   cursor: not-allowed;
   transform: none;
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(148, 163, 184, 0.2),
     inset 0 1px 2px rgba(0, 0, 0, 0.05);
   border: 2px solid #e2e8f0;
@@ -675,7 +680,7 @@ a {
     font-size: 14px;
     min-width: 120px;
     border-width: 2px;
-    box-shadow: 
+    box-shadow:
       0 4px 16px rgba(102, 126, 234, 0.3),
       0 1px 3px rgba(0, 0, 0, 0.1),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
