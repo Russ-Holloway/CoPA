@@ -777,15 +777,52 @@ const Chat = () => {
         <Stack horizontal className={styles.chatRoot}>
           <div className={styles.chatContainer}>
             {!messages || messages.length < 1 ? (
-              <Stack className={styles.chatEmptyState}>
-                <div className={styles.chatEmptyStateLogo}>
-                  <h1 className={styles.chatEmptyStateTitle}>CoPPA</h1>
-                  {/* Police force tagline displayed below CoPPA title when configured */}
-                  {ui?.police_force_tagline && (
-                    <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
-                  )}
-                </div>
-              </Stack>
+              <>
+                {/* CoPPA Title at top position (box 1) */}
+                <Stack className={styles.chatEmptyState}>
+                  <div className={styles.chatEmptyStateLogo}>
+                    <h1 className={styles.chatEmptyStateTitle}>CoPPA</h1>
+                    {/* Police force tagline displayed below CoPPA title when configured */}
+                    {ui?.police_force_tagline && (
+                      <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
+                    )}
+                  </div>
+                </Stack>
+
+                {/* Input section at position 2 */}
+                <Stack
+                  className={`${styles.chatInput} ${styles.chatInputCentered}`}>
+                  {/* Main input area with side controls and input */}
+                  <Stack horizontal className={styles.inputRow}>
+                    {/* Left side controls */}
+                    <Stack className={styles.sideControls}>
+                      <DarkModeToggle className={styles.darkModeToggleWrapper} />
+                      <button
+                        className={styles.clearChatButton}
+                        onClick={newChat}
+                        disabled={disabledButton()}
+                        aria-label="clear chat button">
+                        <span className={styles.clearChatButtonText}>Clear Chat</span>
+                      </button>
+                    </Stack>
+
+                    {/* Main input area */}
+                    <Stack.Item grow className={styles.inputArea}>
+                      <QuestionInput
+                        clearOnSend
+                        placeholder="Type a new question..."
+                        disabled={isLoading}
+                        onSend={(question, id) => {
+                          appStateContext?.state.isCosmosDBAvailable?.cosmosDB
+                            ? makeApiRequestWithCosmosDB(question, id)
+                            : makeApiRequestWithoutCosmosDB(question, id)
+                        }}
+                        conversationId={appStateContext?.state.currentChat?.id && appStateContext?.state.currentChat?.id !== 'new' ? appStateContext?.state.currentChat?.id : undefined}
+                      />
+                    </Stack.Item>
+                  </Stack>
+                </Stack>
+              </>
             ) : (
               <div className={styles.chatMessageStream} style={{ marginBottom: isLoading ? '40px' : '0px' }} role="log">
                 {messages.map((answer, index) => (
@@ -856,63 +893,60 @@ const Chat = () => {
               </div>
             )}
 
-            <Stack
-              className={`${styles.chatInput} ${messages && messages.length > 0 ? styles.chatInputSticky : styles.chatInputCentered}`}>
-              {isLoading && messages.length > 0 && (
-                <Stack
-                  horizontal
-                  className={styles.stopGeneratingContainer}
-                  role="button"
-                  aria-label="Stop generating"
-                  tabIndex={0}
-                  onClick={stopGenerating}
-                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? stopGenerating() : null)}>
-                  <SquareRegular className={styles.stopGeneratingIcon} aria-hidden="true" />
-                  <span className={styles.stopGeneratingText} aria-hidden="true">
-                    Stop generating
-                  </span>
-                </Stack>
-              )}
+            {/* Input section - only show when there are messages */}
+            {messages && messages.length > 0 && (
+              <Stack className={`${styles.chatInput} ${styles.chatInputSticky}`}>
+                {isLoading && (
+                  <Stack
+                    horizontal
+                    className={styles.stopGeneratingContainer}
+                    role="button"
+                    aria-label="Stop generating"
+                    tabIndex={0}
+                    onClick={stopGenerating}
+                    onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? stopGenerating() : null)}>
+                    <SquareRegular className={styles.stopGeneratingIcon} aria-hidden="true" />
+                    <span className={styles.stopGeneratingText} aria-hidden="true">
+                      Stop generating
+                    </span>
+                  </Stack>
+                )}
 
-              {/* Main input area with side controls and input */}
-              <Stack horizontal className={styles.inputRow}>
-                {/* Left side controls */}
-                <Stack className={styles.sideControls}>
-                  <DarkModeToggle className={styles.darkModeToggleWrapper} />
-                  <button
-                    className={styles.clearChatButton}
-                    onClick={newChat}
-                    disabled={disabledButton()}
-                    aria-label="clear chat button">
-                    <span className={styles.clearChatButtonText}>Clear Chat</span>
-                  </button>
-                </Stack>
+                {/* Main input area with side controls and input */}
+                <Stack horizontal className={styles.inputRow}>
+                  {/* Left side controls */}
+                  <Stack className={styles.sideControls}>
+                    <DarkModeToggle className={styles.darkModeToggleWrapper} />
+                    <button
+                      className={styles.clearChatButton}
+                      onClick={newChat}
+                      disabled={disabledButton()}
+                      aria-label="clear chat button">
+                      <span className={styles.clearChatButtonText}>Clear Chat</span>
+                    </button>
+                  </Stack>
 
-                {/* Main input area */}
-                <Stack.Item grow className={styles.inputArea}>
-                  <QuestionInput
-                    clearOnSend
-                    placeholder="Type a new question..."
-                    disabled={isLoading}
-                    onSend={(question, id) => {
-                      appStateContext?.state.isCosmosDBAvailable?.cosmosDB
-                        ? makeApiRequestWithCosmosDB(question, id)
-                        : makeApiRequestWithoutCosmosDB(question, id)
-                    }}
-                    conversationId={
-                      appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
-                    }
-                  />
-                </Stack.Item>
+                  {/* Main input area */}
+                  <Stack.Item grow className={styles.inputArea}>
+                    <QuestionInput
+                      clearOnSend
+                      placeholder="Type a new question..."
+                      disabled={isLoading}
+                      onSend={(question, id) => {
+                        appStateContext?.state.isCosmosDBAvailable?.cosmosDB
+                          ? makeApiRequestWithCosmosDB(question, id)
+                          : makeApiRequestWithoutCosmosDB(question, id)
+                      }}
+                      conversationId={
+                        appStateContext?.state.currentChat?.id ? appStateContext?.state.currentChat?.id : undefined
+                      }
+                    />
+                  </Stack.Item>
+                </Stack>
               </Stack>
-
-              <Dialog
-                hidden={hideErrorDialog}
-                onDismiss={handleErrorDialogClose}
-                dialogContentProps={errorDialogContentProps}
-                modalProps={modalProps}></Dialog>
-            </Stack>
+            )}
           </div>
+          
           {/* Citation Panel */}
           {messages && messages.length > 0 && isCitationPanelOpen && activeCitation && (
             <Stack.Item className={styles.citationPanel} tabIndex={0} role="tabpanel" aria-label="Citations Panel">
@@ -972,7 +1006,7 @@ const Chat = () => {
               </Stack>
               <Stack horizontalAlign="space-between">
                 {appStateContext?.state?.answerExecResult[answerId]?.map((execResult: ExecResults, index) => (
-                  <Stack className={styles.exectResultList} verticalAlign="space-between">
+                  <Stack className={styles.exectResultList} verticalAlign="space-between" key={index}>
                     <>
                       <span>Intent:</span> <p>{execResult.intent}</p>
                     </>
@@ -1016,6 +1050,12 @@ const Chat = () => {
             appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && <ChatHistoryPanel />}
         </Stack>
       )}
+      
+      <Dialog
+        hidden={hideErrorDialog}
+        onDismiss={handleErrorDialogClose}
+        dialogContentProps={errorDialogContentProps}
+        modalProps={modalProps}></Dialog>
     </div>
   )
 }
