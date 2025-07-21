@@ -777,9 +777,22 @@ const Chat = () => {
         <Stack horizontal className={styles.chatRoot}>
           <div className={styles.chatContainer}>
             {!messages || messages.length < 1 ? (
-              <>
-                {/* CoPPA Title at top position (box 1) */}
-                <Stack className={styles.chatEmptyState}>
+              <div className={styles.chatEmptyStateLayout}>
+                {/* Left side controls - outside main container */}
+                <Stack className={styles.sideControlsExternal}>
+                  <DarkModeToggle className={styles.darkModeToggleWrapper} />
+                  <button
+                    className={styles.clearChatButton}
+                    onClick={newChat}
+                    disabled={disabledButton()}
+                    aria-label="clear chat button">
+                    <span className={styles.clearChatButtonText}>Clear Chat</span>
+                  </button>
+                </Stack>
+
+                {/* Main content area */}
+                <div className={styles.mainContentArea}>
+                  {/* CoPPA Title at top position (box 1) */}
                   <div className={styles.chatEmptyStateLogo}>
                     <h1 className={styles.chatEmptyStateTitle}>CoPPA</h1>
                     {/* Police force tagline displayed below CoPPA title when configured */}
@@ -787,42 +800,27 @@ const Chat = () => {
                       <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
                     )}
                   </div>
-                </Stack>
 
-                {/* Input section at position 2 */}
-                <Stack
-                  className={`${styles.chatInput} ${styles.chatInputCentered}`}>
-                  {/* Main input area with side controls and input */}
-                  <Stack horizontal className={styles.inputRow}>
-                    {/* Left side controls */}
-                    <Stack className={styles.sideControls}>
-                      <DarkModeToggle className={styles.darkModeToggleWrapper} />
-                      <button
-                        className={styles.clearChatButton}
-                        onClick={newChat}
-                        disabled={disabledButton()}
-                        aria-label="clear chat button">
-                        <span className={styles.clearChatButtonText}>Clear Chat</span>
-                      </button>
-                    </Stack>
-
-                    {/* Main input area */}
-                    <Stack.Item grow className={styles.inputArea}>
-                      <QuestionInput
-                        clearOnSend
-                        placeholder="Type a new question..."
-                        disabled={isLoading}
-                        onSend={(question, id) => {
-                          appStateContext?.state.isCosmosDBAvailable?.cosmosDB
-                            ? makeApiRequestWithCosmosDB(question, id)
-                            : makeApiRequestWithoutCosmosDB(question, id)
-                        }}
-                        conversationId={appStateContext?.state.currentChat?.id && appStateContext?.state.currentChat?.id !== 'new' ? appStateContext?.state.currentChat?.id : undefined}
-                      />
-                    </Stack.Item>
+                  {/* Input section at position 2 - now full width */}
+                  <Stack className={`${styles.chatInputCentered} ${styles.inputFullWidth}`}>
+                    <QuestionInput
+                      clearOnSend
+                      placeholder="Type a new question..."
+                      disabled={isLoading}
+                      onSend={(question, id) => {
+                        appStateContext?.state.isCosmosDBAvailable?.cosmosDB
+                          ? makeApiRequestWithCosmosDB(question, id)
+                          : makeApiRequestWithoutCosmosDB(question, id)
+                      }}
+                      conversationId={
+                        appStateContext?.state.currentChat?.id && appStateContext?.state.currentChat?.id !== 'new'
+                          ? appStateContext?.state.currentChat?.id
+                          : undefined
+                      }
+                    />
                   </Stack>
-                </Stack>
-              </>
+                </div>
+              </div>
             ) : (
               <div className={styles.chatMessageStream} style={{ marginBottom: isLoading ? '40px' : '0px' }} role="log">
                 {messages.map((answer, index) => (
