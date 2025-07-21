@@ -1,12 +1,10 @@
-import { useContext, useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Stack, TextField, ITextField } from '@fluentui/react'
-import { SendRegular, ArrowEnterRegular, ArrowEnterFilled } from '@fluentui/react-icons'
-
-import Send from '../../assets/Send.svg'
+import { ArrowEnterRegular, ArrowEnterFilled } from '@fluentui/react-icons'
 
 import styles from './QuestionInput.module.css'
+import './QuestionInputOverrides.css'
 import { ChatMessage } from '../../api'
-import { AppStateContext } from '../../state/AppProvider'
 
 interface Props {
   onSend: (question: ChatMessage['content'], id?: string) => void

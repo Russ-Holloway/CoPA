@@ -1,0 +1,33 @@
+/* Global overrides for QuestionInput FluentUI components */
+/* This file uses regular CSS (not CSS Modules) to override FluentUI */
+
+/* Target the specific QuestionInput container and its children */
+.ms-Stack[class*="questionInputContainer"] {
+  width: 70% !important;
+  max-width: 700px !important;
+  margin: 0 auto !important;
+}
+
+/* Force all FluentUI TextField components inside QuestionInput to be narrower */
+.ms-Stack[class*="questionInputContainer"] .ms-TextField-wrapper {
+  width: calc(100% - 200px) !important;
+  max-width: 500px !important;
+}
+
+.ms-Stack[class*="questionInputContainer"] .ms-TextField-fieldGroup {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.ms-Stack[class*="questionInputContainer"] .ms-TextField-field {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Alternative approach - target by component structure */
+div[class*="questionInputContainer"] div[class*="questionInputTextArea"] .ms-TextField-wrapper,
+div[class*="questionInputContainer"] div[class*="questionInputTextArea"] .ms-TextField-fieldGroup,
+div[class*="questionInputContainer"] div[class*="questionInputTextArea"] .ms-TextField-field {
+  width: calc(100% - 100px) !important;
+  max-width: 400px !important;
+}

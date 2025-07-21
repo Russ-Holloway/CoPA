@@ -28,7 +28,7 @@
 
 .headerContainer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
   max-width: none;
@@ -55,7 +55,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  flex: 1;
+  justify-content: center;
 }
 
 .headerRightContainer {
@@ -75,8 +75,11 @@
   line-height: 55px;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  margin: 0;
+  margin: 0 auto;
   letter-spacing: -0.5px;
+  text-align: center;
+  display: block;
+  width: fit-content;
 }
 
 .headerSubtitle {
@@ -210,6 +213,7 @@
 
   .headerRightContainer {
     right: 20px;
+    gap: 10px;
   }
 
   .headerIcon {
@@ -231,10 +235,6 @@
     font-size: 15px;
     line-height: 20px;
     max-width: 375px;
-  }
-
-  .headerRightContainer {
-    gap: 10px;
   }
 
   .forceLogo {
