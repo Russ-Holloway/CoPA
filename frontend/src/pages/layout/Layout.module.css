@@ -56,6 +56,11 @@
   align-items: center;
   text-align: center;
   justify-content: center;
+  /* Match the main content area positioning */
+  max-width: 1200px;
+  margin: 0 auto;
+  /* Account for the absolute positioned side elements */
+  padding: 0 200px;
 }
 
 .headerRightContainer {
@@ -214,6 +219,11 @@
   .headerRightContainer {
     right: 20px;
     gap: 10px;
+  }
+
+  .headerCenterContent {
+    /* Reduce padding on mobile for smaller side elements */
+    padding: 0 120px;
   }
 
   .headerIcon {
