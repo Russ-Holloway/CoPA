@@ -41,8 +41,6 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   const [showReportInappropriateFeedback, setShowReportInappropriateFeedback] = useState(false)
   const [negativeFeedbackList, setNegativeFeedbackList] = useState<Feedback[]>([])
   const [isReferencesAccordionOpen, setIsReferencesAccordionOpen] = useState(false)
-  const [sidePanelOpen, setSidePanelOpen] = useState(false)
-  const [activeCitation, setActiveCitation] = useState<Citation | null>(null)
   const appStateContext = useContext(AppStateContext)
   const FEEDBACK_ENABLED =
     appStateContext?.state.frontendSettings?.feedback_enabled && appStateContext?.state.isCosmosDBAvailable?.cosmosDB
@@ -258,38 +256,9 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   }
 
   const handleCitationButtonClick = (citation: Citation) => {
-    setActiveCitation(citation)
-    setSidePanelOpen(true)
-    onCitationClicked(citation) // still call parent handler
+    // Only use the main citation panel, not the local side panel
+    onCitationClicked(citation)
   }
-
-  const handleCloseSidePanel = () => {
-    setSidePanelOpen(false)
-    setActiveCitation(null)
-  }
-
-  // Helper to fetch document content (mock/demo)
-  const [docContent, setDocContent] = useState<string | null>(null)
-  const [docError, setDocError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (sidePanelOpen && activeCitation) {
-      setDocContent(null)
-      setDocError(null)
-      const path = encodeURIComponent(activeCitation.filepath || '')
-      const part = encodeURIComponent(activeCitation.part_index ?? activeCitation.chunk_id ?? '')
-      fetch(`/api/documents?path=${path}&part=${part}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch document content')
-          return res.text()
-        })
-        .then(html => setDocContent(html))
-        .catch(err => setDocError('Unable to load document content.'))
-    } else {
-      setDocContent(null)
-      setDocError(null)
-    }
-  }, [sidePanelOpen, activeCitation])
 
   return (
     <>
@@ -411,55 +380,6 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
         )}
         {/* Remove the old References Section and citation wrapper */}
       </Stack>
-      {/* Side Panel for Citation Source */}
-      {sidePanelOpen && activeCitation && (
-        <div className={styles.sidePanel} style={{
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          width: '40%',
-          height: '100vh',
-          backgroundColor: '#fff',
-          boxShadow: '-2px 0 10px rgba(0,0,0,0.1)',
-          zIndex: 1000,
-          padding: '0',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <div className={styles.sidePanelHeader} style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '16px',
-            borderBottom: '1px solid #e1e1e1',
-            backgroundColor: '#f8f8f8'
-          }}>
-            <Stack>
-              <Text variant="large" style={{ fontWeight: 600, margin: 0 }}>Citations</Text>
-              <Text style={{ fontSize: '14px', color: '#666', margin: 0 }}>{activeCitation.filepath || 'Unknown document'}</Text>
-            </Stack>
-            <DefaultButton 
-              onClick={handleCloseSidePanel}
-              iconProps={{ iconName: 'Cancel' }}
-              style={{ minWidth: 'auto' }}
-            />
-          </div>
-          <div className={styles.sidePanelContent} style={{
-            flex: 1,
-            padding: '16px',
-            overflow: 'auto'
-          }}>
-            {docError ? (
-              <span style={{ color: 'red' }}>{docError}</span>
-            ) : docContent ? (
-              <div dangerouslySetInnerHTML={{ __html: docContent }} />
-            ) : (
-              <span>Loading document content...</span>
-            )}
-          </div>
-        </div>
-      )}
       <Dialog
         onDismiss={() => {
           resetFeedbackDialog()
