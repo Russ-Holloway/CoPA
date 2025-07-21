@@ -451,15 +451,27 @@
   flex-grow: 0;
 }
 
+:global(.dark-mode) .citationPanelHeader {
+  color: #ffffff;
+}
+
 .citationPanelDismiss {
   width: 18px;
   height: 18px;
   color: #424242;
 }
 
+:global(.dark-mode) .citationPanelDismiss {
+  color: #ffffff;
+}
+
 .citationPanelDismiss:hover {
   background-color: #d1d1d1;
   cursor: pointer;
+}
+
+:global(.dark-mode) .citationPanelDismiss:hover {
+  background-color: #4b5563;
 }
 
 .citationPanelTitle {
@@ -470,6 +482,10 @@
   color: #323130;
   margin-top: 12px;
   margin-bottom: 12px;
+}
+
+:global(.dark-mode) .citationPanelTitle {
+  color: #ffffff;
 }
 
 .citationPanelTitle:hover {
@@ -487,6 +503,10 @@
   order: 1;
   align-self: stretch;
   flex-grow: 0;
+}
+
+:global(.dark-mode) .citationPanelContent {
+  color: #ffffff;
 }
 
 .exectResultList {

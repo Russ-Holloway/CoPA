@@ -86,6 +86,11 @@
   border-radius: 4px;
 }
 
+:global(.dark-mode) .citationContainer {
+  color: #ffffff;
+  border-color: #6b7280;
+}
+
 .citationContainer:hover {
   text-decoration: underline;
   cursor: pointer;
@@ -112,6 +117,11 @@
   text-align: center;
   color: #424242;
   cursor: pointer;
+}
+
+:global(.dark-mode) .citation {
+  color: #ffffff;
+  border-color: #6b7280;
 }
 
 .citation:hover {
@@ -174,6 +184,11 @@
   cursor: pointer;
 }
 
+:global(.dark-mode) .clickableSup {
+  color: #ffffff;
+  border-color: #6b7280;
+}
+
 .clickableSup:hover {
   text-decoration: underline;
   cursor: pointer;
@@ -182,6 +197,17 @@
 sup {
   font-size: 10px;
   line-height: 10px;
+}
+
+.referencesText {
+  cursor: pointer;
+  color: #0078d4;
+  text-decoration: underline;
+  margin-right: 8px;
+}
+
+:global(.dark-mode) .referencesText {
+  color: #60a5fa;
 }
 
 @media (max-width: 480px) {
