@@ -80,7 +80,7 @@
   letter-spacing: -0.5px;
   text-align: center;
   display: block;
-  width: fit-content;
+  width: 100%;
 }
 
 .headerSubtitle {
