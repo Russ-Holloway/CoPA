@@ -153,23 +153,28 @@
 }
 
 .inputFullWidth {
-  width: 100%;
-  max-width: none;
+  width: 75%;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .chatEmptyStateTitle {
   font-style: normal;
   font-weight: 700;
   font-size: 48px;
-  text-align: center;
   line-height: 56px;
-  margin: 0 0 32px 0;
   color: var(--chat-empty-title);
   background: var(--accent-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   transition: all 0.3s ease;
+  margin: 0 auto;
+  letter-spacing: -0.5px;
+  text-align: center;
+  display: block;
+  margin-bottom: 32px;
+  width: fit-content;
 }
 
 .chatEmptyStateSubtitle {
@@ -612,7 +617,7 @@ a {
 }
 
 .clearChatButton {
-  background: var(--accent-primary);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: 2px solid var(--chat-container-bg);
   border-radius: 12px;
   padding: 18px 36px;
@@ -620,14 +625,15 @@ a {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   box-shadow:
-    0 6px 20px var(--shadow-heavy),
-    0 2px 4px var(--shadow-light),
+    0 6px 20px rgba(102, 126, 234, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   margin: 24px 0;
   min-width: 160px;
   position: relative;
@@ -637,11 +643,11 @@ a {
 .clearChatButton:hover {
   transform: translateY(-1px);
   box-shadow:
-    0 8px 25px var(--shadow-heavy),
-    0 4px 8px var(--shadow-medium),
+    0 8px 25px rgba(102, 126, 234, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  background: var(--accent-secondary);
-  border-color: var(--bg-tertiary);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  border-color: #f0f9ff;
 }
 
 .clearChatButton:active {
@@ -671,6 +677,12 @@ a {
 
 .chatEmptyStateLogo {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
 }
 
 .customTaglinePlaceholder {
@@ -731,17 +743,6 @@ a {
 
   .citationPanel {
     max-width: 100%;
-  }
-
-  .clearChatButton {
-    padding: 14px 28px;
-    font-size: 14px;
-    min-width: 120px;
-    border-width: 2px;
-    box-shadow:
-      0 4px 16px rgba(102, 126, 234, 0.3),
-      0 1px 3px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .taglineInput {
