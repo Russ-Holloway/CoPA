@@ -56,7 +56,11 @@
   align-items: center;
   text-align: center;
   justify-content: center;
-  flex: 1;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
 }
 
 .headerRightContainer {
@@ -76,7 +80,7 @@
   line-height: 55px;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  margin: 0 auto;
+  margin: 0;
   letter-spacing: -0.5px;
   text-align: center;
   display: block;
