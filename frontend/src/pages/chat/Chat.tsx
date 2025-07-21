@@ -31,13 +31,13 @@ import {
   ChatHistoryLoadingState,
   CosmosDBStatus,
   ErrorMessage,
-  ExecResults,
-} from "../../api";
-import { Answer } from "../../components/Answer";
-import { QuestionInput } from "../../components/QuestionInput";
-import { ChatHistoryPanel } from "../../components/ChatHistory/ChatHistoryPanel";
-import { AppStateContext } from "../../state/AppProvider";
-import { useBoolean } from "@fluentui/react-hooks";
+  ExecResults
+} from '../../api'
+import { Answer } from '../../components/Answer'
+import { QuestionInput } from '../../components/QuestionInput'
+import { ChatHistoryPanel } from '../../components/ChatHistory/ChatHistoryPanel'
+import { AppStateContext } from '../../state/AppProvider'
+import { useBoolean } from '@fluentui/react-hooks'
 
 const enum messageStatus {
   NotRunning = 'Not Running',
@@ -137,11 +137,14 @@ const Chat = () => {
   const parseExecResults = (exec_results_: any): void => {
     if (exec_results_ == undefined) return
     const exec_results = exec_results_.length === 2 ? exec_results_ : exec_results_.splice(2)
-    appStateContext?.dispatch({ type: 'SET_ANSWER_EXEC_RESULT', payload: { answerId: answerId, exec_result: exec_results } })
+    appStateContext?.dispatch({
+      type: 'SET_ANSWER_EXEC_RESULT',
+      payload: { answerId: answerId, exec_result: exec_results }
+    })
   }
 
   const processResultMessage = (resultMessage: ChatMessage, userMessage: ChatMessage, conversationId?: string) => {
-    if (typeof resultMessage.content === "string" && resultMessage.content.includes('all_exec_results')) {
+    if (typeof resultMessage.content === 'string' && resultMessage.content.includes('all_exec_results')) {
       const parsedExecResults = JSON.parse(resultMessage.content) as AzureSqlServerExecResults
       setExecResults(parsedExecResults.all_exec_results)
       assistantMessage.context = JSON.stringify({
@@ -178,13 +181,19 @@ const Chat = () => {
     }
   }
 
-  const makeApiRequestWithoutCosmosDB = async (question: ChatMessage["content"], conversationId?: string) => {
+  const makeApiRequestWithoutCosmosDB = async (question: ChatMessage['content'], conversationId?: string) => {
     setIsLoading(true)
     setShowLoadingMessage(true)
     const abortController = new AbortController()
     abortFuncs.current.unshift(abortController)
 
-    const questionContent = typeof question === 'string' ? question : [{ type: "text", text: question[0].text }, { type: "image_url", image_url: { url: question[1].image_url.url } }]
+    const questionContent =
+      typeof question === 'string'
+        ? question
+        : [
+            { type: 'text', text: question[0].text },
+            { type: 'image_url', image_url: { url: question[1].image_url.url } }
+          ]
     question = typeof question !== 'string' && question[0]?.text?.length > 0 ? question[0].text : question
 
     const userMessage: ChatMessage = {
@@ -305,12 +314,18 @@ const Chat = () => {
     return abortController.abort()
   }
 
-  const makeApiRequestWithCosmosDB = async (question: ChatMessage["content"], conversationId?: string) => {
+  const makeApiRequestWithCosmosDB = async (question: ChatMessage['content'], conversationId?: string) => {
     setIsLoading(true)
     setShowLoadingMessage(true)
     const abortController = new AbortController()
     abortFuncs.current.unshift(abortController)
-    const questionContent = typeof question === 'string' ? question : [{ type: "text", text: question[0].text }, { type: "image_url", image_url: { url: question[1].image_url.url } }]
+    const questionContent =
+      typeof question === 'string'
+        ? question
+        : [
+            { type: 'text', text: question[0].text },
+            { type: 'image_url', image_url: { url: question[1].image_url.url } }
+          ]
     question = typeof question !== 'string' && question[0]?.text?.length > 0 ? question[0].text : question
 
     const userMessage: ChatMessage = {
@@ -691,7 +706,7 @@ const Chat = () => {
   }
 
   const parseCitationFromMessage = (message: ChatMessage) => {
-    if (message?.role && message?.role === 'tool' && typeof message?.content === "string") {
+    if (message?.role && message?.role === 'tool' && typeof message?.content === 'string') {
       try {
         const toolMessage = JSON.parse(message.content) as ToolMessageContent
         return toolMessage.citations
@@ -703,23 +718,22 @@ const Chat = () => {
   }
 
   const parsePlotFromMessage = (message: ChatMessage) => {
-    if (message?.role && message?.role === "tool" && typeof message?.content === "string") {
+    if (message?.role && message?.role === 'tool' && typeof message?.content === 'string') {
       try {
-        const execResults = JSON.parse(message.content) as AzureSqlServerExecResults;
-        const codeExecResult = execResults.all_exec_results.at(-1)?.code_exec_result;
+        const execResults = JSON.parse(message.content) as AzureSqlServerExecResults
+        const codeExecResult = execResults.all_exec_results.at(-1)?.code_exec_result
 
         if (codeExecResult === undefined) {
-          return null;
+          return null
         }
-        return codeExecResult.toString();
-      }
-      catch {
-        return null;
+        return codeExecResult.toString()
+      } catch {
+        return null
       }
       // const execResults = JSON.parse(message.content) as AzureSqlServerExecResults;
       // return execResults.all_exec_results.at(-1)?.code_exec_result;
     }
-    return null;
+    return null
   }
 
   const disabledButton = () => {
@@ -779,23 +793,36 @@ const Chat = () => {
                     {answer.role === 'user' ? (
                       <div className={styles.chatMessageUser} tabIndex={0}>
                         <div className={styles.chatMessageUserMessage}>
-                          {typeof answer.content === "string" && answer.content ? answer.content : Array.isArray(answer.content) ? <>{answer.content[0].text} <img className={styles.uploadedImageChat} src={answer.content[1].image_url.url} alt="Uploaded Preview" /></> : null}
+                          {typeof answer.content === 'string' && answer.content ? (
+                            answer.content
+                          ) : Array.isArray(answer.content) ? (
+                            <>
+                              {answer.content[0].text}{' '}
+                              <img
+                                className={styles.uploadedImageChat}
+                                src={answer.content[1].image_url.url}
+                                alt="Uploaded Preview"
+                              />
+                            </>
+                          ) : null}
                         </div>
                       </div>
                     ) : answer.role === 'assistant' ? (
                       <div className={styles.chatMessageGpt}>
-                        {typeof answer.content === "string" && <Answer
-                          answer={{
-                            answer: answer.content,
-                            citations: parseCitationFromMessage(messages[index - 1]),
-                            generated_chart: parsePlotFromMessage(messages[index - 1]),
-                            message_id: answer.id,
-                            feedback: answer.feedback,
-                            exec_results: execResults
-                          }}
-                          onCitationClicked={c => onShowCitation(c)}
-                          onExectResultClicked={() => onShowExecResult(answerId)}
-                        />}
+                        {typeof answer.content === 'string' && (
+                          <Answer
+                            answer={{
+                              answer: answer.content,
+                              citations: parseCitationFromMessage(messages[index - 1]),
+                              generated_chart: parsePlotFromMessage(messages[index - 1]),
+                              message_id: answer.id,
+                              feedback: answer.feedback,
+                              exec_results: execResults
+                            }}
+                            onCitationClicked={c => onShowCitation(c)}
+                            onExectResultClicked={() => onShowExecResult(answerId)}
+                          />
+                        )}
                       </div>
                     ) : answer.role === ERROR ? (
                       <div className={styles.chatMessageError}>
@@ -803,7 +830,9 @@ const Chat = () => {
                           <ErrorCircleRegular className={styles.errorIcon} style={{ color: 'rgba(182, 52, 67, 1)' }} />
                           <span>Error</span>
                         </Stack>
-                        <span className={styles.chatMessageErrorContent}>{typeof answer.content === "string" && answer.content}</span>
+                        <span className={styles.chatMessageErrorContent}>
+                          {typeof answer.content === 'string' && answer.content}
+                        </span>
                       </div>
                     ) : null}
                   </>
@@ -813,7 +842,7 @@ const Chat = () => {
                     <div className={styles.chatMessageGpt}>
                       <Answer
                         answer={{
-                          answer: "Generating answer...",
+                          answer: 'Generating answer...',
                           citations: [],
                           generated_chart: null
                         }}
@@ -827,7 +856,8 @@ const Chat = () => {
               </div>
             )}
 
-            <Stack className={`${styles.chatInput} ${messages && messages.length > 0 ? styles.chatInputSticky : styles.chatInputCentered}`}>
+            <Stack
+              className={`${styles.chatInput} ${messages && messages.length > 0 ? styles.chatInputSticky : styles.chatInputCentered}`}>
               {isLoading && messages.length > 0 && (
                 <Stack
                   horizontal
@@ -843,7 +873,7 @@ const Chat = () => {
                   </span>
                 </Stack>
               )}
-              
+
               {/* Main input area with side controls and input */}
               <Stack horizontal className={styles.inputRow}>
                 {/* Left side controls */}
@@ -853,12 +883,11 @@ const Chat = () => {
                     className={styles.clearChatButton}
                     onClick={newChat}
                     disabled={disabledButton()}
-                    aria-label="clear chat button"
-                  >
+                    aria-label="clear chat button">
                     <span className={styles.clearChatButtonText}>Clear Chat</span>
                   </button>
                 </Stack>
-                
+
                 {/* Main input area */}
                 <Stack.Item grow className={styles.inputArea}>
                   <QuestionInput
@@ -876,7 +905,7 @@ const Chat = () => {
                   />
                 </Stack.Item>
               </Stack>
-              
+
               <Dialog
                 hidden={hideErrorDialog}
                 onDismiss={handleErrorDialogClose}
@@ -944,27 +973,40 @@ const Chat = () => {
               <Stack horizontalAlign="space-between">
                 {appStateContext?.state?.answerExecResult[answerId]?.map((execResult: ExecResults, index) => (
                   <Stack className={styles.exectResultList} verticalAlign="space-between">
-                    <><span>Intent:</span> <p>{execResult.intent}</p></>
-                    {execResult.search_query && <><span>Search Query:</span>
-                      <SyntaxHighlighter
-                        style={nord}
-                        wrapLines={true}
-                        lineProps={{ style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' } }}
-                        language="sql"
-                        PreTag="p">
-                        {execResult.search_query}
-                      </SyntaxHighlighter></>}
-                    {execResult.search_result && <><span>Search Result:</span> <p>{execResult.search_result}</p></>}
-                    {execResult.code_generated && <><span>Code Generated:</span>
-                      <SyntaxHighlighter
-                        style={nord}
-                        wrapLines={true}
-                        lineProps={{ style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' } }}
-                        language="python"
-                        PreTag="p">
-                        {execResult.code_generated}
-                      </SyntaxHighlighter>
-                    </>}
+                    <>
+                      <span>Intent:</span> <p>{execResult.intent}</p>
+                    </>
+                    {execResult.search_query && (
+                      <>
+                        <span>Search Query:</span>
+                        <SyntaxHighlighter
+                          style={nord}
+                          wrapLines={true}
+                          lineProps={{ style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' } }}
+                          language="sql"
+                          PreTag="p">
+                          {execResult.search_query}
+                        </SyntaxHighlighter>
+                      </>
+                    )}
+                    {execResult.search_result && (
+                      <>
+                        <span>Search Result:</span> <p>{execResult.search_result}</p>
+                      </>
+                    )}
+                    {execResult.code_generated && (
+                      <>
+                        <span>Code Generated:</span>
+                        <SyntaxHighlighter
+                          style={nord}
+                          wrapLines={true}
+                          lineProps={{ style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' } }}
+                          language="python"
+                          PreTag="p">
+                          {execResult.code_generated}
+                        </SyntaxHighlighter>
+                      </>
+                    )}
                   </Stack>
                 ))}
               </Stack>

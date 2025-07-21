@@ -1,11 +1,11 @@
 // jest-setup.ts
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom'
 
 // Extend Jest matchers for accessibility testing
 declare global {
   namespace jest {
     interface Matchers<R> {
-      toHaveNoViolations(): R;
+      toHaveNoViolations(): R
     }
   }
 }
@@ -20,22 +20,22 @@ Object.defineProperty(window, 'speechSynthesis', {
     resume: jest.fn(),
     getVoices: jest.fn(() => []),
     addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-  },
-});
+    removeEventListener: jest.fn()
+  }
+})
 
 // Mock IntersectionObserver
-(globalThis as any).IntersectionObserver = class IntersectionObserver {
+;(globalThis as any).IntersectionObserver = class IntersectionObserver {
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
-};
+}
 
 // Mock ResizeObserver
-(globalThis as any).ResizeObserver = class ResizeObserver {
+;(globalThis as any).ResizeObserver = class ResizeObserver {
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
-};
+}

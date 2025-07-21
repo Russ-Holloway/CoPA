@@ -55,14 +55,14 @@ const Layout = () => {
 
   useEffect(() => {
     if (!appStateContext?.state.isLoading) {
-      console.log('=== DEBUGGING INFO ===');
-      console.log('UI object:', ui);
-      console.log('Police force logo:', ui?.police_force_logo);
-      console.log('Police force tagline:', ui?.police_force_tagline);
-      console.log('Police force tagline 2:', ui?.police_force_tagline_2);
-      console.log('Force logo state will be:', ui?.police_force_logo || ForceLogo);
-      console.log('=== END DEBUG ===');
-      
+      console.log('=== DEBUGGING INFO ===')
+      console.log('UI object:', ui)
+      console.log('Police force logo:', ui?.police_force_logo)
+      console.log('Police force tagline:', ui?.police_force_tagline)
+      console.log('Police force tagline 2:', ui?.police_force_tagline_2)
+      console.log('Force logo state will be:', ui?.police_force_logo || ForceLogo)
+      console.log('=== END DEBUG ===')
+
       setLogo(ui?.logo || Contoso)
       // Set the force logo from environment variable or fallback to default
       setForceLogo(ui?.police_force_logo || ForceLogo)
@@ -75,7 +75,7 @@ const Layout = () => {
     }
   }, [copyClicked])
 
-  useEffect(() => { }, [appStateContext?.state.isCosmosDBAvailable.status])
+  useEffect(() => {}, [appStateContext?.state.isCosmosDBAvailable.status])
 
   useEffect(() => {
     const handleResize = () => {
@@ -105,30 +105,26 @@ const Layout = () => {
           <div className={styles.headerLeftLogo}>
             {/* College of Policing logo positioned on the far left */}
             <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
-            {ui?.feedback_email && (
-              <FeedbackButton
-                onClick={handleFeedbackClick}
-                text={feedbackLabel}
-              />
-            )}
+            {ui?.feedback_email && <FeedbackButton onClick={handleFeedbackClick} text={feedbackLabel} />}
           </div>
           <div className={styles.headerCenterContent}>
             <Link to="/" style={{ textDecoration: 'none' }}>
               <h1 className={styles.headerTitle}>CoPPA</h1>
-              <p className={styles.headerSubtitle}>CoPPA is configured to assist with policing queries and provide guidance from official sources</p>
+              <p className={styles.headerSubtitle}>
+                CoPPA is configured to assist with policing queries and provide guidance from official sources
+              </p>
             </Link>
           </div>
           <div className={styles.headerRightContainer}>
-            {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
-              <HistoryButton
-                onClick={handleHistoryClick}
-                text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
-              />
-            )}
+            {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured &&
+              ui?.show_chat_history_button !== false && (
+                <HistoryButton
+                  onClick={handleHistoryClick}
+                  text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
+                />
+              )}
             {/* Police Force logo displayed when configured */}
-            {forceLogo && (
-              <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />
-            )}
+            {forceLogo && <img src={forceLogo} className={styles.forceLogo} aria-hidden="true" alt="Force Logo" />}
           </div>
         </div>
       </header>

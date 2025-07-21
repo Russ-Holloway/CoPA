@@ -11,7 +11,7 @@ import { DarkModeProvider } from './context/DarkModeContext'
 
 import './index.css'
 
-initializeIcons("https://res.cdn.office.net/files/fabric-cdn-prod_20241209.001/assets/icons/")
+initializeIcons('https://res.cdn.office.net/files/fabric-cdn-prod_20241209.001/assets/icons/')
 
 export default function App() {
   return (
