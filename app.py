@@ -636,6 +636,7 @@ def get_frontend_settings():
                 "police_force_tagline": app_settings.ui.police_force_tagline,
                 "police_force_tagline_2": app_settings.ui.police_force_tagline_2,
                 "feedback_email": app_settings.ui.feedback_email,
+                "find_out_more_link": app_settings.ui.find_out_more_link,
             },
             "sanitize_answer": app_settings.base_settings.sanitize_answer,
             "oyd_enabled": app_settings.base_settings.datasource_type,

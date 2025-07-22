@@ -55,6 +55,7 @@ class _UiSettings(BaseSettings):
     police_force_tagline: Optional[str] = None
     police_force_tagline_2: Optional[str] = None
     feedback_email: Optional[str] = None
+    find_out_more_link: Optional[str] = None
 
 
 class _ChatHistorySettings(BaseSettings):

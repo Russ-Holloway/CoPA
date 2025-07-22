@@ -139,6 +139,7 @@ export type UI = {
   police_force_tagline?: string
   police_force_tagline_2?: string
   feedback_email?: string
+  find_out_more_link?: string
 }
 
 export type FrontendSettings = {

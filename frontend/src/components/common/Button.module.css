@@ -48,6 +48,19 @@
   border: 1px solid #d1d1d1;
 }
 
+.findOutMoreButtonRoot {
+  width: 180px;
+  border: 1px solid #d1d1d1;
+}
+
+.findOutMoreButtonRoot:hover {
+  border: 1px solid #d1d1d1;
+}
+
+.findOutMoreButtonRoot:active {
+  border: 1px solid #d1d1d1;
+}
+
 @media (max-width: 480px) {
   .shareButtonRoot {
     width: auto;
@@ -60,6 +73,11 @@
   }
 
   .feedbackButtonRoot {
+    width: auto;
+    padding: 0 8px;
+  }
+
+  .findOutMoreButtonRoot {
     width: auto;
     padding: 0 8px;
   }
