@@ -50,6 +50,13 @@
   z-index: 2;
 }
 
+.buttonStack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
 .headerCenterContent {
   display: flex;
   flex-direction: column;
@@ -210,6 +217,10 @@
 
   .headerLeftLogo {
     left: 20px;
+  }
+
+  .buttonStack {
+    gap: 4px;
   }
 
   .headerRightContainer {

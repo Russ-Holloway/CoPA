@@ -39,3 +39,14 @@ export const FeedbackButton: React.FC<ButtonProps> = ({ onClick, text }) => {
     />
   )
 }
+
+export const FindOutMoreButton: React.FC<ButtonProps> = ({ onClick, text }) => {
+  return (
+    <DefaultButton
+      className={styles.findOutMoreButtonRoot}
+      text={text}
+      iconProps={{ iconName: 'Info' }}
+      onClick={onClick}
+    />
+  )
+}

@@ -6,7 +6,7 @@ import { CopyRegular } from '@fluentui/react-icons'
 import { CosmosDBStatus } from '../../api'
 import Contoso from '../../assets/Contoso.svg'
 import ForceLogo from '../../assets/ForceLogo.svg'
-import { HistoryButton, ShareButton, FeedbackButton } from '../../components/common/Button'
+import { HistoryButton, ShareButton, FeedbackButton, FindOutMoreButton } from '../../components/common/Button'
 import { AppStateContext } from '../../state/AppProvider'
 
 import styles from './Layout.module.css'
@@ -50,6 +50,13 @@ const Layout = () => {
       const body = encodeURIComponent('Hi,\n\nI would like to provide feedback about CoPPA:\n\n\n\nThank you.')
       const mailtoUrl = `mailto:${feedbackEmail}?subject=${subject}&body=${body}`
       window.open(mailtoUrl, '_blank')
+    }
+  }
+
+  const handleFindOutMoreClick = () => {
+    const findOutMoreLink = ui?.find_out_more_link
+    if (findOutMoreLink) {
+      window.open(findOutMoreLink, '_blank')
     }
   }
 
@@ -105,7 +112,10 @@ const Layout = () => {
           <div className={styles.headerLeftLogo}>
             {/* College of Policing logo positioned on the far left */}
             <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
-            {ui?.feedback_email && <FeedbackButton onClick={handleFeedbackClick} text={feedbackLabel} />}
+            <div className={styles.buttonStack}>
+              {ui?.feedback_email && <FeedbackButton onClick={handleFeedbackClick} text={feedbackLabel} />}
+              {ui?.find_out_more_link && <FindOutMoreButton onClick={handleFindOutMoreClick} text="Find out more" />}
+            </div>
           </div>
           <div className={styles.headerCenterContent}>
             <Link to="/" style={{ textDecoration: 'none' }}>

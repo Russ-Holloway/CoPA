@@ -545,6 +545,9 @@ UI_POLICE_FORCE_LOGO=https://your-storage.blob.core.windows.net/images/force-log
 
 # Police Force Custom Tagline
 UI_POLICE_FORCE_TAGLINE=Serving and Protecting Our Community
+
+# Find Out More Link - displays a button that opens in new tab
+UI_FIND_OUT_MORE_LINK=https://your-website.com/about-coppa
 ```
 
 ### Key Features
@@ -553,5 +556,6 @@ UI_POLICE_FORCE_TAGLINE=Serving and Protecting Our Community
 - **Environment Variable Based**: Easy to configure through Azure App Service settings
 - **Fallback Support**: Falls back to defaults if environment variables are not set
 - **Multiple Hosting Options**: Supports Azure Blob Storage, CDN, or base64 encoded images
+- **Find Out More Button**: Optional button positioned under the feedback button that opens a configurable link in a new tab
 
 For detailed configuration instructions, see [docs/police-force-customization.md](docs/police-force-customization.md)
