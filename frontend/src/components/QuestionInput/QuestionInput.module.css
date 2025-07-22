@@ -1,6 +1,6 @@
 .questionInputContainer {
   height: auto;
-  min-height: 180px;
+  min-height: 280px;
   position: relative;
   margin: 0;
   background: #ffffff;
@@ -12,18 +12,32 @@
   width: 100%;
 }
 
+/* Dark mode styling for question input container */
+:global(.dark-mode) .questionInputContainer {
+  background: #2d3748;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
 .questionInputTextArea {
-  width: calc(100% - 200px);
-  min-height: 100px;
-  margin: 20px 20px 20px 20px;
-  padding: 20px 28px;
-  border: 2px solid rgba(102, 126, 234, 0.2);
+  width: calc(100% - 40px);
+  min-height: calc(100% - 40px);
+  margin: 20px;
+  padding: 30px 28px;
+  border: none;
   border-radius: 12px;
-  font-size: 18px;
-  line-height: 28px;
+  font-size: 20px;
+  line-height: 32px;
   resize: none;
   transition: all 0.3s ease;
-  background: #ffffff;
+  background: transparent;
+  color: #1f2937;
+}
+
+/* Dark mode styling for question input text area */
+:global(.dark-mode) .questionInputTextArea {
+  background: transparent;
+  color: #ffffff;
 }
 
 /* Force FluentUI TextField to respect our width */
@@ -35,15 +49,17 @@
 }
 
 .questionInputTextArea:focus {
-  outline: 2px solid #1f2937;
-  outline-offset: 2px;
-  border-color: #1f2937;
-  box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.3);
+  outline: none;
+}
+
+/* Dark mode focus styling */
+:global(.dark-mode) .questionInputTextArea:focus {
+  outline: none;
 }
 
 .questionInputSendButtonContainer {
   position: absolute;
-  right: 24px;
+  right: 20px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -173,7 +189,7 @@
     line-height: 24px;
     min-height: 100px;
     padding: 24px 28px;
-    width: calc(100% - 100px);
+    width: calc(100% - 40px);
     margin: 20px;
   }
 
@@ -190,6 +206,6 @@
   }
 
   .questionInputSendButtonContainer {
-    right: 24px;
+    right: 20px;
   }
 }
