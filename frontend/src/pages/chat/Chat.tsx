@@ -697,8 +697,8 @@ const Chat = () => {
     // Calculate position for citation panel
     if (event) {
       const target = event.currentTarget as HTMLElement
-      const answerElement = target.closest('.chatMessageGpt, [class*="chatMessageGpt"]') as HTMLElement
-      const chatStreamElement = document.querySelector('.chatMessageStream, [class*="chatMessageStream"]') as HTMLElement
+      const answerElement = target.closest(`.${styles.chatMessageGpt}`) as HTMLElement
+      const chatStreamElement = document.querySelector(`.${styles.chatMessageStream}`) as HTMLElement
       
       if (answerElement && chatStreamElement) {
         const answerRect = answerElement.getBoundingClientRect()
@@ -711,6 +711,10 @@ const Chat = () => {
         document.documentElement.style.setProperty('--citation-top', `${relativeTop}px`)
         document.documentElement.style.setProperty('--citation-left', `calc(100% + 20px)`)
       }
+    } else {
+      // Fallback positioning when no event is provided
+      document.documentElement.style.setProperty('--citation-top', `200px`)
+      document.documentElement.style.setProperty('--citation-left', `calc(100% + 20px)`)
     }
   }
 
