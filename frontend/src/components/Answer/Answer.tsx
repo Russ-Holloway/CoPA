@@ -271,7 +271,10 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
 
   return (
     <>
-      <Stack className={styles.answerContainer} tabIndex={0}>
+      <Stack horizontal className={styles.mainAnswerLayout}>
+        {/* Main answer container */}
+        <Stack.Item grow className={styles.answerColumn}>
+          <Stack className={styles.answerContainer} tabIndex={0}>
         <Stack.Item>
           <Stack horizontal grow className={styles.answerMainContent}>
             <Stack.Item grow className={styles.answerContentColumn}>
@@ -347,43 +350,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
               )}
             </Stack.Item>
             
-            {/* Side-by-side citation panel */}
-            {showInlineCitation && activeCitation && (
-              <Stack.Item className={styles.sideBySideCitationColumn}>
-                <Stack className={styles.sideBySideCitationPanel}>
-                  <Stack horizontal horizontalAlign="space-between" verticalAlign="center" className={styles.citationHeader}>
-                    <Text style={{ fontWeight: 600, fontSize: '14px' }}>Citation</Text>
-                    <DefaultButton 
-                      iconProps={{ iconName: 'Cancel' }}
-                      onClick={() => {
-                        setShowInlineCitation(false)
-                        setActiveCitation(null)
-                      }}
-                      className={styles.citationCloseButton}
-                    />
-                  </Stack>
-                  <Text 
-                    className={styles.citationTitle}
-                    onClick={() => {
-                      if (activeCitation.url && !activeCitation.url.includes('blob.core')) {
-                        window.open(activeCitation.url, '_blank')
-                      }
-                    }}
-                    title={activeCitation.url && !activeCitation.url.includes('blob.core') ? activeCitation.url : activeCitation.title ?? ''}
-                  >
-                    {activeCitation.title}
-                  </Text>
-                  <div className={styles.citationContent}>
-                    <ReactMarkdown
-                      linkTarget="_blank"
-                      children={DOMPurify.sanitize(activeCitation.content, { ALLOWED_TAGS: XSSAllowTags })}
-                      remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeRaw]}
-                    />
-                  </div>
-                </Stack>
-              </Stack.Item>
-            )}
+
           </Stack>
         </Stack.Item>
         
@@ -491,6 +458,46 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
           </DefaultButton>
         </Stack>
       </Dialog>
+        </Stack.Item>
+        
+        {/* External citation panel */}
+        {showInlineCitation && activeCitation && (
+          <Stack.Item className={styles.externalCitationColumn}>
+            <Stack className={styles.externalCitationPanel}>
+              <Stack horizontal horizontalAlign="space-between" verticalAlign="center" className={styles.citationHeader}>
+                <Text style={{ fontWeight: 600, fontSize: '14px' }}>Citation</Text>
+                <DefaultButton 
+                  iconProps={{ iconName: 'Cancel' }}
+                  onClick={() => {
+                    setShowInlineCitation(false)
+                    setActiveCitation(null)
+                  }}
+                  className={styles.citationCloseButton}
+                />
+              </Stack>
+              <Text 
+                className={styles.citationTitle}
+                onClick={() => {
+                  if (activeCitation.url && !activeCitation.url.includes('blob.core')) {
+                    window.open(activeCitation.url, '_blank')
+                  }
+                }}
+                title={activeCitation.url && !activeCitation.url.includes('blob.core') ? activeCitation.url : activeCitation.title ?? ''}
+              >
+                {activeCitation.title}
+              </Text>
+              <div className={styles.citationContent}>
+                <ReactMarkdown
+                  linkTarget="_blank"
+                  children={DOMPurify.sanitize(activeCitation.content, { ALLOWED_TAGS: XSSAllowTags })}
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
+                />
+              </div>
+            </Stack>
+          </Stack.Item>
+        )}
+      </Stack>
     </>
   )
 }

@@ -22,18 +22,32 @@
   flex: 1;
 }
 
-.sideBySideCitationColumn {
-  width: 300px;
-  flex-shrink: 0;
+/* Main layout container for side-by-side design */
+.mainAnswerLayout {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
 }
 
-.sideBySideCitationPanel {
-  padding: 16px;
-  border: 1px solid #e0e0e0;
+.answerColumn {
+  flex: 1;
+  min-width: 0; /* Allows flex item to shrink */
+}
+
+.externalCitationColumn {
+  flex: 0 0 400px; /* Fixed width for citation panel */
+  max-width: 400px;
+}
+
+.externalCitationPanel {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
   border-radius: 8px;
-  background-color: #f8f9fa;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  max-height: 400px;
+  padding: 16px;
+  position: sticky;
+  top: 20px; /* Sticky positioning */
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
 }
 
