@@ -489,7 +489,8 @@
   color: var(--text-primary);
   position: absolute;
   top: 0;
-  right: -350px;
+  left: 100%;
+  margin-left: 20px;
   z-index: 1000;
   transition:
     background 0.3s ease,
