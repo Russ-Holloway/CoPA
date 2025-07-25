@@ -15,6 +15,24 @@
   gap: 20px;
 }
 
+/* When no citation panel is present, chat container takes full width */
+.chatRoot:not(:has(.citationPanel)) .chatContainer {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* When no citation panel is present, message stream takes full width */
+.chatRoot:not(:has(.citationPanel)) .chatMessageStream {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* When no citation panel is present, GPT messages take full width */
+.chatRoot:not(:has(.citationPanel)) .chatMessageGpt {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
 .clearChatSidebar {
   position: fixed;
   left: 15px;
