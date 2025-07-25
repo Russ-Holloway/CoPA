@@ -487,10 +487,9 @@
   overflow-y: scroll;
   max-height: 60vh;
   color: var(--text-primary);
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 20px;
+  position: absolute;
+  top: 0;
+  right: -350px;
   z-index: 1000;
   transition:
     background 0.3s ease,
