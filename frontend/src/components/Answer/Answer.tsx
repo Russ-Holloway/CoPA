@@ -273,8 +273,8 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
     <>
       <Stack className={styles.answerContainer} tabIndex={0}>
         <Stack.Item>
-          <Stack horizontal grow>
-            <Stack.Item grow>
+          <Stack horizontal grow className={styles.answerMainContent}>
+            <Stack.Item grow className={styles.answerContentColumn}>
               {/* Render answer with proper markdown formatting */}
               {parsedAnswer && parsedAnswer.markdownFormatText && (
                 <div className={styles.answerText}>
@@ -316,10 +316,10 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                   />
                 </div>
               )}
-            </Stack.Item>
-            <Stack.Item className={styles.answerHeader}>
+              
+              {/* Feedback buttons positioned at bottom of answer content */}
               {FEEDBACK_ENABLED && answer.message_id !== undefined && (
-                <Stack horizontal horizontalAlign="space-between">
+                <Stack horizontal horizontalAlign="start" className={styles.feedbackContainer}>
                   <ThumbLike20Filled
                     aria-hidden="false"
                     aria-label="Like this response"
@@ -346,8 +346,47 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                 </Stack>
               )}
             </Stack.Item>
+            
+            {/* Side-by-side citation panel */}
+            {showInlineCitation && activeCitation && (
+              <Stack.Item className={styles.sideBySideCitationColumn}>
+                <Stack className={styles.sideBySideCitationPanel}>
+                  <Stack horizontal horizontalAlign="space-between" verticalAlign="center" className={styles.citationHeader}>
+                    <Text style={{ fontWeight: 600, fontSize: '14px' }}>Citation</Text>
+                    <DefaultButton 
+                      iconProps={{ iconName: 'Cancel' }}
+                      onClick={() => {
+                        setShowInlineCitation(false)
+                        setActiveCitation(null)
+                      }}
+                      className={styles.citationCloseButton}
+                    />
+                  </Stack>
+                  <Text 
+                    className={styles.citationTitle}
+                    onClick={() => {
+                      if (activeCitation.url && !activeCitation.url.includes('blob.core')) {
+                        window.open(activeCitation.url, '_blank')
+                      }
+                    }}
+                    title={activeCitation.url && !activeCitation.url.includes('blob.core') ? activeCitation.url : activeCitation.title ?? ''}
+                  >
+                    {activeCitation.title}
+                  </Text>
+                  <div className={styles.citationContent}>
+                    <ReactMarkdown
+                      linkTarget="_blank"
+                      children={DOMPurify.sanitize(activeCitation.content, { ALLOWED_TAGS: XSSAllowTags })}
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeRaw]}
+                    />
+                  </div>
+                </Stack>
+              </Stack.Item>
+            )}
           </Stack>
         </Stack.Item>
+        
         {parsedAnswer?.generated_chart !== null && (
           <Stack className={styles.answerContainer}>
             <Stack.Item grow>
@@ -355,6 +394,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           </Stack>
         )}
+        
         <Stack horizontal className={styles.answerFooter}>
           {!!parsedAnswer?.citations.length && (
             <Stack.Item>
@@ -389,6 +429,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           )}
         </Stack>
+        
         {/* Citation buttons that appear when references are clicked */}
         {chevronIsExpanded && (
           <Stack horizontal wrap tokens={{ childrenGap: 8 }} style={{ marginTop: '12px' }}>
@@ -411,43 +452,6 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             ))}
           </Stack>
         )}
-        
-        {/* Inline citation content */}
-        {showInlineCitation && activeCitation && (
-          <Stack className={styles.inlineCitationPanel}>
-            <Stack horizontal horizontalAlign="space-between" verticalAlign="center" className={styles.inlineCitationHeader}>
-              <Text style={{ fontWeight: 600, fontSize: '14px' }}>Citation</Text>
-              <DefaultButton 
-                iconProps={{ iconName: 'Cancel' }}
-                onClick={() => {
-                  setShowInlineCitation(false)
-                  setActiveCitation(null)
-                }}
-                className={styles.citationCloseButton}
-              />
-            </Stack>
-            <Text 
-              className={styles.inlineCitationTitle}
-              onClick={() => {
-                if (activeCitation.url && !activeCitation.url.includes('blob.core')) {
-                  window.open(activeCitation.url, '_blank')
-                }
-              }}
-              title={activeCitation.url && !activeCitation.url.includes('blob.core') ? activeCitation.url : activeCitation.title ?? ''}
-            >
-              {activeCitation.title}
-            </Text>
-            <div className={styles.inlineCitationContent}>
-              <ReactMarkdown
-                linkTarget="_blank"
-                children={DOMPurify.sanitize(activeCitation.content, { ALLOWED_TAGS: XSSAllowTags })}
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeRaw]}
-              />
-            </div>
-          </Stack>
-        )}
-        {/* Remove the old References Section and citation wrapper */}
       </Stack>
       <Dialog
         onDismiss={() => {
