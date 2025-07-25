@@ -264,3 +264,54 @@ sup {
     margin-bottom: 5px;
   }
 }
+
+.inlineCitationPanel {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+:global(.dark-mode) .inlineCitationPanel {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+.inlineCitationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.inlineCitationTitle {
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: #0078d4;
+  cursor: pointer;
+}
+
+:global(.dark-mode) .inlineCitationTitle {
+  color: #60a5fa;
+}
+
+.inlineCitationContent {
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.citationButtonActive {
+  background-color: #005a9e !important;
+}
+
+.citationCloseButton {
+  min-width: auto !important;
+  padding: 4px 8px !important;
+  background-color: transparent !important;
+  border: none !important;
+}

@@ -42,6 +42,8 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   const [showReportInappropriateFeedback, setShowReportInappropriateFeedback] = useState(false)
   const [negativeFeedbackList, setNegativeFeedbackList] = useState<Feedback[]>([])
   const [isReferencesAccordionOpen, setIsReferencesAccordionOpen] = useState(false)
+  const [activeCitation, setActiveCitation] = useState<Citation | null>(null)
+  const [showInlineCitation, setShowInlineCitation] = useState(false)
   const appStateContext = useContext(AppStateContext)
   const FEEDBACK_ENABLED =
     appStateContext?.state.frontendSettings?.feedback_enabled && appStateContext?.state.isCosmosDBAvailable?.cosmosDB
@@ -257,8 +259,14 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
   }
 
   const handleCitationButtonClick = (citation: Citation) => {
-    // Only use the main citation panel, not the local side panel
-    onCitationClicked(citation)
+    // Toggle inline citation display instead of using the global panel
+    if (activeCitation?.id === citation.id && showInlineCitation) {
+      setShowInlineCitation(false)
+      setActiveCitation(null)
+    } else {
+      setActiveCitation(citation)
+      setShowInlineCitation(true)
+    }
   }
 
   return (
@@ -288,7 +296,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                                 href="#"
                                 onClick={(e) => {
                                   e.preventDefault()
-                                  onCitationClicked(citation)
+                                  handleCitationButtonClick(citation)
                                 }}
                                 className={styles.citationLink}
                               >
@@ -393,7 +401,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                   minWidth: 'auto',
                   marginRight: '8px',
                   marginBottom: '8px',
-                  backgroundColor: '#0078d4',
+                  backgroundColor: activeCitation?.id === citation.id && showInlineCitation ? '#005a9e' : '#0078d4',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px'
@@ -401,6 +409,42 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                 {idx + 1}
               </DefaultButton>
             ))}
+          </Stack>
+        )}
+        
+        {/* Inline citation content */}
+        {showInlineCitation && activeCitation && (
+          <Stack className={styles.inlineCitationPanel}>
+            <Stack horizontal horizontalAlign="space-between" verticalAlign="center" className={styles.inlineCitationHeader}>
+              <Text style={{ fontWeight: 600, fontSize: '14px' }}>Citation</Text>
+              <DefaultButton 
+                iconProps={{ iconName: 'Cancel' }}
+                onClick={() => {
+                  setShowInlineCitation(false)
+                  setActiveCitation(null)
+                }}
+                className={styles.citationCloseButton}
+              />
+            </Stack>
+            <Text 
+              className={styles.inlineCitationTitle}
+              onClick={() => {
+                if (activeCitation.url && !activeCitation.url.includes('blob.core')) {
+                  window.open(activeCitation.url, '_blank')
+                }
+              }}
+              title={activeCitation.url && !activeCitation.url.includes('blob.core') ? activeCitation.url : activeCitation.title ?? ''}
+            >
+              {activeCitation.title}
+            </Text>
+            <div className={styles.inlineCitationContent}>
+              <ReactMarkdown
+                linkTarget="_blank"
+                children={DOMPurify.sanitize(activeCitation.content, { ALLOWED_TAGS: XSSAllowTags })}
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+              />
+            </div>
           </Stack>
         )}
         {/* Remove the old References Section and citation wrapper */}
