@@ -230,6 +230,7 @@
   margin-top: 0;
   background: transparent;
   color: var(--text-primary);
+  position: relative;
 }
 
 /* Ensure all child elements inherit dark mode styling */
@@ -487,9 +488,9 @@
   overflow-y: scroll;
   max-height: 60vh;
   color: var(--text-primary);
-  position: fixed;
+  position: absolute;
   top: var(--citation-top, 50%);
-  left: var(--citation-left, calc(50% + 400px));
+  left: var(--citation-left, calc(100% + 20px));
   transform: translateY(-50%);
   z-index: 1000;
   transition:

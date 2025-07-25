@@ -690,9 +690,28 @@ const Chat = () => {
     chatMessageStreamEnd.current?.scrollIntoView({ behavior: 'smooth' })
   }, [showLoadingMessage, processMessages])
 
-  const onShowCitation = (citation: Citation) => {
+  const onShowCitation = (citation: Citation, event?: any) => {
     setActiveCitation(citation)
     setIsCitationPanelOpen(true)
+    
+    // Calculate position for citation panel
+    if (event) {
+      const target = event.currentTarget as HTMLElement
+      const answerElement = target.closest('.chatMessageGpt, [class*="chatMessageGpt"]') as HTMLElement
+      const chatStreamElement = document.querySelector('.chatMessageStream, [class*="chatMessageStream"]') as HTMLElement
+      
+      if (answerElement && chatStreamElement) {
+        const answerRect = answerElement.getBoundingClientRect()
+        const streamRect = chatStreamElement.getBoundingClientRect()
+        
+        // Calculate position relative to the chat stream container
+        const relativeTop = answerRect.top - streamRect.top + chatStreamElement.scrollTop
+        
+        // Set CSS custom properties for dynamic positioning
+        document.documentElement.style.setProperty('--citation-top', `${relativeTop}px`)
+        document.documentElement.style.setProperty('--citation-left', `calc(100% + 20px)`)
+      }
+    }
   }
 
   const onShowExecResult = (answerId: string) => {
@@ -857,7 +876,7 @@ const Chat = () => {
                               feedback: answer.feedback,
                               exec_results: execResults
                             }}
-                            onCitationClicked={c => onShowCitation(c)}
+                            onCitationClicked={(c, e) => onShowCitation(c, e)}
                             onExectResultClicked={() => onShowExecResult(answerId)}
                           />
                         )}

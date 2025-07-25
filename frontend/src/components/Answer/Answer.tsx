@@ -19,7 +19,7 @@ import styles from './Answer.module.css'
 
 interface Props {
   answer: AskResponse
-  onCitationClicked: (citedDocument: Citation) => void
+  onCitationClicked: (citedDocument: Citation, event?: any) => void
   onExectResultClicked: (answerId: string) => void
 }
 
@@ -256,9 +256,9 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
     }))
   }
 
-  const handleCitationButtonClick = (citation: Citation) => {
+  const handleCitationButtonClick = (citation: Citation, event?: any) => {
     // Only use the main citation panel, not the local side panel
-    onCitationClicked(citation)
+    onCitationClicked(citation, event)
   }
 
   return (
@@ -286,9 +286,9 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
                             return (
                               <a
                                 href="#"
-                                onClick={(e) => {
+                                onClick={e => {
                                   e.preventDefault()
-                                  onCitationClicked(citation)
+                                  onCitationClicked(citation, e)
                                 }}
                                 className={styles.citationLink}
                               >
@@ -387,7 +387,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             {parsedAnswer?.citations.map((citation, idx) => (
               <DefaultButton
                 key={idx}
-                onClick={() => handleCitationButtonClick(citation)}
+                onClick={event => handleCitationButtonClick(citation, event)}
                 style={{
                   padding: '6px 12px',
                   minWidth: 'auto',
