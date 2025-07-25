@@ -633,6 +633,30 @@
                     ]
                 }
             }
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2020-10-01",
+            "name": "setupSearchComponents",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
+                "[resourceId('Microsoft.Resources/deployments', 'managedIdentityDeployment')]"
+            ],
+            "kind": "AzurePowerShell",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
+                }
+            },
+            "properties": {
+                "azPowerShellVersion": "8.3",
+                "scriptContent": "[concat('Invoke-WebRequest -Uri ''https://stcoppadeployment02.blob.core.windows.net/coppa-deployment/setup_search_components.ps1?sp=r&st=2025-07-24T10:53:28Z&se=2027-03-01T20:08:28Z&spr=https&sv=2024-11-04&sr=b&sig=VNliXAwSxAyVolZAWv%2BJkk19dfXn1pthZwArnpSwqUc%3D'' -OutFile ''setup_search_components.ps1''; & ./setup_search_components.ps1 -SearchServiceName ''', variables('AzureSearchService'), ''' -SearchIndexName ''my-new-index'' -SearchIndexerName ''my-new-indexer'' -SearchDataSourceName ''my-new-datasource'' -StorageAccountName ''', variables('StorageAccountName'), ''' -StorageContainerName ''', variables('StorageContainerName'), ''' -ResourceGroupName ''', resourceGroup().name, ''' -AzureOpenAIEndpoint ''', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, ''' -AzureOpenAIApiKey ''', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, ''' -EmbeddingDeploymentName ''text-embedding-ada-002'' -SkillsetName ''my-new-skillset''')]",
+                "timeout": "PT30M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            }
         }
     ]
 }
