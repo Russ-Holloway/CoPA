@@ -262,20 +262,20 @@
 
 .chatMessageStream {
   flex-grow: 1 !important;
-  max-width: 1600px !important;
+  max-width: 800px !important;
   width: 100% !important;
   overflow-y: auto;
   padding: 24px;
   display: flex;
   flex-direction: column;
-  margin-top: 0;
+  margin: 0 auto;
   background: transparent;
   color: var(--text-primary);
 }
 
 /* ABSOLUTE FULL WIDTH OVERRIDE when no citation */
 .chatRoot:not(:has(.citationPanel)) .chatMessageStream {
-  max-width: 100% !important;
+  max-width: 800px !important;
   width: 100% !important;
   flex: 1 !important;
   padding: 24px 40px !important;
@@ -311,7 +311,7 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  max-width: 80%;
+  max-width: 600px;
   border: 1px solid var(--border-user-message);
   order: 0;
   flex-grow: 0;
@@ -325,8 +325,8 @@
 
 .chatMessageGpt {
   margin-bottom: 16px;
-  max-width: 95% !important;
-  width: 95% !important;
+  max-width: 700px !important;
+  width: 100% !important;
   display: flex;
   background: transparent;
   color: var(--text-primary);
@@ -334,7 +334,7 @@
 
 /* FORCE FULL WIDTH when no citation - ABSOLUTE OVERRIDE */
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt {
-  max-width: 100% !important;
+  max-width: 700px !important;
   width: 100% !important;
   flex: 1 !important;
 }
