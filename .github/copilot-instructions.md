@@ -1,9 +1,9 @@
-# Copilot Instructions for CoPPA Stop & Search Application
+# Copilot Instructions for CoPPA 
 
 ## General Development Guidelines
 
 ### Project Context
-This is a police stop and search application built with Python Flask backend and TypeScript/React frontend. The application handles sensitive police data and must maintain strict accessibility and security standards.
+This is a police chat application built with Python Flask backend and TypeScript/React frontend. The application handles sensitive police data and must maintain strict accessibility and security standards.
 
 ### Code Style and Best Practices
 - Follow TypeScript strict mode conventions
