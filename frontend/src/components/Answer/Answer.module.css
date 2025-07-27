@@ -102,7 +102,7 @@
   margin: 11px;
   white-space: normal;
   word-wrap: break-word;
-  max-width: 700px;
+  max-width: none; /* Remove width constraint for better space usage */
   overflow-x: auto;
 }
 
