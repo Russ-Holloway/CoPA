@@ -117,7 +117,7 @@ export const ChatHistoryListItemGroups: React.FC<ChatHistoryListItemGroupsProps>
     const currentChatHistory = appStateContext?.state.chatHistory
     setShowSpinner(true)
 
-    await historyList(offset).then(response => {
+    await historyList(offset, true).then(response => {
       const concatenatedChatHistory = currentChatHistory && response && currentChatHistory.concat(...response)
       if (response) {
         appStateContext?.dispatch({ type: 'FETCH_CHAT_HISTORY', payload: concatenatedChatHistory || response })
