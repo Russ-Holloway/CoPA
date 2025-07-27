@@ -1,6 +1,6 @@
 .questionInputContainer {
   height: auto;
-  min-height: 280px;
+  min-height: 120px;
   position: relative;
   margin: 0;
   background: #ffffff;
@@ -10,6 +10,7 @@
   backdrop-filter: blur(10px);
   overflow: hidden;
   width: 100%;
+  max-width: 800px;
 }
 
 /* Dark mode styling for question input container */
@@ -21,13 +22,13 @@
 
 .questionInputTextArea {
   width: calc(100% - 40px);
-  min-height: calc(100% - 40px);
+  min-height: 60px;
   margin: 20px;
-  padding: 30px 28px;
+  padding: 16px 20px;
   border: none;
   border-radius: 12px;
-  font-size: 20px;
-  line-height: 32px;
+  font-size: 16px;
+  line-height: 24px;
   resize: none;
   transition: all 0.3s ease;
   background: transparent;
@@ -180,15 +181,16 @@
 @media (max-width: 480px) {
   .questionInputContainer {
     margin: 0 auto;
-    min-height: 160px;
+    min-height: 100px;
     width: 95%;
+    max-width: 95%;
   }
 
   .questionInputTextArea {
     font-size: 16px;
-    line-height: 24px;
-    min-height: 100px;
-    padding: 24px 28px;
+    line-height: 22px;
+    min-height: 50px;
+    padding: 14px 18px;
     width: calc(100% - 40px);
     margin: 20px;
   }
