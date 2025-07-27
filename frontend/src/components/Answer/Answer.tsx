@@ -460,7 +460,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
       </Dialog>
         </Stack.Item>
         
-        {/* External citation panel */}
+        {/* External citation panel - positioned as sibling to answer column */}
         {showInlineCitation && activeCitation && (
           <Stack.Item className={styles.externalCitationColumn}>
             <Stack className={styles.externalCitationPanel}>
