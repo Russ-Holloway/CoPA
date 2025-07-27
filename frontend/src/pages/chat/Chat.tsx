@@ -28,6 +28,7 @@ import {
   Conversation,
   historyGenerate,
   historyUpdate,
+  historyClear,
   ChatHistoryLoadingState,
   CosmosDBStatus,
   ErrorMessage,
@@ -603,8 +604,30 @@ const Chat = () => {
     return tryGetRaiPrettyError(errorMessage)
   }
 
-  const newChat = () => {
+  const newChat = async () => {
     setProcessMessages(messageStatus.Processing)
+    
+    // If there's a current conversation with messages, finalize it first
+    if (
+      appStateContext?.state.currentChat &&
+      appStateContext.state.currentChat.messages &&
+      appStateContext.state.currentChat.messages.length > 0 &&
+      appStateContext.state.isCosmosDBAvailable?.cosmosDB
+    ) {
+      try {
+        const response = await historyClear(appStateContext.state.currentChat.id)
+        if (response.ok) {
+          // Successfully finalized the conversation
+          appStateContext?.dispatch({ type: 'UPDATE_CHAT_HISTORY', payload: appStateContext.state.currentChat })
+        } else {
+          console.error('Failed to finalize conversation:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error finalizing conversation:', error)
+      }
+    }
+    
+    // Clear the frontend state
     setMessages([])
     setIsCitationPanelOpen(false)
     setIsIntentsPanelOpen(false)
