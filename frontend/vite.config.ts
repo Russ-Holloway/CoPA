@@ -11,12 +11,12 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/ask': 'http://localhost:50505',
-      '/chat': 'http://localhost:50505',
-      '/conversation': 'http://localhost:50505',
-      '/history': 'http://localhost:50505',
-      '/.auth': 'http://localhost:50505',
-      '/frontend_settings': 'http://localhost:50505'
+      '/ask': 'http://localhost:8001',
+      '/chat': 'http://localhost:8001',
+      '/conversation': 'http://localhost:8001',
+      '/history': 'http://localhost:8001',
+      '/.auth': 'http://localhost:8001',
+      '/frontend_settings': 'http://localhost:8001'
     }
   }
 })

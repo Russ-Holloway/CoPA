@@ -148,3 +148,21 @@ html {
 .dark-mode .ms-Stack {
   background-color: transparent !important;
 }
+
+/* Global citation panel override - ensures our sizing takes effect */
+[class*="citationPanel"] {
+  flex: 0 0 550px !important;
+  max-width: 550px !important;
+  min-width: 500px !important;
+  width: 550px !important;
+}
+
+/* Responsive citation panel overrides */
+@media (max-width: 768px) {
+  [class*="citationPanel"] {
+    flex: 0 0 420px !important;
+    max-width: 420px !important;
+    min-width: 400px !important;
+    width: 420px !important;
+  }
+}
