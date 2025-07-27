@@ -151,18 +151,18 @@ html {
 
 /* Global citation panel override - ensures our sizing takes effect */
 [class*="citationPanel"] {
-  flex: 0 0 600px !important;
-  max-width: 600px !important;
-  min-width: 550px !important;
-  width: 600px !important;
+  flex: 0 0 900px !important;
+  max-width: 900px !important;
+  min-width: 850px !important;
+  width: 900px !important;
 }
 
 /* Responsive citation panel overrides */
 @media (max-width: 768px) {
   [class*="citationPanel"] {
-    flex: 0 0 480px !important; /* Larger mobile citation panel */
-    max-width: 480px !important;
+    flex: 0 0 500px !important; /* Larger mobile citation panel */
+    max-width: 500px !important;
     min-width: 450px !important;
-    width: 480px !important;
+    width: 500px !important;
   }
 }
