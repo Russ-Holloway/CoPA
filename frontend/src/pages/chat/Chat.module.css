@@ -536,11 +536,11 @@
     0px 2px 4px var(--shadow-light),
     0px 0px 2px var(--shadow-light) !important;
   border-radius: 8px !important;
-  flex: 0 0 900px !important; /* Significantly larger width for better citation reading */
+  flex: 0 0 min(40vw, 600px) !important; /* Responsive width: 40% of viewport or max 600px */
   order: 0 !important;
   align-self: stretch !important;
-  max-width: 900px !important;
-  min-width: 850px !important;
+  max-width: min(40vw, 600px) !important;
+  min-width: 320px !important; /* Minimum readable width */
   overflow-y: scroll !important;
   max-height: calc(100vh - 100px) !important;
   color: var(--text-primary) !important;
@@ -551,10 +551,10 @@
 
 /* Stronger override to ensure FluentUI Stack.Item doesn't interfere */
 :global(.ms-Stack-item).citationPanel {
-  flex: 0 0 900px !important;
-  max-width: 900px !important;
-  min-width: 850px !important;
-  width: 900px !important;
+  flex: 0 0 min(40vw, 600px) !important;
+  max-width: min(40vw, 600px) !important;
+  min-width: 320px !important;
+  width: min(40vw, 600px) !important;
 }
 
 .citationPanelHeaderContainer {

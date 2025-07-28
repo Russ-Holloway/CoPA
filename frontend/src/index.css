@@ -151,29 +151,29 @@ html {
 
 /* Global citation panel override - ensures our sizing takes effect */
 [class*="citationPanel"] {
-  flex: 0 0 900px !important;
-  max-width: 900px !important;
-  min-width: 850px !important;
-  width: 900px !important;
+  flex: 0 0 min(40vw, 600px) !important;
+  max-width: min(40vw, 600px) !important;
+  min-width: 320px !important;
+  width: min(40vw, 600px) !important;
 }
 
 /* FluentUI Stack.Item specific overrides for citation panel */
 .ms-Stack-item[class*="citationPanel"] {
-  flex: 0 0 900px !important;
-  max-width: 900px !important;
-  min-width: 850px !important;
-  width: 900px !important;
-  flex-basis: 900px !important;
+  flex: 0 0 min(40vw, 600px) !important;
+  max-width: min(40vw, 600px) !important;
+  min-width: 320px !important;
+  width: min(40vw, 600px) !important;
+  flex-basis: min(40vw, 600px) !important;
   flex-grow: 0 !important;
   flex-shrink: 0 !important;
 }
 
 /* Target any Stack Item that contains citation panel classes */
 div[class*="ms-Stack-item"][class*="citationPanel"] {
-  flex: 0 0 900px !important;
-  max-width: 900px !important;
-  min-width: 850px !important;
-  width: 900px !important;
+  flex: 0 0 min(40vw, 600px) !important;
+  max-width: min(40vw, 600px) !important;
+  min-width: 320px !important;
+  width: min(40vw, 600px) !important;
 }
 
 /* Responsive citation panel overrides */
