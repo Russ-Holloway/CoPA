@@ -32,14 +32,14 @@
 }
 
 .answerColumn {
-  flex: 1 1 0; /* Take remaining space after citation panel */
+  flex: 3; /* 60% of space (3/5) */
   min-width: 0; /* Allow content to shrink if needed */
 }
 
 .externalCitationColumn {
-  flex: 0 0 250px; /* Smaller fixed width for citation panel */
-  max-width: 250px;
-  min-width: 220px;
+  flex: 2; /* 40% of space (2/5) */
+  min-width: 300px; /* Larger minimum for better readability */
+  max-width: 500px; /* Reasonable maximum to prevent excessive width */
 }
 
 .externalCitationPanel {
@@ -331,9 +331,9 @@ sup {
   }
 
   .externalCitationColumn {
-    flex: 0 0 220px;
-    max-width: 220px;
-    min-width: 200px;
+    flex: 2; /* Keep 40% proportion on tablet */
+    min-width: 280px; /* Slightly smaller minimum for tablet */
+    max-width: 400px; /* Reasonable maximum for tablet screens */
   }
 
   .externalCitationPanel {
