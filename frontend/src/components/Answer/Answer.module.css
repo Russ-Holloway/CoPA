@@ -101,8 +101,13 @@
   margin: 11px;
   white-space: normal;
   word-wrap: break-word;
-  max-width: 900px; /* Constrain width when no citation panel present */
+  max-width: none; /* Full width when citation panel present */
   overflow-x: hidden;
+}
+
+/* Only constrain width when no citation panel is present */
+:global(.chatRoot:not(:has(.citationPanel))) .answerText {
+  max-width: 900px;
 }
 
 .answerText p {
