@@ -10,7 +10,7 @@
   backdrop-filter: blur(10px);
   overflow: hidden;
   width: 100%;
-  max-width: 800px;
+  max-width: 600px;
 }
 
 /* Dark mode styling for question input container */
