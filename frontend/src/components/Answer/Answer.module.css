@@ -28,7 +28,6 @@
   align-items: flex-start;
   gap: 16px;
   width: 100%;
-  max-width: 1200px;
 }
 
 .answerColumn {
@@ -103,7 +102,7 @@
   white-space: normal;
   word-wrap: break-word;
   max-width: none; /* Remove width constraint for better space usage */
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 .answerText p {
