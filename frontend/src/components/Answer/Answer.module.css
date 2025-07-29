@@ -101,7 +101,7 @@
   margin: 11px;
   white-space: normal;
   word-wrap: break-word;
-  max-width: none; /* Remove width constraint for better space usage */
+  max-width: 900px; /* Constrain width when no citation panel present */
   overflow-x: hidden;
 }
 
