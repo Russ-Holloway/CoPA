@@ -201,7 +201,7 @@
 
 .inputFullWidth {
   width: 95% !important;
-  max-width: 1200px !important; /* Allow wider input area */
+  max-width: 100% !important; /* Use full available width */
   margin: 0 auto;
 }
 
@@ -262,7 +262,7 @@
 
 .chatMessageStream {
   flex-grow: 1 !important;
-  max-width: 1600px !important; /* Even larger container for optimal space usage */
+  max-width: 100% !important; /* Use full available width */
   width: 100% !important;
   overflow-y: auto;
   padding: 24px;
@@ -275,7 +275,7 @@
 
 /* ABSOLUTE FULL WIDTH OVERRIDE when no citation */
 .chatRoot:not(:has(.citationPanel)) .chatMessageStream {
-  max-width: 1200px !important;
+  max-width: 100% !important;
   width: 100% !important;
   flex: 1 !important;
   padding: 24px 40px !important;
@@ -325,7 +325,7 @@
 
 .chatMessageGpt {
   margin-bottom: 16px;
-  max-width: 1200px !important; /* Much larger for better space usage */
+  max-width: 100% !important; /* Use full available width */
   width: 100% !important;
   display: flex;
   background: transparent;
@@ -334,7 +334,7 @@
 
 /* FORCE FULL WIDTH when no citation - ABSOLUTE OVERRIDE */
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt {
-  max-width: 1200px !important;
+  max-width: 100% !important;
   width: 100% !important;
   flex: 1 !important;
 }
@@ -384,7 +384,7 @@
   flex: 0 0 auto;
   padding: 24px;
   width: 100% !important;
-  max-width: 1200px !important; /* Allow wider input area */
+  max-width: 100% !important; /* Use full available width */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -404,7 +404,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 1200px; /* Allow wider centered container */
+  max-width: 100%; /* Use full available width */
   margin: 40px auto;
   padding: 20px;
 }
@@ -416,7 +416,7 @@
   gap: 32px;
   width: 100%;
   justify-content: center;
-  max-width: 1200px; /* Allow wider input row */
+  max-width: 100%; /* Use full available width */
 }
 
 .sideControls {
