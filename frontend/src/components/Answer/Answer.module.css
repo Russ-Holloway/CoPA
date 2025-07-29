@@ -107,7 +107,7 @@
 
 /* Only constrain width when no citation panel is present */
 :global(.chatRoot:not(:has(.citationPanel))) .answerText {
-  max-width: 900px;
+  max-width: 750px;
 }
 
 .answerText p {

@@ -25,20 +25,17 @@
 
 /* When no citation panel is present, message stream takes full width */
 .chatRoot:not(:has(.citationPanel)) .chatMessageStream {
-  max-width: none !important;
   width: 100% !important;
   flex: 1 !important;
 }
 
 /* When no citation panel is present, GPT messages take full width */
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt {
-  max-width: none !important;
   width: 100% !important;
 }
 
 /* Triple enforce full width for all message content when no citation */
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt > * {
-  max-width: none !important;
   width: 100% !important;
 }
 
@@ -46,7 +43,6 @@
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt div,
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt p,
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt span {
-  max-width: none !important;
   width: 100% !important;
 }
 
@@ -277,7 +273,6 @@
 
 /* ABSOLUTE FULL WIDTH OVERRIDE when no citation */
 .chatRoot:not(:has(.citationPanel)) .chatMessageStream {
-  max-width: none !important;
   width: 100% !important;
   flex: 1 !important;
   padding: 24px 40px !important;
@@ -336,7 +331,6 @@
 
 /* FORCE FULL WIDTH when no citation - ABSOLUTE OVERRIDE */
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt {
-  max-width: none !important;
   width: 100% !important;
   flex: 1 !important;
 }
