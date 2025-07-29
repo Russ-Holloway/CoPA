@@ -141,6 +141,7 @@
   border: 1px solid var(--border-primary);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+  margin: 20px;
 }
 
 .chatEmptyState {
@@ -202,7 +203,7 @@
 
 .inputFullWidth {
   width: 95% !important;
-  max-width: 600px !important; /* Constrain to reasonable width for input box */
+  max-width: 780px !important; /* Constrain to reasonable width for input box */
   margin: 0 auto;
 }
 
@@ -405,7 +406,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 600px; /* Constrain to reasonable width for input box */
+  max-width: 780px; /* Constrain to reasonable width for input box */
   margin: 40px auto;
   padding: 20px;
 }
