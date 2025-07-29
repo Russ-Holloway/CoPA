@@ -6,6 +6,7 @@
   background: var(--bg-primary);
   min-height: calc(100vh - 100px);
   transition: background 0.3s ease;
+  padding: 0 15px; /* Add horizontal padding to prevent chat history cutoff */
 }
 
 .chatRoot {
