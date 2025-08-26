@@ -1,4 +1,6 @@
 .questionInputContainer {
+  display: flex;
+  flex-direction: column;
   height: auto;
   min-height: 120px;
   position: relative;
@@ -18,6 +20,22 @@
   background: #2d3748;
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Speech-to-text toggle container */
+.speechToggleContainer {
+  padding: 16px 20px 0 20px;
+  align-items: center;
+}
+
+.speechToggle {
+  margin: 0;
+}
+
+/* Main container for text input and send button */
+.questionInputMainContainer {
+  position: relative;
+  flex: 1;
 }
 
 .questionInputTextArea {

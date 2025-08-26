@@ -833,6 +833,7 @@ const Chat = () => {
                       clearOnSend
                       placeholder="Type a new question..."
                       disabled={isLoading}
+                      enableSpeechToText={true}
                       onSend={(question, id) => {
                         appStateContext?.state.isCosmosDBAvailable?.cosmosDB
                           ? makeApiRequestWithCosmosDB(question, id)
@@ -956,6 +957,7 @@ const Chat = () => {
                       clearOnSend
                       placeholder="Type a new question..."
                       disabled={isLoading}
+                      enableSpeechToText={true}
                       onSend={(question, id) => {
                         appStateContext?.state.isCosmosDBAvailable?.cosmosDB
                           ? makeApiRequestWithCosmosDB(question, id)

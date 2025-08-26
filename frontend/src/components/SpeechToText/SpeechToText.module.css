@@ -1,0 +1,311 @@
+.speechContainer {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+/* Dark mode styling */
+:global(.dark-mode) .speechContainer {
+  background: #1a202c;
+  border-color: #2d3748;
+}
+
+.speechControls {
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.micButton {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #667eea;
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.micButton:hover {
+  background: #5a67d8;
+  transform: scale(1.05);
+}
+
+.micButtonActive {
+  background: #ef4444;
+  animation: pulse 2s infinite;
+}
+
+.micButtonActive:hover {
+  background: #dc2626;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.transcriptContainer {
+  flex: 1;
+  min-width: 0;
+}
+
+.transcriptDisplay,
+.editContainer {
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.transcriptText {
+  flex: 1;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 48px;
+  word-wrap: break-word;
+}
+
+/* Dark mode styling for transcript text */
+:global(.dark-mode) .transcriptText {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #ffffff;
+}
+
+.transcriptEdit {
+  flex: 1;
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.transcriptEdit:focus {
+  outline: none;
+  border-color: #5a67d8;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Dark mode styling for transcript edit */
+:global(.dark-mode) .transcriptEdit {
+  background: #2d3748;
+  border-color: #667eea;
+  color: #ffffff;
+}
+
+:global(.dark-mode) .transcriptEdit:focus {
+  border-color: #5a67d8;
+}
+
+.transcriptButtons,
+.editButtons {
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.editButton,
+.confirmButton,
+.cancelButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  transition: all 0.2s ease;
+}
+
+.editButton {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.editButton:hover {
+  background: #e5e7eb;
+  transform: scale(1.05);
+}
+
+.confirmButton {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.confirmButton:hover {
+  background: #059669;
+  border-color: #059669;
+  transform: scale(1.05);
+}
+
+.cancelButton {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.cancelButton:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  transform: scale(1.05);
+}
+
+.listeningIndicator {
+  color: #667eea;
+  font-weight: bold;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.listeningStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #667eea;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* Dark mode styling for listening status */
+:global(.dark-mode) .listeningStatus {
+  color: #a78bfa;
+}
+
+.soundWave {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.wave {
+  width: 3px;
+  height: 16px;
+  background: #667eea;
+  border-radius: 2px;
+  animation: wave 0.8s ease-in-out infinite;
+}
+
+/* Dark mode styling for sound wave */
+:global(.dark-mode) .wave {
+  background: #a78bfa;
+}
+
+.wave:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.wave:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.3);
+  }
+}
+
+.placeholder {
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+}
+
+/* Dark mode styling for placeholder */
+:global(.dark-mode) .placeholder {
+  color: #9ca3af;
+}
+
+/* Accessibility improvements */
+.micButton:focus,
+.editButton:focus,
+.confirmButton:focus,
+.cancelButton:focus {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .speechContainer {
+    padding: 12px;
+  }
+  
+  .micButton {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .transcriptText,
+  .transcriptEdit {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  
+  .editButton,
+  .confirmButton,
+  .cancelButton {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .speechControls {
+    gap: 12px;
+  }
+}
+
+/* Reduce motion for users with motion sensitivity */
+@media (prefers-reduced-motion: reduce) {
+  .micButton,
+  .editButton,
+  .confirmButton,
+  .cancelButton {
+    transition: none;
+    transform: none;
+  }
+  
+  .micButton:hover,
+  .editButton:hover,
+  .confirmButton:hover,
+  .cancelButton:hover {
+    transform: none;
+  }
+  
+  .micButtonActive {
+    animation: none;
+  }
+  
+  .listeningIndicator {
+    animation: none;
+  }
+  
+  .wave {
+    animation: none;
+  }
+}
