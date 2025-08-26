@@ -1,34 +1,29 @@
-.speechContainer {
+.container {
   width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 16px;
-  transition: all 0.3s ease;
+  padding: 0;
+  margin: 0;
 }
 
-/* Dark mode styling */
-:global(.dark-mode) .speechContainer {
-  background: #1a202c;
-  border-color: #2d3748;
-}
-
-.speechControls {
-  align-items: flex-start;
+.controls {
+  display: flex;
+  align-items: center;
   gap: 16px;
   width: 100%;
+  margin-bottom: 12px;
 }
 
 .micButton {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #667eea;
   color: white;
   border: none;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .micButton:hover {
@@ -36,13 +31,66 @@
   transform: scale(1.05);
 }
 
-.micButtonActive {
+.listeningButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   background: #ef4444;
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   animation: pulse 2s infinite;
 }
 
-.micButtonActive:hover {
+.listeningButton:hover {
   background: #dc2626;
+}
+
+.listeningIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 14px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+/* Dark mode styling for error */
+:global(.dark-mode) .error {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f87171;
+}
+
+.transcript {
+  margin-top: 8px;
+  padding: 12px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Dark mode styling for transcript */
+:global(.dark-mode) .transcript {
+  background: #0f172a;
+  border-color: #334155;
+  color: #cbd5e1;
 }
 
 @keyframes pulse {
