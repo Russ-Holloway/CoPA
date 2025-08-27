@@ -59,6 +59,11 @@
   font-weight: 500;
 }
 
+/* Dark mode styling for listening indicator */
+:global(.dark-mode) .listeningIndicator {
+  color: #ffffff;
+}
+
 .error {
   color: #ef4444;
   font-size: 14px;
@@ -90,7 +95,7 @@
 :global(.dark-mode) .transcript {
   background: #0f172a;
   border-color: #334155;
-  color: #cbd5e1;
+  color: #ffffff;
 }
 
 @keyframes pulse {
