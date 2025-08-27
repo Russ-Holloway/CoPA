@@ -39,6 +39,15 @@
   margin: 0;
 }
 
+/* Dark mode styling for speech toggle label */
+:global(.dark-mode) .speechToggle .ms-Toggle-label {
+  color: #ffffff;
+}
+
+:global(.dark-mode) .speechToggle .ms-Label {
+  color: #ffffff;
+}
+
 /* Main container for text input and send button */
 .questionInputMainContainer {
   position: relative;
