@@ -29,8 +29,11 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
   const [transcript, setTranscript] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSupported, setIsSupported] = useState(true)
+  const [shouldStop, setShouldStop] = useState(false)
   
   const recognition = useRef<any>(null)
+  const isListeningRef = useRef(false)
+  const shouldStopRef = useRef(false)
 
   // Get speech recognition class
   const getSpeechRecognition = () => {
@@ -54,11 +57,19 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
 
       recognition.current.onstart = () => {
         console.log('Speech recognition started')
-        setIsListening(true)
-        setError(null)
+        if (!shouldStopRef.current) {
+          setIsListening(true)
+          isListeningRef.current = true
+          setError(null)
+        }
       }
 
       recognition.current.onresult = (event: any) => {
+        // Only process results if we're not supposed to stop
+        if (shouldStopRef.current) {
+          return
+        }
+
         let finalTranscript = ''
         let interimTranscript = ''
 
@@ -74,19 +85,27 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
         const currentTranscript = finalTranscript || interimTranscript
         console.log('Speech result:', currentTranscript)
         
-        setTranscript(currentTranscript.trim())
-        onTranscriptUpdate(currentTranscript.trim())
+        // Only update if we're still supposed to be listening
+        if (!shouldStopRef.current && isListeningRef.current) {
+          setTranscript(currentTranscript.trim())
+          onTranscriptUpdate(currentTranscript.trim())
+        }
       }
 
       recognition.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error)
         setError(`Speech recognition error: ${event.error}`)
         setIsListening(false)
+        isListeningRef.current = false
       }
 
       recognition.current.onend = () => {
         console.log('Speech recognition ended')
         setIsListening(false)
+        isListeningRef.current = false
+        
+        // Reset stop flag
+        shouldStopRef.current = false
       }
 
     } catch (error) {
@@ -104,6 +123,7 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
 
     try {
       setError(null)
+      shouldStopRef.current = false
       recognition.current.start()
       console.log('Starting speech recognition')
     } catch (error) {
@@ -115,11 +135,16 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
   const stopListening = useCallback(() => {
     if (recognition.current) {
       try {
+        // Set stop flag immediately to prevent further processing
+        shouldStopRef.current = true
+        isListeningRef.current = false
+        
         recognition.current.stop()
         console.log('Stopping speech recognition')
-        // Clear transcript when stopping
-        setTranscript('')
+        
+        // Immediately update UI state
         setIsListening(false)
+        setTranscript('')
       } catch (error) {
         console.error('Error stopping speech recognition:', error)
       }
@@ -143,11 +168,13 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (recognition.current && isListening) {
+      if (recognition.current && (isListening || isListeningRef.current)) {
+        shouldStopRef.current = true
+        isListeningRef.current = false
         recognition.current.stop()
       }
     }
-  }, [isListening])
+  }, [])
 
   const toggleListening = useCallback(() => {
     console.log('Toggle listening - current state:', isListening)

@@ -22,6 +22,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [statusMessage, setStatusMessage] = useState<string>('')
   const [showSpeechToText, setShowSpeechToText] = useState<boolean>(false)
+  const [forceStopSpeech, setForceStopSpeech] = useState<boolean>(false)
   const textAreaRef = useRef<ITextField>(null)
 
   // Clear error when user starts typing
@@ -99,11 +100,16 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
 
   // Handle toggle off - need to stop any active speech recognition
   const handleSpeechToggleChange = (_: unknown, checked: boolean | undefined) => {
-    setShowSpeechToText(checked || false)
-    // If turning off and speech recognition might be active, we need to signal to stop
-    if (!checked) {
-      // Clear any partial transcript when turning off
-      // The SpeechToText component will handle stopping recognition
+    const isEnabled = checked || false
+    setShowSpeechToText(isEnabled)
+    
+    // If turning off speech-to-text, force stop any active recognition
+    if (!isEnabled) {
+      setForceStopSpeech(true)
+      // Reset the force stop flag after a brief delay
+      setTimeout(() => {
+        setForceStopSpeech(false)
+      }, 100)
     }
   }
 
@@ -135,6 +141,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
           onTranscriptUpdate={handleTranscriptUpdate}
           onTranscriptConfirmed={handleTranscriptConfirmed}
           disabled={disabled}
+          forceStop={forceStopSpeech}
           placeholder="Click the microphone to start speaking, or toggle off to use keyboard input."
         />
       )}
