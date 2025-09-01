@@ -81,8 +81,10 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
 
   // Speech-to-text handlers
   const handleTranscriptUpdate = (transcript: string) => {
-    // Update question in real-time during speech recognition
-    setQuestion(transcript)
+    // Only update question if speech-to-text is still enabled and showing
+    if (showSpeechToText && enableSpeechToText) {
+      setQuestion(transcript)
+    }
   }
 
   const handleTranscriptConfirmed = (transcript: string) => {
@@ -93,6 +95,16 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
     setTimeout(() => {
       textAreaRef.current?.focus()
     }, 100)
+  }
+
+  // Handle toggle off - need to stop any active speech recognition
+  const handleSpeechToggleChange = (_: unknown, checked: boolean | undefined) => {
+    setShowSpeechToText(checked || false)
+    // If turning off and speech recognition might be active, we need to signal to stop
+    if (!checked) {
+      // Clear any partial transcript when turning off
+      // The SpeechToText component will handle stopping recognition
+    }
   }
 
   const sendQuestionDisabled = disabled || !question.trim()
@@ -110,7 +122,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
           <Toggle
             label="Speech to Text"
             checked={showSpeechToText}
-            onChange={(_, checked) => setShowSpeechToText(checked || false)}
+            onChange={handleSpeechToggleChange}
             disabled={disabled}
             className={styles.speechToggle}
           />

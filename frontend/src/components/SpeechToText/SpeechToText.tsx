@@ -7,6 +7,7 @@ interface SpeechToTextProps {
   onTranscriptConfirmed?: (transcript: string) => void
   disabled?: boolean
   placeholder?: string
+  forceStop?: boolean
 }
 
 // Simple speech recognition interface
@@ -21,7 +22,8 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
   onTranscriptUpdate, 
   onTranscriptConfirmed,
   disabled = false,
-  placeholder 
+  placeholder,
+  forceStop = false 
 }) => {
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState('')
@@ -115,11 +117,37 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
       try {
         recognition.current.stop()
         console.log('Stopping speech recognition')
+        // Clear transcript when stopping
+        setTranscript('')
+        setIsListening(false)
       } catch (error) {
         console.error('Error stopping speech recognition:', error)
       }
     }
   }, [])
+
+  // Cleanup effect - stop recognition when component is disabled
+  useEffect(() => {
+    if (disabled && isListening) {
+      stopListening()
+    }
+  }, [disabled, isListening, stopListening])
+
+  // Force stop effect
+  useEffect(() => {
+    if (forceStop && isListening) {
+      stopListening()
+    }
+  }, [forceStop, isListening, stopListening])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recognition.current && isListening) {
+        recognition.current.stop()
+      }
+    }
+  }, [isListening])
 
   const toggleListening = useCallback(() => {
     console.log('Toggle listening - current state:', isListening)
