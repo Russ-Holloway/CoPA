@@ -23,6 +23,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
   const [statusMessage, setStatusMessage] = useState<string>('')
   const [showSpeechToText, setShowSpeechToText] = useState<boolean>(false)
   const [forceStopSpeech, setForceStopSpeech] = useState<boolean>(false)
+  const speechStartTextRef = useRef<string>('')
   const textAreaRef = useRef<ITextField>(null)
 
   // Clear error when user starts typing
@@ -81,17 +82,30 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
   }
 
   // Speech-to-text handlers
+  const handleSpeechStart = () => {
+    // Capture the current text when speech recognition starts
+    speechStartTextRef.current = question
+  }
+
   const handleTranscriptUpdate = (transcript: string) => {
     // Only update question if speech-to-text is still enabled and showing
     if (showSpeechToText && enableSpeechToText) {
-      setQuestion(transcript)
+      // Combine existing text with new speech transcript
+      const existingText = speechStartTextRef.current
+      const needsSpace = existingText.trim() && transcript.trim() && !existingText.endsWith(' ')
+      const newQuestion = existingText + (needsSpace ? ' ' : '') + transcript
+      setQuestion(newQuestion)
     }
   }
 
   const handleTranscriptConfirmed = (transcript: string) => {
     // Set the final transcript and hide speech-to-text
-    setQuestion(transcript)
+    const existingText = speechStartTextRef.current
+    const needsSpace = existingText.trim() && transcript.trim() && !existingText.endsWith(' ')
+    const finalQuestion = existingText + (needsSpace ? ' ' : '') + transcript
+    setQuestion(finalQuestion)
     setShowSpeechToText(false)
+    speechStartTextRef.current = ''
     // Focus back on the text area for editing if needed
     setTimeout(() => {
       textAreaRef.current?.focus()
@@ -103,9 +117,13 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
     const isEnabled = checked || false
     setShowSpeechToText(isEnabled)
     
-    // If turning off speech-to-text, force stop any active recognition
-    if (!isEnabled) {
+    if (isEnabled) {
+      // When enabling speech-to-text, save the current text as the starting point
+      speechStartTextRef.current = question
+    } else {
+      // If turning off speech-to-text, force stop any active recognition
       setForceStopSpeech(true)
+      speechStartTextRef.current = ''
       // Reset the force stop flag after a brief delay
       setTimeout(() => {
         setForceStopSpeech(false)
@@ -140,6 +158,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
         <SpeechToText
           onTranscriptUpdate={handleTranscriptUpdate}
           onTranscriptConfirmed={handleTranscriptConfirmed}
+          onSpeechStart={handleSpeechStart}
           disabled={disabled}
           forceStop={forceStopSpeech}
           placeholder="Click the microphone to start speaking, or toggle off to use keyboard input."
