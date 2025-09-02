@@ -40,23 +40,22 @@ param(
 
 # Install required modules
 Install-Module -Name Az.Accounts -Force -AllowClobber -Scope CurrentUser
-Install-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser  
-Install-Module -Name Microsoft.Graph.Applications -Force -AllowClobber -Scope CurrentUser
-Install-Module -Name Microsoft.Graph.Authentication -Force -AllowClobber -Scope CurrentUser
+Install-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser
 
 # Connect using managed identity
 Connect-AzAccount -Identity
+Write-Output "Successfully connected to Azure using managed identity"
 
-# Connect to Microsoft Graph using managed identity
-try {
-    Connect-MgGraph -Identity -ErrorAction Stop
-    Write-Output "Successfully connected to Microsoft Graph using managed identity"
-} catch {
-    Write-Output "Failed to connect with managed identity, trying alternative method..."
-    # Alternative: Get access token and connect
-    $context = Get-AzContext
-    $token = Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/"
-    Connect-MgGraph -AccessToken $token.Token
+# Get access token for Microsoft Graph API
+$context = Get-AzContext
+$tokenResponse = Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/"
+$accessToken = $tokenResponse.Token
+Write-Output "Successfully obtained access token for Microsoft Graph"
+
+# Define headers for REST API calls
+$headers = @{
+    'Authorization' = "Bearer $accessToken"
+    'Content-Type' = 'application/json'
 }
 
 # Define redirect URIs
@@ -67,8 +66,15 @@ $redirectUris = @(
 
 $logoutUrl = "$WebAppUrl/.auth/logout"
 
-# Check if app already exists
-$existingApp = Get-MgApplication -Filter "displayName eq '$AppDisplayName'" -ErrorAction SilentlyContinue
+# Check if app already exists using REST API
+$filterUrl = "https://graph.microsoft.com/v1.0/applications?`$filter=displayName eq '$AppDisplayName'"
+try {
+    $existingAppsResponse = Invoke-RestMethod -Uri $filterUrl -Headers $headers -Method GET
+    $existingApp = $existingAppsResponse.value | Select-Object -First 1
+} catch {
+    Write-Output "Error checking for existing app: $($_.Exception.Message)"
+    $existingApp = $null
+}
 
 if ($existingApp) {
     Write-Output "App registration '$AppDisplayName' already exists. Using existing app."
@@ -76,85 +82,138 @@ if ($existingApp) {
 } else {
     Write-Output "Creating new app registration: $AppDisplayName"
     
-    # Create app registration
-    $appParams = @{
-        DisplayName = $AppDisplayName
-        SignInAudience = "AzureADMyOrg"
-        Web = @{
-            RedirectUris = $redirectUris
-            LogoutUrl = $logoutUrl
-            ImplicitGrantSettings = @{
-                EnableIdTokenIssuance = $true
-                EnableAccessTokenIssuance = $false
+    # Create app registration using REST API
+    $appBody = @{
+        displayName = $AppDisplayName
+        signInAudience = "AzureADMyOrg"
+        web = @{
+            redirectUris = $redirectUris
+            logoutUrl = $logoutUrl
+            implicitGrantSettings = @{
+                enableIdTokenIssuance = $true
+                enableAccessTokenIssuance = $false
             }
         }
-        RequiredResourceAccess = @(
+        requiredResourceAccess = @(
             @{
-                ResourceAppId = "00000003-0000-0000-c000-000000000000"  # Microsoft Graph
-                ResourceAccess = @(
+                resourceAppId = "00000003-0000-0000-c000-000000000000"  # Microsoft Graph
+                resourceAccess = @(
                     @{
-                        Id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"  # User.Read
-                        Type = "Scope"
+                        id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"  # User.Read
+                        type = "Scope"
                     },
                     @{
-                        Id = "37f7f235-527c-4136-accd-4a02d197296e"  # openid
-                        Type = "Scope"
+                        id = "37f7f235-527c-4136-accd-4a02d197296e"  # openid
+                        type = "Scope"
                     },
                     @{
-                        Id = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0"  # email
-                        Type = "Scope"
+                        id = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0"  # email
+                        type = "Scope"
                     },
                     @{
-                        Id = "14dad69e-099b-42c9-810b-d002981feec1"  # profile
-                        Type = "Scope"
+                        id = "14dad69e-099b-42c9-810b-d002981feec1"  # profile
+                        type = "Scope"
                     }
                 )
             }
         )
     }
     
-    $app = New-MgApplication @appParams
+    $appBodyJson = $appBody | ConvertTo-Json -Depth 10
+    $createAppUrl = "https://graph.microsoft.com/v1.0/applications"
+    
+    try {
+        $app = Invoke-RestMethod -Uri $createAppUrl -Headers $headers -Method POST -Body $appBodyJson
+        Write-Output "Successfully created app registration with ID: $($app.id)"
+    } catch {
+        Write-Output "Error creating app registration: $($_.Exception.Message)"
+        throw "Failed to create Azure AD app registration"
+    }
 }
 
 # Create or get service principal (Enterprise Application)
-$servicePrincipal = Get-MgServicePrincipal -Filter "appId eq '$($app.AppId)'" -ErrorAction SilentlyContinue
+$servicePrincipalUrl = "https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=appId eq '$($app.appId)'"
+try {
+    $servicePrincipalResponse = Invoke-RestMethod -Uri $servicePrincipalUrl -Headers $headers -Method GET
+    $servicePrincipal = $servicePrincipalResponse.value | Select-Object -First 1
+} catch {
+    Write-Output "Error checking for existing service principal: $($_.Exception.Message)"
+    $servicePrincipal = $null
+}
 
 if (-not $servicePrincipal) {
     Write-Output "Creating service principal (Enterprise Application)"
-    $servicePrincipal = New-MgServicePrincipal -AppId $app.AppId -AccountEnabled $true -AppRoleAssignmentRequired $true
+    $spBody = @{
+        appId = $app.appId
+        accountEnabled = $true
+        appRoleAssignmentRequired = $true
+    }
+    $spBodyJson = $spBody | ConvertTo-Json -Depth 10
+    $createSpUrl = "https://graph.microsoft.com/v1.0/servicePrincipals"
+    
+    try {
+        $servicePrincipal = Invoke-RestMethod -Uri $createSpUrl -Headers $headers -Method POST -Body $spBodyJson
+        Write-Output "Successfully created service principal with ID: $($servicePrincipal.id)"
+    } catch {
+        Write-Output "Error creating service principal: $($_.Exception.Message)"
+        throw "Failed to create service principal"
+    }
 } else {
     Write-Output "Service principal already exists. Updating settings."
-    Update-MgServicePrincipal -ServicePrincipalId $servicePrincipal.Id -AccountEnabled $true -AppRoleAssignmentRequired $true
+    $updateSpBody = @{
+        accountEnabled = $true
+        appRoleAssignmentRequired = $true
+    }
+    $updateSpBodyJson = $updateSpBody | ConvertTo-Json -Depth 10
+    $updateSpUrl = "https://graph.microsoft.com/v1.0/servicePrincipals/$($servicePrincipal.id)"
+    
+    try {
+        Invoke-RestMethod -Uri $updateSpUrl -Headers $headers -Method PATCH -Body $updateSpBodyJson
+        Write-Output "Successfully updated service principal settings"
+    } catch {
+        Write-Output "Warning: Could not update service principal settings: $($_.Exception.Message)"
+    }
 }
 
 # Create client secret
 $secretName = "CoPPA-Deployment-Secret-$(Get-Date -Format 'yyyyMMdd')"
-$secretEnd = (Get-Date).AddMonths($ClientSecretExpirationMonths)
+$secretEnd = (Get-Date).AddMonths($ClientSecretExpirationMonths).ToString("yyyy-MM-ddTHH:mm:ssZ")
 
-$passwordCredential = @{
-    DisplayName = $secretName
-    EndDateTime = $secretEnd
+$secretBody = @{
+    passwordCredential = @{
+        displayName = $secretName
+        endDateTime = $secretEnd
+    }
 }
+$secretBodyJson = $secretBody | ConvertTo-Json -Depth 10
+$addSecretUrl = "https://graph.microsoft.com/v1.0/applications/$($app.id)/addPassword"
 
-$secret = Add-MgApplicationPassword -ApplicationId $app.Id -BodyParameter $passwordCredential
+try {
+    $secretResponse = Invoke-RestMethod -Uri $addSecretUrl -Headers $headers -Method POST -Body $secretBodyJson
+    $secret = $secretResponse
+    Write-Output "Successfully created client secret"
+} catch {
+    Write-Output "Error creating client secret: $($_.Exception.Message)"
+    throw "Failed to create client secret"
+}
 
 # Set outputs for ARM template (required for deployment script outputs)
 $DeploymentScriptOutputs = @{}
-$DeploymentScriptOutputs['ApplicationId'] = $app.AppId
-$DeploymentScriptOutputs['ServicePrincipalId'] = $servicePrincipal.Id  
-$DeploymentScriptOutputs['ClientSecret'] = $secret.SecretText
-$DeploymentScriptOutputs['SecretExpiry'] = $secretEnd.ToString("yyyy-MM-dd")
+$DeploymentScriptOutputs['ApplicationId'] = $app.appId
+$DeploymentScriptOutputs['ServicePrincipalId'] = $servicePrincipal.id  
+$DeploymentScriptOutputs['ClientSecret'] = $secret.secretText
+$DeploymentScriptOutputs['SecretExpiry'] = $secretEnd.Substring(0,10)  # Extract date part
 
 # Also output results for logging
 $result = @{
-    ApplicationId = $app.AppId
-    ApplicationObjectId = $app.Id
-    ServicePrincipalId = $servicePrincipal.Id
-    ClientSecret = $secret.SecretText
-    TenantId = (Get-MgContext).TenantId
+    ApplicationId = $app.appId
+    ApplicationObjectId = $app.id
+    ServicePrincipalId = $servicePrincipal.id
+    ClientSecret = $secret.secretText
+    TenantId = $context.Tenant.Id
     RedirectUris = $redirectUris
     LogoutUrl = $logoutUrl
-    SecretExpiry = $secretEnd.ToString("yyyy-MM-dd")
+    SecretExpiry = $secretEnd.Substring(0,10)  # Extract date part
 }
 
 Write-Output ($result | ConvertTo-Json -Depth 3)
