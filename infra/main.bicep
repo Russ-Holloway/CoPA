@@ -64,7 +64,9 @@ param cosmosAccountName string = ''
 param principalId string = ''
 
 var abbrs = loadJsonContent('abbreviations.json')
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var baseResourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var randomSuffix = substring(uniqueString(subscription().id, deployment().name, subscription().subscriptionId), 0, 3)
+var resourceToken = '${baseResourceToken}${randomSuffix}'
 var tags = { 'azd-env-name': environmentName }
 
 // Organize resources in a resource group
