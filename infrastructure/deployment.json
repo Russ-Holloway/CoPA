@@ -115,7 +115,7 @@
         "AzureSearchIndexIsPrechunked": "false",
         "AzureAdAppDisplayName": "[parameters('AzureAdAppDisplayName')]",
         "CreateAzureAdAppRegistration": "[parameters('CreateAzureAdAppRegistration')]",
-        "deploymentScriptStorageAccountName": "[concat('scripts', variables('randomSuffix'), uniqueString(resourceGroup().id))]",
+        "deploymentScriptStorageAccountName": "[take(concat('st', parameters('ForceCode'), 'deploy', variables('randomSuffix')), 24)]",
         "AzureSearchTopK": "5",
         "AzureSearchEnableInDomain": "true",
         "AzureSearchContentColumns": "content",

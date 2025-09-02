@@ -9,6 +9,11 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
+@minLength(2)
+@maxLength(10)
+@description('Force code for resource naming compliance (e.g., btp, met, etc.)')
+param forceCode string = 'test'
+
 param appServicePlanName string = ''
 param backendServiceName string = ''
 param resourceGroupName string = ''
@@ -101,6 +106,7 @@ module azureAdApp 'core/security/azuread-app.bicep' = {
   name: 'azuread-app-registration'
   scope: resourceGroup
   params: {
+    forceCode: forceCode
     appDisplayName: azureAdAppDisplayName
     webAppUrl: 'https://${appServiceName}.azurewebsites.net'
     location: location

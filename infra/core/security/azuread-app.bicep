@@ -2,6 +2,9 @@
 // This module creates an Azure AD App Registration using PowerShell deployment script
 // since Microsoft Graph resources cannot be managed directly through ARM templates
 
+@description('Force code for naming compliance')
+param forceCode string = 'test'
+
 @description('Display name for the Azure AD application')
 param appDisplayName string = 'CoPPA-Policing-Assistant'
 
@@ -25,7 +28,7 @@ param managedIdentityId string
 
 // Generate unique names for deployment script resources
 var scriptName = 'deploy-azuread-app-${uniqueString(resourceGroup().id, appDisplayName)}'
-var scriptStorageAccountName = take('scripts${uniqueString(resourceGroup().id)}', 24)
+var scriptStorageAccountName = take('st${forceCode}deploy${substring(uniqueString(resourceGroup().id), 0, 3)}', 24)
 
 // PowerShell script for creating Azure AD App Registration
 var powerShellScript = '''
