@@ -436,7 +436,7 @@
                         },
                         {
                             "name": "AZURE_CLIENT_ID",
-                            "value": "[if(variables('CreateAzureAdAppRegistration'), reference(concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName')))).outputs.ApplicationId, '')]"
+                            "value": ""
                         },
                         {
                             "name": "AZURE_CLIENT_SECRET",
@@ -545,7 +545,7 @@
                     "azureActiveDirectory": {
                         "enabled": true,
                         "registration": {
-                            "clientId": "[reference(concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName')))).outputs.ApplicationId]",
+                            "clientId": "",
                             "clientSecretSettingName": "AZURE_CLIENT_SECRET",
                             "openIdIssuer": "[concat('https://sts.windows.net/', subscription().tenantId, '/')]"
                         },
