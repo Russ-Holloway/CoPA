@@ -284,6 +284,71 @@
                         "visible": true
                     }
                 ]
+            },
+            {
+                "name": "authenticationConfig",
+                "label": "Authentication Configuration",
+                "elements": [
+                    {
+                        "name": "authInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "Azure AD authentication can be automatically configured during deployment. This creates an Azure AD App Registration with proper settings, client secret (24-month expiry), and Enterprise Application with assignment required set to Yes. You will only need to grant admin consent after deployment."
+                        }
+                    },
+                    {
+                        "name": "azureAdConfig",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Azure AD App Registration",
+                        "elements": [
+                            {
+                                "name": "createAzureAdApp",
+                                "type": "Microsoft.Common.OptionsGroup",
+                                "label": "Create Azure AD App Registration Automatically",
+                                "defaultValue": "Yes",
+                                "toolTip": "Automatically create and configure Azure AD App Registration with 24-month client secret expiry and Enterprise Application with assignment required set to Yes.",
+                                "constraints": {
+                                    "allowedValues": [
+                                        {
+                                            "label": "Yes - Automate authentication setup",
+                                            "value": true
+                                        },
+                                        {
+                                            "label": "No - Manual configuration required",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "visible": true
+                            },
+                            {
+                                "name": "azureAdAppName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Azure AD Application Name",
+                                "defaultValue": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]",
+                                "toolTip": "Display name for the Azure AD application registration",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-\\s]{0,118}[a-zA-Z0-9]$",
+                                    "validationMessage": "App name must be 2-120 characters, start/end with alphanumeric, contain letters, numbers, spaces, and hyphens only."
+                                },
+                                "visible": "[equals(steps('authenticationConfig').azureAdConfig.createAzureAdApp, true)]"
+                            }
+                        ],
+                        "visible": true
+                    },
+                    {
+                        "name": "postDeploymentInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": "[equals(steps('authenticationConfig').azureAdConfig.createAzureAdApp, true)]",
+                        "options": {
+                            "icon": "Info",
+                            "text": "After deployment completes, you will need to: 1) Go to Azure Portal > Azure Active Directory > App registrations, 2) Find your app registration, 3) Go to API permissions, 4) Click 'Grant admin consent' for your organization. Authentication will then be fully functional."
+                        }
+                    }
+                ]
             }
         ],
         "outputs": {
@@ -300,6 +365,8 @@
             "SearchIndexName": "[steps('searchComponents').searchIndexConfig.searchIndexName]",
             "SearchIndexerName": "[steps('searchComponents').searchIndexConfig.searchIndexerName]",
             "SearchDataSourceName": "[steps('searchComponents').searchIndexConfig.searchDataSourceName]",
+            "CreateAzureAdAppRegistration": "[steps('authenticationConfig').azureAdConfig.createAzureAdApp]",
+            "AzureAdAppDisplayName": "[steps('authenticationConfig').azureAdConfig.azureAdAppName]",
             "AzureOpenAIModelName": "gpt-4o",
             "AzureOpenAIEmbeddingName": "text-embedding-3-small",
             "Location": "[location()]"

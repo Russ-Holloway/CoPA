@@ -69,6 +69,20 @@
                 "description": "Name for the search indexer"
             },
             "defaultValue": "[concat(parameters('ForceCode'), '-search-idxr-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
+        },
+        "CreateAzureAdAppRegistration": {
+            "type": "bool",
+            "metadata": {
+                "description": "Whether to automatically create Azure AD App Registration for authentication"
+            },
+            "defaultValue": true
+        },
+        "AzureAdAppDisplayName": {
+            "type": "string",
+            "metadata": {
+                "description": "Display name for the Azure AD application"
+            },
+            "defaultValue": "[concat('CoPPA-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'))]"
         }
     },
     "variables": {
@@ -98,6 +112,9 @@
         "AzureSearchUseSemanticSearch": "true",
         "AzureSearchSemanticSearchConfig": "default",
         "AzureSearchIndexIsPrechunked": "false",
+        "AzureAdAppDisplayName": "[parameters('AzureAdAppDisplayName')]",
+        "CreateAzureAdAppRegistration": "[parameters('CreateAzureAdAppRegistration')]",
+        "deploymentScriptStorageAccountName": "[concat('scripts', uniqueString(resourceGroup().id))]",
         "AzureSearchTopK": "5",
         "AzureSearchEnableInDomain": "true",
         "AzureSearchContentColumns": "content",
@@ -121,6 +138,68 @@
         "WebAppEnableChatHistory": true
     },
     "resources": [
+        {
+            "condition": "[variables('CreateAzureAdAppRegistration')]",
+            "apiVersion": "2023-01-31",
+            "name": "[variables('deployScriptIdentityName')]",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "Deployment Script Identity for Azure AD App Registration"
+            }
+        },
+        {
+            "condition": "[variables('CreateAzureAdAppRegistration')]",
+            "apiVersion": "2022-09-01",
+            "name": "[variables('deploymentScriptStorageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "supportsHttpsTrafficOnly": true,
+                "minimumTlsVersion": "TLS1_2"
+            },
+            "tags": {
+                "displayName": "Storage Account for Deployment Scripts"
+            }
+        },
+        {
+            "condition": "[variables('CreateAzureAdAppRegistration')]",
+            "apiVersion": "2020-10-01",
+            "name": "[concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName')))]",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('deploymentScriptStorageAccountName'))]"
+            ],
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
+                }
+            },
+            "kind": "AzurePowerShell",
+            "properties": {
+                "azPowerShellVersion": "9.0",
+                "scriptContent": "param([string]$AppDisplayName,[string]$WebAppUrl,[int]$ClientSecretExpirationMonths)\nInstall-Module -Name Az.Accounts -Force -AllowClobber -Scope CurrentUser\nInstall-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser\nInstall-Module -Name Microsoft.Graph.Applications -Force -AllowClobber -Scope CurrentUser\nInstall-Module -Name Microsoft.Graph.Authentication -Force -AllowClobber -Scope CurrentUser\nConnect-AzAccount -Identity\n$context = Get-AzContext\n$token = Get-AzAccessToken -ResourceUrl 'https://graph.microsoft.com'\n$secureToken = ConvertTo-SecureString $token.Token -AsPlainText -Force\nConnect-MgGraph -AccessToken $secureToken\n$redirectUris = @(\"$WebAppUrl/.auth/login/aad/callback\",\"$WebAppUrl/redirect\")\n$logoutUrl = \"$WebAppUrl/.auth/logout\"\n$existingApp = Get-MgApplication -Filter \"displayName eq '$AppDisplayName'\" -ErrorAction SilentlyContinue\nif ($existingApp) {Write-Output \"App registration '$AppDisplayName' already exists. Using existing app.\";$app = $existingApp} else {Write-Output \"Creating new app registration: $AppDisplayName\";$appParams = @{DisplayName = $AppDisplayName;SignInAudience = \"AzureADMyOrg\";Web = @{RedirectUris = $redirectUris;LogoutUrl = $logoutUrl;ImplicitGrantSettings = @{EnableIdTokenIssuance = $true;EnableAccessTokenIssuance = $false}};RequiredResourceAccess = @(@{ResourceAppId = \"00000003-0000-0000-c000-000000000000\";ResourceAccess = @(@{Id = \"e1fe6dd8-ba31-4d61-89e7-88639da4683d\";Type = \"Scope\"},@{Id = \"37f7f235-527c-4136-accd-4a02d197296e\";Type = \"Scope\"},@{Id = \"64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0\";Type = \"Scope\"},@{Id = \"14dad69e-099b-42c9-810b-d002981feec1\";Type = \"Scope\"})})};$app = New-MgApplication @appParams}\n$servicePrincipal = Get-MgServicePrincipal -Filter \"appId eq '$($app.AppId)'\" -ErrorAction SilentlyContinue\nif (-not $servicePrincipal) {Write-Output \"Creating service principal (Enterprise Application)\";$servicePrincipal = New-MgServicePrincipal -AppId $app.AppId -AccountEnabled $true -AppRoleAssignmentRequired $true} else {Write-Output \"Service principal already exists. Updating settings.\";Update-MgServicePrincipal -ServicePrincipalId $servicePrincipal.Id -AccountEnabled $true -AppRoleAssignmentRequired $true}\n$secretName = \"CoPPA-Deployment-Secret-$(Get-Date -Format 'yyyyMMdd')\"\n$secretEnd = (Get-Date).AddMonths($ClientSecretExpirationMonths)\n$passwordCredential = @{DisplayName = $secretName;EndDateTime = $secretEnd}\n$secret = Add-MgApplicationPassword -ApplicationId $app.Id -BodyParameter $passwordCredential\n$DeploymentScriptOutputs = @{}\n$DeploymentScriptOutputs['ApplicationId'] = $app.AppId\n$DeploymentScriptOutputs['ServicePrincipalId'] = $servicePrincipal.Id\n$DeploymentScriptOutputs['ClientSecret'] = $secret.SecretText\n$DeploymentScriptOutputs['SecretExpiry'] = $secretEnd.ToString('yyyy-MM-dd')\n$result = @{ApplicationId = $app.AppId;ApplicationObjectId = $app.Id;ServicePrincipalId = $servicePrincipal.Id;ClientSecret = $secret.SecretText;TenantId = (Get-MgContext).TenantId;RedirectUris = $redirectUris;LogoutUrl = $logoutUrl;SecretExpiry = $secretEnd.ToString('yyyy-MM-dd')}\nWrite-Output ($result | ConvertTo-Json -Depth 3)",
+                "arguments": "[concat('-AppDisplayName \"', variables('AzureAdAppDisplayName'), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\" -ClientSecretExpirationMonths 24')]",
+                "supportingScriptUris": [],
+                "storageAccountSettings": {
+                    "storageAccountName": "[variables('deploymentScriptStorageAccountName')]",
+                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentScriptStorageAccountName')), '2022-09-01').keys[0].value]"
+                },
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M"
+            },
+            "tags": {
+                "displayName": "Azure AD App Registration Creation Script"
+            }
+        },
         {
             "apiVersion": "2020-06-01",
             "name": "[variables('HostingPlanName')]",
@@ -352,7 +431,19 @@
                         },
                         {
                             "name": "AUTH_ENABLED",
-                            "value": "false"
+                            "value": "[if(variables('CreateAzureAdAppRegistration'), 'true', 'false')]"
+                        },
+                        {
+                            "name": "AZURE_CLIENT_ID",
+                            "value": "[if(variables('CreateAzureAdAppRegistration'), reference(concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName')))).outputs.ApplicationId, '')]"
+                        },
+                        {
+                            "name": "AZURE_CLIENT_SECRET",
+                            "value": "[if(variables('CreateAzureAdAppRegistration'), reference(concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName')))).outputs.ClientSecret, '')]"
+                        },
+                        {
+                            "name": "AZURE_TENANT_ID",
+                            "value": "[subscription().tenantId]"
                         },
                         {
                             "name": "UWSGI_PROCESSES",
@@ -429,6 +520,46 @@
                 "isManualIntegration": false,
                 "deploymentRollbackEnabled": true,
                 "isMercurial": false
+            }
+        },
+        {
+            "condition": "[variables('CreateAzureAdAppRegistration')]",
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(variables('WebsiteName'), '/authsettingsV2')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
+                "[resourceId('Microsoft.Resources/deploymentScripts', concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName'))))]"
+            ],
+            "properties": {
+                "platform": {
+                    "enabled": true
+                },
+                "globalValidation": {
+                    "requireAuthentication": true,
+                    "unauthenticatedClientAction": "RedirectToLoginPage",
+                    "redirectToProvider": "azureactivedirectory"
+                },
+                "identityProviders": {
+                    "azureActiveDirectory": {
+                        "enabled": true,
+                        "registration": {
+                            "clientId": "[reference(concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName')))).outputs.ApplicationId]",
+                            "clientSecretSettingName": "AZURE_CLIENT_SECRET",
+                            "openIdIssuer": "[concat('https://sts.windows.net/', subscription().tenantId, '/')]"
+                        },
+                        "validation": {
+                            "defaultAuthorizationPolicy": {
+                                "allowedApplications": []
+                            }
+                        }
+                    }
+                },
+                "login": {
+                    "tokenStore": {
+                        "enabled": true
+                    }
+                }
             }
         },
         {
