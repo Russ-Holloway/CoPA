@@ -29,70 +29,67 @@ $ErrorActionPreference = "Stop"
 # Install required Az modules
 Write-Host "Checking and installing required Azure PowerShell modules..."
 try {
-    # Remove any existing modules to avoid conflicts
-    Write-Host "Removing any conflicting modules..."
-    Get-Module Az.* | Remove-Module -Force -ErrorAction SilentlyContinue
+    # Use REST API approach to avoid module conflicts in deployment script environment
+    Write-Host "Deployment script environment detected - using REST API approach to avoid assembly conflicts..."
     
-    # Install specific compatible versions
-    Write-Host "Installing Az.Accounts..."
-    Install-Module -Name Az.Accounts -MinimumVersion 2.0.0 -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
+    # Skip module installation in deployment script context to avoid "Assembly with same name is already loaded"
+    $useRestApi = $true
+    Write-Host "Will use Azure REST API for resource management to avoid PowerShell module conflicts."
     
-    Write-Host "Installing Az.Resources..."  
-    Install-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
-    
-    Write-Host "Installing Az.Storage..."
-    Install-Module -Name Az.Storage -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
-    
-    # Import modules explicitly
-    Import-Module Az.Accounts -Force
-    Import-Module Az.Resources -Force  
-    Import-Module Az.Storage -Force
-    
-    Write-Host "Azure PowerShell modules installed and imported successfully."
 } catch {
-    Write-Host "Warning: Could not install/import all modules. Trying alternative approach..."
+    Write-Host "Warning: Module setup encountered issues. Will use REST API fallback."
     Write-Host "Error: $($_.Exception.Message)"
+    $useRestApi = $true
 }
 
-# Connect using managed identity (should already be connected in deployment script context)
+# Get authentication token for REST API calls
 try {
-    Write-Host "Verifying Azure connection..."
-    $context = Get-AzContext -ErrorAction SilentlyContinue
-    if (-not $context) {
-        Write-Host "Connecting to Azure using managed identity..."
-        Connect-AzAccount -Identity
-    } else {
-        Write-Host "Already connected to Azure as: $($context.Account.Id)"
+    Write-Host "Setting up authentication for REST API calls..."
+    
+    # In deployment script context, we should already be authenticated
+    # Get access token using the managed identity
+    $tokenResponse = Invoke-RestMethod -Uri "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/" -Method Get -Headers @{Metadata="true"} -ErrorAction Stop
+    $accessToken = $tokenResponse.access_token
+    
+    Write-Host "Successfully obtained access token for Azure REST API."
+    $authHeaders = @{
+        'Authorization' = "Bearer $accessToken"
+        'Content-Type' = 'application/json'
     }
+    
 } catch {
-    Write-Host "Warning: Could not verify Azure connection: $($_.Exception.Message)"
-    Write-Host "Attempting to use REST API approach for resource management..."
+    Write-Host "Error getting access token: $($_.Exception.Message)"
+    throw "Could not authenticate with Azure. Please check managed identity configuration."
 }
  
 try {
-    # Get the search service admin API key
-    Write-Host "Getting search service admin API key..."
-    $searchService = Get-AzResource -ResourceType 'Microsoft.Search/searchServices' -ResourceName $SearchServiceName -ResourceGroupName $ResourceGroupName
-    if (-not $searchService) {
-        throw "Search service '$SearchServiceName' not found in resource group '$ResourceGroupName'."
-    }
-   
-    $adminKeyResponse = Invoke-AzRestMethod -Uri "https://management.azure.com$($searchService.ResourceId)/listAdminKeys?api-version=2023-11-01" -Method Post
+    # Get the search service admin API key using REST API
+    Write-Host "Getting search service admin API key using REST API..."
+    
+    $searchServiceUri = "https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Search/searchServices/$SearchServiceName"
+    
+    # First verify the search service exists
+    $searchServiceResponse = Invoke-RestMethod -Uri "$searchServiceUri`?api-version=2023-11-01" -Method Get -Headers $authHeaders -ErrorAction Stop
+    Write-Host "Found search service: $($searchServiceResponse.name)"
+    
+    # Get admin keys
+    $adminKeyResponse = Invoke-RestMethod -Uri "$searchServiceUri/listAdminKeys?api-version=2023-11-01" -Method Post -Headers $authHeaders -ErrorAction Stop
     $adminKey = ($adminKeyResponse.Content | ConvertFrom-Json).primaryKey
    
     if (-not $adminKey) {
         throw "Failed to retrieve admin key for search service '$SearchServiceName'."
     }
  
-    # Get storage account key
-    Write-Host "Getting storage account key..."
-    $storageKeys = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName
+    # Get storage account key using REST API
+    Write-Host "Getting storage account key using REST API..."
+    $storageAccountUri = "https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Storage/storageAccounts/$StorageAccountName"
+    $storageKeysResponse = Invoke-RestMethod -Uri "$storageAccountUri/listKeys?api-version=2023-01-01" -Method Post -Headers $authHeaders -ErrorAction Stop
    
-    if (-not $storageKeys -or $storageKeys.Count -eq 0) {
+    if (-not $storageKeysResponse.keys -or $storageKeysResponse.keys.Count -eq 0) {
         throw "Failed to retrieve keys for storage account '$StorageAccountName'."
     }
    
-    $storageKey = $storageKeys[0].Value
+    $storageKey = $storageKeysResponse.keys[0].value
  
     # Create data source
     Write-Host "Creating data source '$SearchDataSourceName'..."
