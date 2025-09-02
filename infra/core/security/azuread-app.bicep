@@ -47,11 +47,17 @@ Install-Module -Name Microsoft.Graph.Authentication -Force -AllowClobber -Scope 
 # Connect using managed identity
 Connect-AzAccount -Identity
 
-# Get access token and connect to Microsoft Graph
-$context = Get-AzContext
-$token = Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com"
-$secureToken = ConvertTo-SecureString $token.Token -AsPlainText -Force
-Connect-MgGraph -AccessToken $secureToken
+# Connect to Microsoft Graph using managed identity
+try {
+    Connect-MgGraph -Identity -ErrorAction Stop
+    Write-Output "Successfully connected to Microsoft Graph using managed identity"
+} catch {
+    Write-Output "Failed to connect with managed identity, trying alternative method..."
+    # Alternative: Get access token and connect
+    $context = Get-AzContext
+    $token = Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com/"
+    Connect-MgGraph -AccessToken $token.Token
+}
 
 # Define redirect URIs
 $redirectUris = @(
