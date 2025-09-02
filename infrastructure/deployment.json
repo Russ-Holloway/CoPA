@@ -319,6 +319,42 @@
                             "value": "[variables('StorageContainerName')]"
                         },
                         {
+                            "name": "AZURE_OPENAI_ENDPOINT",
+                            "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint]"
+                        },
+                        {
+                            "name": "AZURE_OPENAI_PREVIEW_API_VERSION",
+                            "value": "2024-06-01"
+                        },
+                        {
+                            "name": "DATASOURCE_TYPE",
+                            "value": "AzureCognitiveSearch"
+                        },
+                        {
+                            "name": "DEBUG",
+                            "value": "false"
+                        },
+                        {
+                            "name": "MS_DEFENDER_ENABLED",
+                            "value": "true"
+                        },
+                        {
+                            "name": "AZURE_CLIENT_ID",
+                            "value": ""
+                        },
+                        {
+                            "name": "AZURE_CLIENT_SECRET",
+                            "value": ""
+                        },
+                        {
+                            "name": "AZURE_TENANT_ID",
+                            "value": ""
+                        },
+                        {
+                            "name": "AUTH_ENABLED",
+                            "value": "false"
+                        },
+                        {
                             "name": "UWSGI_PROCESSES",
                             "value": "2"
                         },
@@ -347,6 +383,22 @@
                             "value": "true"
                         },
                         {
+                            "name": "WEBSITE_ENABLE_SYNC_UPDATE_SITE",
+                            "value": "true"
+                        },
+                        {
+                            "name": "WEBSITE_RUN_FROM_PACKAGE_BLOB", 
+                            "value": "false"
+                        },
+                        {
+                            "name": "PROJECT",
+                            "value": "."
+                        },
+                        {
+                            "name": "BUILD_FLAGS",
+                            "value": "UseExpressBuild"
+                        },
+                        {
                             "name": "POST_BUILD_SCRIPT_PATH",
                             "value": "startup.sh"
                         }
@@ -357,10 +409,26 @@
                 "sourceControl": {
                     "repoUrl": "https://github.com/Russ-Holloway/CoPPA.git",
                     "branch": "main",
-                    "isManualIntegration": true,
-                    "deploymentRollbackEnabled": false,
-                    "isMercurial": false
+                    "isManualIntegration": false,
+                    "deploymentRollbackEnabled": true,
+                    "isMercurial": false,
+                    "isGitHubAction": true
                 }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/sourcecontrols",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(variables('WebsiteName'), '/web')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
+            ],
+            "properties": {
+                "repoUrl": "https://github.com/Russ-Holloway/CoPPA.git",
+                "branch": "main",
+                "isManualIntegration": false,
+                "deploymentRollbackEnabled": true,
+                "isMercurial": false
             }
         },
         {

@@ -40,11 +40,16 @@
 [![Deploy PDS Compliant](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstcoppadeployment.blob.core.windows.net%2Fcoppa-deployment%2Fdeployment.json%3Fsv%3D2024-11-04%26ss%3Dbt%26srt%3Dsco%26sp%3Drltf%26se%3D2026-08-01T18%3A11%3A42Z%26st%3D2025-07-19T09%3A56%3A42Z%26spr%3Dhttps%26sig%3D8ZzA5IXoU%252FGgPS0XOkC738gYQY67DFv%252FWD0%252BI9zkioI%253D/createUIDefinitionUri/https%3A%2F%2Fstcoppadeployment.blob.core.windows.net%2Fcoppa-deployment%2FcreateUiDefinition-simple.json%3Fsv%3D2024-11-04%26ss%3Dbt%26srt%3Dsco%26sp%3Drltf%26se%3D2026-08-01T18%3A11%3A42Z%26st%3D2025-07-19T09%3A56%3A42Z%26spr%3Dhttps%26sig%3D8ZzA5IXoU%252FGgPS0XOkC738gYQY67DFv%252FWD0%252BI9zkioI%253D)
 
 **🎯 Simplified Deployment Process:**
-1. **Create Resource Group:** Use PDS naming like `rg-btp-prod-01`, `rg-met-prod-01`, etc.
-2. **Click Deploy:** All Azure resources are automatically created with PDS-compliant names
-3. **Choose OpenAI Models:** Select your preferred chat and embedding models
-4. **Deploy:** Infrastructure deployment completes automatically!
-5. **Deploy Code:** Upload your application code to the created App Service (manual step)
+1. **Click Deploy:** All Azure resources and code deployed automatically with PDS-compliant names
+2. **Wait for Setup:** Search components, environment variables, and sample documents configured automatically
+3. **Start Using:** Application is immediately ready for police officers to use
+4. **Optional:** Enable Azure AD authentication later if required
+
+**✨ Zero Manual Configuration Required!** 
+- ✅ Environment variables set automatically
+- ✅ Application code deployed automatically  
+- ✅ Search components configured automatically
+- ✅ Sample documents uploaded automatically
 
 📋 **[PDS Deployment Guide](docs/PDS-DEPLOYMENT-GUIDE.md)** - Complete guide for police forces  
 📋 **[Azure Naming Guidelines](docs/azure-naming-guidelines.md)** - PDS naming conventions
