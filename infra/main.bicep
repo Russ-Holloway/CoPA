@@ -48,10 +48,14 @@ param formRecognizerResourceGroupName string = ''
 param formRecognizerResourceGroupLocation string = location
 param formRecognizerSkuName string = ''
 
-// Used for the Azure AD application
-param authClientId string
+// Used for the Azure AD application (optional - can be automated)
+param authClientId string = ''
 @secure()
-param authClientSecret string
+param authClientSecret string = ''
+
+// Azure AD App Registration automation settings
+param createAzureAdAppRegistration bool = true
+param azureAdAppDisplayName string = 'CoPPA-Policing-Assistant'
 
 // Used for Cosmos DB
 param cosmosAccountName string = ''
@@ -78,6 +82,32 @@ resource searchServiceResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-
   name: !empty(searchServiceResourceGroupName) ? searchServiceResourceGroupName : resourceGroup.name
 }
 
+
+// Create managed identity for deployment scripts
+module deploymentScriptIdentity 'core/security/managed-identity.bicep' = {
+  name: 'deployment-script-identity'
+  scope: resourceGroup
+  params: {
+    managedIdentityName: '${abbrs.managedIdentityUserAssignedIdentities}deploy-${resourceToken}'
+    location: location
+    tags: tags
+  }
+}
+
+// Create Azure AD App Registration (optional automation)
+module azureAdApp 'core/security/azuread-app.bicep' = {
+  name: 'azuread-app-registration'
+  scope: resourceGroup
+  params: {
+    appDisplayName: azureAdAppDisplayName
+    webAppUrl: 'https://${appServiceName}.azurewebsites.net'
+    location: location
+    tags: tags
+    createAppRegistration: createAzureAdAppRegistration
+    clientSecretExpirationMonths: 24
+    managedIdentityId: deploymentScriptIdentity.outputs.managedIdentityId
+  }
+}
 
 // Create an App Service Plan to group applications under the same payment plan and SKU
 module appServicePlan 'core/host/appserviceplan.bicep' = {
@@ -110,8 +140,8 @@ module backend 'core/host/appservice.bicep' = {
     runtimeVersion: '3.10'
     scmDoBuildDuringDeployment: true
     managedIdentity: true
-    authClientSecret: authClientSecret
-    authClientId: authClientId
+    authClientSecret: createAzureAdAppRegistration ? azureAdApp.outputs.clientSecret : authClientSecret
+    authClientId: createAzureAdAppRegistration ? azureAdApp.outputs.applicationId : authClientId
     authIssuerUri: authIssuerUri
     appSettings: {
       // search
