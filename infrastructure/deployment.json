@@ -888,7 +888,8 @@
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D",
                 "storageAccountSettings": {
-                    "storageAccountName": "[variables('storageAccountDeploymentScriptName')]"
+                    "storageAccountName": "[variables('deploymentScriptStorageAccountName')]",
+                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentScriptStorageAccountName')), '2022-09-01').keys[0].value]"
                 }
             }
         }
