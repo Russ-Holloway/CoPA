@@ -27,22 +27,46 @@ param(
 $ErrorActionPreference = "Stop"
 
 # Install required Az modules
-Write-Host "Installing required Azure PowerShell modules..."
-Install-Module -Name Az.Accounts -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue
-Install-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue  
-Install-Module -Name Az.Storage -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue
+Write-Host "Checking and installing required Azure PowerShell modules..."
+try {
+    # Remove any existing modules to avoid conflicts
+    Write-Host "Removing any conflicting modules..."
+    Get-Module Az.* | Remove-Module -Force -ErrorAction SilentlyContinue
+    
+    # Install specific compatible versions
+    Write-Host "Installing Az.Accounts..."
+    Install-Module -Name Az.Accounts -MinimumVersion 2.0.0 -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
+    
+    Write-Host "Installing Az.Resources..."  
+    Install-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
+    
+    Write-Host "Installing Az.Storage..."
+    Install-Module -Name Az.Storage -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
+    
+    # Import modules explicitly
+    Import-Module Az.Accounts -Force
+    Import-Module Az.Resources -Force  
+    Import-Module Az.Storage -Force
+    
+    Write-Host "Azure PowerShell modules installed and imported successfully."
+} catch {
+    Write-Host "Warning: Could not install/import all modules. Trying alternative approach..."
+    Write-Host "Error: $($_.Exception.Message)"
+}
 
 # Connect using managed identity (should already be connected in deployment script context)
 try {
-    $context = Get-AzContext
+    Write-Host "Verifying Azure connection..."
+    $context = Get-AzContext -ErrorAction SilentlyContinue
     if (-not $context) {
         Write-Host "Connecting to Azure using managed identity..."
         Connect-AzAccount -Identity
     } else {
-        Write-Host "Already connected to Azure."
+        Write-Host "Already connected to Azure as: $($context.Account.Id)"
     }
 } catch {
     Write-Host "Warning: Could not verify Azure connection: $($_.Exception.Message)"
+    Write-Host "Attempting to use REST API approach for resource management..."
 }
  
 try {
