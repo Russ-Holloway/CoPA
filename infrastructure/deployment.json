@@ -440,7 +440,7 @@
                         },
                         {
                             "name": "AZURE_CLIENT_SECRET",
-                            "value": "[if(variables('CreateAzureAdAppRegistration'), reference(concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName')))).outputs.ClientSecret, '')]"
+                            "value": ""
                         },
                         {
                             "name": "AZURE_TENANT_ID",
@@ -883,7 +883,7 @@
             },
             "properties": {
                 "azPowerShellVersion": "8.3",
-                "scriptContent": "[concat('Invoke-WebRequest -Uri ''https://stbtpcoppatestdeployment.blob.core.windows.net/deployment/setup_search_components.ps1'' -OutFile ''setup_search_components.ps1''; & ./setup_search_components.ps1 -SearchServiceName ''', variables('AzureSearchService'), ''' -SearchIndexName ''', variables('AzureSearchIndexName'), ''' -SearchIndexerName ''', variables('AzureSearchIndexerName'), ''' -SearchDataSourceName ''', variables('AzureSearchDataSourceName'), ''' -StorageAccountName ''', variables('StorageAccountName'), ''' -StorageContainerName ''', variables('StorageContainerName'), ''' -ResourceGroupName ''', resourceGroup().name, ''' -AzureOpenAIEndpoint ''', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, ''' -AzureOpenAIApiKey ''', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, ''' -EmbeddingDeploymentName ''', parameters('AzureOpenAIEmbeddingName'), ''' -SkillsetName ''', variables('AzureSearchSkillset1Name'), '''')]",
+                "scriptContent": "[concat('Invoke-WebRequest -Uri ''https://stbtpcoppatestdeployment.blob.core.windows.net/deployment/setup_search_components.ps1'' -OutFile ''setup_search_components.ps1''; & ./setup_search_components.ps1 -SearchServiceName ''', variables('AzureSearchService'), ''' -SearchIndexName ''', variables('AzureSearchIndexName'), ''' -SearchIndexerName ''', variables('AzureSearchIndexerName'), ''' -SearchDataSourceName ''', variables('AzureSearchDataSourceName'), ''' -StorageAccountName ''', variables('StorageAccountName'), ''' -StorageContainerName ''', variables('StorageContainerName'), ''' -ResourceGroupName ''', resourceGroup().name, ''' -AzureOpenAIEndpoint ''', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, ''' -AzureOpenAIApiKey ''', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, ''' -EmbeddingDeploymentName ''', parameters('AzureOpenAIEmbeddingName'), ''' -SkillsetName ''', variables('AzureSearchSkillset1Name'), ''' -SubscriptionId ''', subscription().subscriptionId, '''')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D",

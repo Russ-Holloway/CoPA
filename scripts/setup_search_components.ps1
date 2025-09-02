@@ -20,11 +20,21 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $EmbeddingDeploymentName,
     [Parameter(Mandatory=$true)]
-    [string] $SkillsetName
+    [string] $SkillsetName,
+    [Parameter(Mandatory=$true)]
+    [string] $SubscriptionId
 )
  
 # Set error action preference to stop on error
 $ErrorActionPreference = "Stop"
+
+# Debug: Output all parameters
+Write-Host "=== SCRIPT PARAMETERS ==="
+Write-Host "SearchServiceName: $SearchServiceName"
+Write-Host "ResourceGroupName: $ResourceGroupName"
+Write-Host "StorageAccountName: $StorageAccountName"
+Write-Host "SubscriptionId: $SubscriptionId"
+Write-Host "=========================="
 
 # Install required Az modules
 Write-Host "Checking and installing required Azure PowerShell modules..."
@@ -66,14 +76,36 @@ try {
     # Get the search service admin API key using REST API
     Write-Host "Getting search service admin API key using REST API..."
     
+    Write-Host "Building REST API URL..."
     $searchServiceUri = "https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Search/searchServices/$SearchServiceName"
+    Write-Host "Search Service URI: $searchServiceUri"
     
     # First verify the search service exists
-    $searchServiceResponse = Invoke-RestMethod -Uri "$searchServiceUri`?api-version=2023-11-01" -Method Get -Headers $authHeaders -ErrorAction Stop
-    Write-Host "Found search service: $($searchServiceResponse.name)"
+    Write-Host "Verifying search service exists..."
+    try {
+        $searchServiceResponse = Invoke-RestMethod -Uri "$searchServiceUri`?api-version=2023-11-01" -Method Get -Headers $authHeaders -ErrorAction Stop
+        Write-Host "Found search service: $($searchServiceResponse.name)"
+    } catch {
+        Write-Host "Error verifying search service: $($_.Exception.Message)"
+        if ($_.Exception.Response) {
+            $errorResponse = $_.Exception.Response.Content.ReadAsStringAsync().Result
+            Write-Host "Error response: $errorResponse"
+        }
+        throw
+    }
     
     # Get admin keys
-    $adminKeyResponse = Invoke-RestMethod -Uri "$searchServiceUri/listAdminKeys?api-version=2023-11-01" -Method Post -Headers $authHeaders -ErrorAction Stop
+    Write-Host "Getting admin keys..."
+    try {
+        $adminKeyResponse = Invoke-RestMethod -Uri "$searchServiceUri/listAdminKeys?api-version=2023-11-01" -Method Post -Headers $authHeaders -ErrorAction Stop
+    } catch {
+        Write-Host "Error getting admin keys: $($_.Exception.Message)"
+        if ($_.Exception.Response) {
+            $errorResponse = $_.Exception.Response.Content.ReadAsStringAsync().Result
+            Write-Host "Error response: $errorResponse"
+        }
+        throw
+    }
     $adminKey = ($adminKeyResponse.Content | ConvertFrom-Json).primaryKey
    
     if (-not $adminKey) {
