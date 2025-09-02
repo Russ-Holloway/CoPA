@@ -85,4 +85,4 @@ Write-Host "   - Requesting a quota increase from Azure support" -ForegroundColo
 Write-Host ""
 Write-Host "📋 Current Model Capacities:" -ForegroundColor Magenta
 Write-Host "   - GPT-4o: 10 tokens/minute" -ForegroundColor White
-Write-Host "   - text-embedding-ada-002: 10 tokens/minute" -ForegroundColor White
+Write-Host "   - text-embedding-3-small: 10 tokens/minute" -ForegroundColor White

@@ -9,7 +9,7 @@ param(
     [string]$OpenAIKey,
     
     [Parameter(Mandatory=$false)]
-    [string]$EmbeddingDeploymentName = "text-embedding-ada-002",
+    [string]$EmbeddingDeploymentName = "text-embedding-3-small",
     
     [Parameter(Mandatory=$false)]
     [string]$GptDeploymentName = "gpt-4o"

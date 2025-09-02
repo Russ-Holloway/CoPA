@@ -18,7 +18,7 @@
             "value": "gpt-4o"
         },
         "AzureOpenAIEmbeddingName": {
-            "value": "text-embedding-ada-002"
+            "value": "text-embedding-3-small"
         },
         "Location": {
             "value": "uksouth"

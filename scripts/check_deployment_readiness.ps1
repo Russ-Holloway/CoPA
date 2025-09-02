@@ -21,7 +21,7 @@ param(
     [string]$AppServiceName,
     
     [Parameter(Mandatory = $false)]
-    [string]$EmbeddingModelName = "text-embedding-ada-002",
+    [string]$EmbeddingModelName = "text-embedding-3-small",
     
     [Parameter(Mandatory = $false)]
     [string]$ChatModelName = "gpt-35-turbo",

@@ -72,13 +72,13 @@
                         "type": "Microsoft.Common.DropDown",
                         "label": "OpenAI Embedding Model",
                         "placeholder": "Select an embedding model",
-                        "defaultValue": "text-embedding-ada-002",
+                        "defaultValue": "text-embedding-3-small",
                         "toolTip": "The OpenAI model to use for text embeddings and search",
                         "constraints": {
                             "allowedValues": [
                                 {
                                     "label": "Text Embedding Ada 002 (Recommended)",
-                                    "value": "text-embedding-ada-002"
+                                    "value": "text-embedding-3-small"
                                 },
                                 {
                                     "label": "Text Embedding 3 Small",

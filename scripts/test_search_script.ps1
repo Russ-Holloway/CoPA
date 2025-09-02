@@ -39,7 +39,7 @@ param(
     [string]$StorageContainerName = "docs",
     
     [Parameter(Mandatory=$false)]
-    [string]$OpenAIEmbeddingDeployment = "text-embedding-ada-002",
+    [string]$OpenAIEmbeddingDeployment = "text-embedding-3-small",
     
     [Parameter(Mandatory=$false)]
     [string]$OpenAIGptDeployment = "policingGptDeployment",
