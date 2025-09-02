@@ -25,6 +25,25 @@ param(
  
 # Set error action preference to stop on error
 $ErrorActionPreference = "Stop"
+
+# Install required Az modules
+Write-Host "Installing required Azure PowerShell modules..."
+Install-Module -Name Az.Accounts -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue
+Install-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue  
+Install-Module -Name Az.Storage -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue
+
+# Connect using managed identity (should already be connected in deployment script context)
+try {
+    $context = Get-AzContext
+    if (-not $context) {
+        Write-Host "Connecting to Azure using managed identity..."
+        Connect-AzAccount -Identity
+    } else {
+        Write-Host "Already connected to Azure."
+    }
+} catch {
+    Write-Host "Warning: Could not verify Azure connection: $($_.Exception.Message)"
+}
  
 try {
     # Get the search service admin API key
