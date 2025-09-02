@@ -192,7 +192,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
           name: openAIModelName
           version: '0613'
         }
-        capacity: 30
+        capacity: 1000
       }
       {
         name: embeddingDeploymentName
@@ -201,7 +201,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
           name: embeddingModelName
           version: '1'
         }
-        capacity: 30
+        capacity: 1000
       }
     ]
   }
