@@ -1,0 +1,113 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "config": {
+            "basics": {
+                "description": "Deploy the Policing Assistant solution with automatic resource naming and random suffixes to prevent conflicts.",
+                "location": {
+                    "visible": true,
+                    "allowedValues": [
+                        "uksouth", 
+                        "ukwest",
+                        "westeurope",
+                        "northeurope"
+                    ]
+                }
+            }
+        },
+        "basics": [
+            {
+                "name": "forceInfo",
+                "type": "Microsoft.Common.Section", 
+                "label": "Police Force Configuration",
+                "elements": [
+                    {
+                        "name": "forceCode",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Police Force Code",
+                        "defaultValue": "btp",
+                        "toolTip": "Enter your 2-3 character police force code (e.g., 'btp', 'met', 'gmp'). Must be lowercase letters only.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[a-z]{2,3}$",
+                            "validationMessage": "Force code must be 2-3 lowercase letters only (e.g., 'btp', 'met', 'gmp')."
+                        }
+                    },
+                    {
+                        "name": "environment",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Environment", 
+                        "defaultValue": "prod",
+                        "toolTip": "Select the deployment environment",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Production",
+                                    "value": "prod"
+                                },
+                                {
+                                    "label": "Development", 
+                                    "value": "dev"
+                                },
+                                {
+                                    "label": "Test",
+                                    "value": "test"
+                                }
+                            ],
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "instanceNumber",
+                        "type": "Microsoft.Common.TextBox", 
+                        "label": "Instance Number",
+                        "defaultValue": "01",
+                        "toolTip": "Instance number for this deployment (01, 02, etc.)",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[0-9]{2}$",
+                            "validationMessage": "Instance number must be exactly 2 digits (01, 02, 03, etc.)."
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "azureAdInfo",
+                "type": "Microsoft.Common.Section",
+                "label": "Azure AD Configuration",
+                "elements": [
+                    {
+                        "name": "createAzureAdApp",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Create Azure AD App Registration",
+                        "defaultValue": "Yes",
+                        "toolTip": "Whether to create an Azure AD app registration for authentication",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes - Create new app registration",
+                                    "value": "Yes"
+                                },
+                                {
+                                    "label": "No - I'll configure manually",
+                                    "value": "No"
+                                }
+                            ],
+                            "required": true
+                        }
+                    }
+                ]
+            }
+        ],
+        "steps": [],
+        "outputs": {
+            "ForceCode": "[basics('forceInfo').forceCode]",
+            "EnvironmentSuffix": "[basics('forceInfo').environment]", 
+            "InstanceNumber": "[basics('forceInfo').instanceNumber]",
+            "CreateAzureAdAppRegistration": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+            "AzureAdAppDisplayName": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]"
+        }
+    }
+}
