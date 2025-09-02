@@ -66,11 +66,11 @@ Write-Host "=================================================" -ForegroundColor 
 Write-Host ""
 Write-Host "🎯 Recommended Model Capacities (Low Quota):" -ForegroundColor Green
 Write-Host "   - GPT-4o: 5 tokens/minute" -ForegroundColor White
-Write-Host "   - text-embedding-ada-002: 5 tokens/minute" -ForegroundColor White
+Write-Host "   - text-embedding-3-small: 5 tokens/minute" -ForegroundColor White
 Write-Host ""
 Write-Host "🎯 Standard Model Capacities (Normal Quota):" -ForegroundColor Cyan
 Write-Host "   - GPT-4o: 10 tokens/minute" -ForegroundColor White
-Write-Host "   - text-embedding-ada-002: 10 tokens/minute" -ForegroundColor White
+Write-Host "   - text-embedding-3-small: 10 tokens/minute" -ForegroundColor White
 Write-Host ""
 Write-Host "🌍 Alternative Regions to Try:" -ForegroundColor Yellow
 Write-Host "   - eastus (often has better availability)" -ForegroundColor White

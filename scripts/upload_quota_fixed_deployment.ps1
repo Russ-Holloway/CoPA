@@ -98,7 +98,7 @@ try {
     
     Write-Host ""
     Write-Host "📋 Quota Fix Applied:" -ForegroundColor Cyan
-    Write-Host "✅ Text-Embedding-Ada-002 capacity: 30 (was 120)" -ForegroundColor Green
+    Write-Host "✅ Text-Embedding-3-Small capacity: 30 (was 120)" -ForegroundColor Green
     Write-Host "✅ GPT-4o capacity: 10 (unchanged)" -ForegroundColor Green
     Write-Host "✅ Total capacity needed: ~40 (fits in your quota)" -ForegroundColor Green
     Write-Host ""

@@ -73,14 +73,14 @@
         {
             "type": "Microsoft.CognitiveServices/accounts/deployments",
             "apiVersion": "2023-05-01",
-            "name": "[concat(variables('openAIResourceName'), '/text-embedding-ada-002')]",
+            "name": "[concat(variables('openAIResourceName'), '/text-embedding-3-small')]",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('openAIResourceName'))]"
             ],
             "properties": {
                 "model": {
                     "format": "OpenAI",
-                    "name": "text-embedding-ada-002",
+                    "name": "text-embedding-3-small",
                     "version": "2"
                 }
             },
@@ -95,7 +95,7 @@
             "name": "[concat(variables('openAIResourceName'), '/gpt-4o')]",
             "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('openAIResourceName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('openAIResourceName'), 'text-embedding-ada-002')]"
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('openAIResourceName'), 'text-embedding-3-small')]"
             ],
             "properties": {
                 "model": {
@@ -123,7 +123,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Search/searchServices', variables('searchServiceName'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('openAIResourceName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('openAIResourceName'), 'text-embedding-ada-002')]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('openAIResourceName'), 'text-embedding-3-small')]",
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('openAIResourceName'), 'gpt-4o')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('storageAccountName'), 'default', variables('containerName'))]",
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]"
@@ -138,7 +138,7 @@
             "properties": {
                 "azPowerShellVersion": "6.4",
                 "timeout": "PT30M",
-                "arguments": "[concat('-searchServiceName \"', variables('searchServiceName'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('searchServiceName')), '2020-08-01').primaryKey, '\" -dataSourceName \"test-data-source\" -indexName \"test-index\" -indexerName \"test-indexer\" -skillset1Name \"test-skillset-1\" -skillset2Name \"test-skillset-2\" -storageAccountName \"', variables('storageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', variables('containerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('openAIResourceName'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('openAIResourceName')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"text-embedding-ada-002\" -openAIGptDeployment \"gpt-4o\"')]",
+                "arguments": "[concat('-searchServiceName \"', variables('searchServiceName'), '\" -searchServiceKey \"', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('searchServiceName')), '2020-08-01').primaryKey, '\" -dataSourceName \"test-data-source\" -indexName \"test-index\" -indexerName \"test-indexer\" -skillset1Name \"test-skillset-1\" -skillset2Name \"test-skillset-2\" -storageAccountName \"', variables('storageAccountName'), '\" -storageAccountKey \"', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-04-01').keys[0].value, '\" -storageContainerName \"', variables('containerName'), '\" -openAIEndpoint \"', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('openAIResourceName'))).endpoint, '\" -openAIKey \"', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('openAIResourceName')), '2021-10-01').key1, '\" -openAIEmbeddingDeployment \"text-embedding-3-small\" -openAIGptDeployment \"gpt-4o\"')]",
                 "primaryScriptUri": "[variables('deploymentScriptUri')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"

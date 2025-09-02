@@ -30,7 +30,7 @@ DOTENV_PATH = os.environ.get(
         ".env"
     )
 )
-MINIMUM_SUPPORTED_AZURE_OPENAI_PREVIEW_API_VERSION = "2024-05-01-preview"
+MINIMUM_SUPPORTED_AZURE_OPENAI_PREVIEW_API_VERSION = "2024-06-01"
 
 
 class _UiSettings(BaseSettings):

@@ -301,7 +301,7 @@
             "SearchIndexerName": "[steps('searchComponents').searchIndexConfig.searchIndexerName]",
             "SearchDataSourceName": "[steps('searchComponents').searchIndexConfig.searchDataSourceName]",
             "AzureOpenAIModelName": "gpt-4o",
-            "AzureOpenAIEmbeddingName": "text-embedding-ada-002",
+            "AzureOpenAIEmbeddingName": "text-embedding-3-small",
             "Location": "[location()]"
         }
     }

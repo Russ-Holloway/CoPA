@@ -40,7 +40,7 @@ param openAIStopSequence string = ''
 param openAISystemMessage string = 'You are an AI assistant that helps people find information.'
 param openAIStream bool = true
 param embeddingDeploymentName string = 'embedding'
-param embeddingModelName string = 'text-embedding-ada-002'
+param embeddingModelName string = 'text-embedding-3-small'
 
 // Used by prepdocs.py: Form recognizer
 param formRecognizerServiceName string = ''
@@ -131,6 +131,8 @@ module backend 'core/host/appservice.bicep' = {
       AZURE_OPENAI_MODEL: openAIModel
       AZURE_OPENAI_MODEL_NAME: openAIModelName
       AZURE_OPENAI_KEY: openAi.outputs.key
+      AZURE_OPENAI_API_VERSION: '2024-06-01'
+      AZURE_OPENAI_EMBEDDING_NAME: embeddingDeploymentName
       AZURE_OPENAI_TEMPERATURE: openAITemperature
       AZURE_OPENAI_TOP_P: openAITopP
       AZURE_OPENAI_MAX_TOKENS: openAIMaxTokens
@@ -167,7 +169,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
         model: {
           format: 'OpenAI'
           name: embeddingModelName
-          version: '2'
+          version: '1'
         }
         capacity: 30
       }
@@ -313,6 +315,7 @@ output AZURE_OPENAI_MODEL string = openAIModel
 output AZURE_OPENAI_MODEL_NAME string = openAIModelName
 output AZURE_OPENAI_SKU_NAME string = openAi.outputs.skuName
 output AZURE_OPENAI_KEY string = openAi.outputs.key
+output AZURE_OPENAI_API_VERSION string = '2024-06-01'
 output AZURE_OPENAI_EMBEDDING_NAME string = embeddingDeploymentName
 output AZURE_OPENAI_TEMPERATURE int = openAITemperature
 output AZURE_OPENAI_TOP_P int = openAITopP

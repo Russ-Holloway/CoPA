@@ -277,14 +277,14 @@
                         "name": "embeddingModelName",
                         "type": "Microsoft.Common.DropDown",
                         "label": "Embedding Model",
-                        "defaultValue": "text-embedding-ada-002",
+                        "defaultValue": "text-embedding-3-small",
                         "toolTip": "Select the embedding model for document vectorization",
                         "constraints": {
                             "required": true,
                             "allowedValues": [
                                 {
-                                    "label": "text-embedding-ada-002 (Recommended)",
-                                    "value": "text-embedding-ada-002"
+                                    "label": "text-embedding-3-small (Recommended)",
+                                    "value": "text-embedding-3-small"
                                 },
                                 {
                                     "label": "text-embedding-3-small",
