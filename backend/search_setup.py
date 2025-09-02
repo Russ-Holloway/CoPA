@@ -685,4 +685,16 @@ def update_app_settings(index_name):
 
 # This function can be called during application startup
 if __name__ == "__main__":
-    setup_search_components()
+    import sys
+    
+    if len(sys.argv) > 1 and sys.argv[1] == "--verify-and-create":
+        logger.info("Running in verify-and-create mode")
+        try:
+            setup_search_components()
+            logger.info("✅ Search components verified/created successfully")
+        except Exception as e:
+            logger.error(f"❌ Error in search setup: {str(e)}")
+            # Don't fail the entire startup for search issues
+            sys.exit(0)
+    else:
+        setup_search_components()
