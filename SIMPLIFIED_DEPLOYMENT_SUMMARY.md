@@ -46,7 +46,9 @@ Successfully simplified the Deploy to Azure experience by hiding all PDS naming 
 }
 ```
 
-### 2. Simplified UI Definition (`createUiDefinition-simple.json`)
+### 2. Consolidated UI Definition (`createUiDefinition.json`)
+
+The user interface definition has been consolidated into a single comprehensive file that provides PDS-compliant deployment options for all UK police forces.
 - **Hidden Complexity**: PDS parameters generated automatically
 - **User-Facing**: Only OpenAI model selection visible
 - **Helpful Info**: Clear naming examples in info boxes
@@ -72,7 +74,7 @@ Successfully simplified the Deploy to Azure experience by hiding all PDS naming 
 - ✅ `infrastructure/deployment.json` - Enhanced with automatic parameters
 
 ### New Files Created  
-- ✅ `infrastructure/createUiDefinition-simple.json` - Simplified user interface
+- ✅ `infrastructure/createUiDefinition.json` - Consolidated PDS-compliant user interface
 - ✅ `scripts/upload_simplified_deployment.ps1` - Upload helper for new files
 - ✅ `scripts/test_simplified_deployment.ps1` - Validation script for naming logic
 
