@@ -35,6 +35,12 @@
         "AzureAdAppDisplayName": {
             "value": "CoPPA-btp-dev"
         },
+        "UIFeedbackEmail": {
+            "value": "feedback@btp.police.uk"
+        },
+        "UIFindOutMoreLink": {
+            "value": "https://btp.police.uk/coppa-info"
+        },
         "webAppName": {
             "value": "app-uks-dev-ai-coppa-test"
         },

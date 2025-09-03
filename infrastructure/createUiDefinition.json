@@ -101,13 +101,53 @@
                 ]
             }
         ],
-        "steps": [],
+        "steps": [
+            {
+                "name": "uiConfig",
+                "label": "UI Configuration",
+                "elements": [
+                    {
+                        "name": "uiCustomization",
+                        "type": "Microsoft.Common.Section",
+                        "label": "User Interface Customization",
+                        "elements": [
+                            {
+                                "name": "feedbackEmail",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Feedback Email (Optional)",
+                                "placeholder": "feedback@your-force.police.uk",
+                                "toolTip": "Email address where user feedback will be sent. Leave empty if you don't want a feedback option.",
+                                "constraints": {
+                                    "required": false,
+                                    "regex": "^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                                    "validationMessage": "Must be a valid email address or leave empty."
+                                }
+                            },
+                            {
+                                "name": "findOutMoreLink",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Find Out More Link (Optional)",
+                                "placeholder": "https://your-force.police.uk/coppa-info",
+                                "toolTip": "URL for the 'Find Out More' link in the application. Leave empty if you don't want this link.",
+                                "constraints": {
+                                    "required": false,
+                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?$",
+                                    "validationMessage": "Must be a valid URL (starting with http:// or https://) or leave empty."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
         "outputs": {
             "ForceCode": "[basics('forceInfo').forceCode]",
             "EnvironmentSuffix": "[basics('forceInfo').environment]", 
             "InstanceNumber": "[basics('forceInfo').instanceNumber]",
             "CreateAzureAdAppRegistration": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-            "AzureAdAppDisplayName": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]"
+            "AzureAdAppDisplayName": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]",
+            "UIFeedbackEmail": "[steps('uiConfig').uiCustomization.feedbackEmail]",
+            "UIFindOutMoreLink": "[steps('uiConfig').uiCustomization.findOutMoreLink]"
         }
     }
 }
