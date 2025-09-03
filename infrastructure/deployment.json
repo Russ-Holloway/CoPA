@@ -631,59 +631,17 @@
         },
         {
             "condition": "[variables('WebAppEnableChatHistory')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
-            "name": "cosmosDBRoleAssignment",
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
+            "apiVersion": "2021-04-15",
+            "name": "[format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleAssignmentId'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name'))]",
                 "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
             ],
             "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "cosmosDbAccountName": {
-                            "type": "string"
-                        },
-                        "principalId": {
-                            "type": "string"
-                        },
-                        "roleDefinitionId": {
-                            "type": "string"
-                        },
-                        "roleAssignmentId": {
-                            "type": "string"
-                        }
-                    },
-                    "resources": [
-                        {
-                            "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
-                            "apiVersion": "2021-04-15",
-                            "name": "[concat(parameters('cosmosDbAccountName'), '/', parameters('roleAssignmentId'))]",
-                            "properties": {
-                                "roleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', parameters('cosmosDbAccountName'), parameters('roleDefinitionId'))]",
-                                "principalId": "[parameters('principalId')]",
-                                "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]"
-                            }
-                        }
-                    ]
-                },
-                "parameters": {
-                    "cosmosDbAccountName": {
-                        "value": "[variables('cosmosdb_account_name')]"
-                    },
-                    "principalId": {
-                        "value": "00000000-0000-0000-0000-000000000000"
-                    },
-                    "roleDefinitionId": {
-                        "value": "[variables('roleDefinitionId')]"
-                    },
-                    "roleAssignmentId": {
-                        "value": "[variables('roleAssignmentId')]"
-                    }
-                }
+                "roleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', split(format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleDefinitionId')), '/')[0], split(format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleDefinitionId')), '/')[1])]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2022-09-01').identity.principalId]",
+                "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name'))]"
             }
         },
         {
@@ -819,56 +777,18 @@
             }
         },
         {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
-            "name": "storageRoleAssignment",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "scope": "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]",
+            "name": "[variables('storageRoleAssignmentId')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]",
+                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
             ],
             "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "storageAccountName": {
-                            "type": "string"
-                        },
-                        "principalId": {
-                            "type": "string"
-                        },
-                        "roleAssignmentId": {
-                            "type": "string"
-                        }
-                    },
-                    "variables": {
-                        "StorageBlobDataContributor": "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
-                    },
-                    "resources": [
-                        {
-                            "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
-                            "apiVersion": "2022-04-01",
-                            "name": "[concat(parameters('storageAccountName'), '/Microsoft.Authorization/', parameters('roleAssignmentId'))]",
-                            "properties": {
-                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', variables('StorageBlobDataContributor'))]",
-                                "principalId": "[parameters('principalId')]",
-                                "principalType": "ServicePrincipal"
-                            }
-                        }
-                    ]
-                },
-                "parameters": {
-                    "storageAccountName": {
-                        "value": "[variables('StorageAccountName')]"
-                    },
-                    "principalId": {
-                        "value": "00000000-0000-0000-0000-000000000000"
-                    },
-                    "roleAssignmentId": {
-                        "value": "[variables('storageRoleAssignmentId')]"
-                    }
-                }
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2022-09-01').identity.principalId]",
+                "principalType": "ServicePrincipal"
             }
         },
         {
