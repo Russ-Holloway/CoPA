@@ -83,10 +83,17 @@
                 "description": "Display name for the Azure AD application"
             },
             "defaultValue": "[concat('CoPPA-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'))]"
+        },
+        "deploymentTimestamp": {
+            "type": "string",
+            "metadata": {
+                "description": "Timestamp to ensure unique resource names"
+            },
+            "defaultValue": "[utcNow()]"
         }
     },
     "variables": {
-        "randomSuffix": "[substring(uniqueString(resourceGroup().id, utcNow(), parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber')), 0, 3)]",
+        "randomSuffix": "[substring(uniqueString(resourceGroup().id, parameters('deploymentTimestamp'), parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber')), 0, 3)]",
         "HostingPlanName": "[concat('asp-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
         "HostingPlanSku": "B3",
         "WebsiteName": "[concat('app-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
