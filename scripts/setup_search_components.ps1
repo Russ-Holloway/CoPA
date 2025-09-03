@@ -12,7 +12,21 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $StorageContainerName,
     [Parameter(Mandatory=$true)]
-    [string] $ResourceGroupName,
+    [str        function Get-StorageAuthorizationHeader {
+            param(
+                [string]$AccountName,
+                [string]$AccountKey,
+                [string]$Method,
+                [string]$ResourcePath,
+                [hashtable]$Headers,
+                [int]$ContentLength = 0
+            )
+            $xmsHeaders = $Headers.Keys | Where-Object { $_ -match '^x-ms-' } | Sort-Object
+            $canonicalizedHeaders = ($xmsHeaders | ForEach-Object { "$($_):$($Headers[$_])" }) -join "`n"
+            $canonicalizedResource = "/$AccountName$ResourcePath"
+
+            # Use the provided ContentLength for the signature
+            $contentLengthStr = if ($ContentLength -gt 0) { "$ContentLength" } else { '' }roupName,
     [Parameter(Mandatory=$true)]
     [string] $AzureOpenAIEndpoint,
     [Parameter(Mandatory=$true)]
@@ -473,14 +487,15 @@ The system is now fully operational and ready for use!
             $canonicalizedHeaders = ($xmsHeaders | ForEach-Object { "$($_):$($Headers[$_])" }) -join "`n"
             $canonicalizedResource = "/$AccountName$ResourcePath"
 
-            $contentLength = "$($Headers['Content-Length'])"
+            # For blob storage REST API, we need Content-Length in the signature but not in headers
+            $contentLength = if ($Headers.ContainsKey('Content-Length')) { "$($Headers['Content-Length'])" } else { '0' }
             if ($Method -eq 'PUT' -and $contentLength -eq '0') { $contentLength = '' }
 
         $stringToSign = @(
                 $Method,
                 '', # Content-Encoding
                 '', # Content-Language
-                $contentLength,
+                $contentLengthStr,
                 '', # Content-MD5
                 '', # Content-Type
                 '', # Date
@@ -511,14 +526,13 @@ The system is now fully operational and ready for use!
             'x-ms-blob-type' = 'BlockBlob'
             'x-ms-date' = $xmsDate
             'x-ms-version' = $xmsVersion
-            'Content-Length' = $contentLength
         }
-        $authHeader = Get-StorageAuthorizationHeader -AccountName $StorageAccountName -AccountKey $storageKey -Method 'PUT' -ResourcePath $resourcePath -Headers $putHeaders
+        $authHeader = Get-StorageAuthorizationHeader -AccountName $StorageAccountName -AccountKey $storageKey -Method 'PUT' -ResourcePath $resourcePath -Headers $putHeaders -ContentLength $contentLength
         $headers = $putHeaders.Clone()
         $headers['Authorization'] = $authHeader
 
         try {
-            Invoke-RestMethod -Uri $blobUri -Method Put -Headers $headers -Body $fileBytes -ErrorAction Stop | Out-Null
+            Invoke-RestMethod -Uri $blobUri -Method Put -Headers $headers -Body $fileBytes -SkipHeaderValidation -ErrorAction Stop | Out-Null
             Write-Host "Sample document uploaded successfully as '$blobName'"
         } catch {
             Write-Host "Error uploading blob: $($_.Exception.Message)"

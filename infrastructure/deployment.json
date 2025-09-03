@@ -496,21 +496,6 @@
             }
         },
         {
-            "type": "Microsoft.Web/sites/sourcecontrols",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(variables('WebsiteName'), '/web')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
-            ],
-            "properties": {
-                "repoUrl": "https://github.com/Russ-Holloway/CoPPA.git",
-                "branch": "main",
-                "isManualIntegration": false,
-                "deploymentRollbackEnabled": true,
-                "isMercurial": false
-            }
-        },
-        {
             "condition": "[variables('CreateAzureAdAppRegistration')]",
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2022-09-01",
