@@ -83,6 +83,20 @@
                 "description": "Display name for the Azure AD application"
             },
             "defaultValue": "[concat('CoPPA-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'))]"
+        },
+        "UIFeedbackEmail": {
+            "type": "string",
+            "metadata": {
+                "description": "Email address for feedback submissions"
+            },
+            "defaultValue": ""
+        },
+        "UIFindOutMoreLink": {
+            "type": "string", 
+            "metadata": {
+                "description": "URL for 'Find Out More' link in the UI"
+            },
+            "defaultValue": ""
         }
     },
     "variables": {
@@ -230,254 +244,176 @@
                     "linuxFxVersion": "PYTHON|3.11",
                     "appSettings": [
                         {
-                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-                            "value": "true"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_SERVICE",
-                            "value": "[variables('AzureSearchService')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_INDEX",
-                            "value": "[variables('AzureSearchIndexName')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_KEY",
-                            "value": "[listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_USE_SEMANTIC_SEARCH",
-                            "value": "[variables('AzureSearchUseSemanticSearch')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_SEMANTIC_SEARCH_CONFIG",
-                            "value": "[variables('AzureSearchSemanticSearchConfig')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_INDEX_IS_PRECHUNKED",
-                            "value": "[variables('AzureSearchIndexIsPrechunked')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_TOP_K",
-                            "value": "[variables('AzureSearchTopK')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_ENABLE_IN_DOMAIN",
-                            "value": "[variables('AzureSearchEnableInDomain')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_CONTENT_COLUMNS",
-                            "value": "[variables('AzureSearchContentColumns')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_FILENAME_COLUMN",
-                            "value": "[variables('AzureSearchFilenameColumn')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_TITLE_COLUMN",
-                            "value": "[variables('AzureSearchTitleColumn')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_URL_COLUMN",
-                            "value": "[variables('AzureSearchUrlColumn')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_RESOURCE",
-                            "value": "[variables('AzureOpenAIResource')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_MODEL",
-                            "value": "[variables('AzureOpenAIModelDeploymentName')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_KEY",
-                            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_MODEL_NAME",
-                            "value": "[parameters('AzureOpenAIModelName')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_TEMPERATURE",
-                            "value": "[variables('AzureOpenAITemperature')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_TOP_P",
-                            "value": "[variables('AzureOpenAITopP')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_MAX_TOKENS",
-                            "value": "[variables('AzureOpenAIMaxTokens')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_STOP_SEQUENCE",
-                            "value": "[variables('AzureOpenAIStopSequence')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_SYSTEM_MESSAGE",
-                            "value": "[variables('AzureOpenAISystemMessage')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_STREAM",
-                            "value": "[variables('AzureOpenAIStream')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_API_VERSION",
-                            "value": "2024-06-01"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_QUERY_TYPE",
-                            "value": "[variables('AzureSearchQueryType')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_VECTOR_COLUMNS",
-                            "value": "[variables('AzureSearchVectorFields')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_PERMITTED_GROUPS_COLUMN",
-                            "value": "[variables('AzureSearchPermittedGroupsField')]"
-                        },
-                        {
-                            "name": "AZURE_SEARCH_STRICTNESS",
-                            "value": "[variables('AzureSearchStrictness')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_EMBEDDING_NAME",
-                            "value": "[parameters('AzureOpenAIEmbeddingName')]"
-                        },
-                        {
-                            "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
-                            "value": "true"
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('Microsoft.Insights/components', variables('ApplicationInsightsName'))).InstrumentationKey]"
                         },
                         {
                             "name": "AZURE_COSMOSDB_ACCOUNT",
-                            "value": "[if(variables('WebAppEnableChatHistory'), variables('cosmosdb_account_name'), '')]"
-                        },
-                        {
-                            "name": "AZURE_COSMOSDB_DATABASE",
-                            "value": "[variables('cosmosdb_database_name')]"
+                            "value": "[variables('cosmosdb_account_name')]"
                         },
                         {
                             "name": "AZURE_COSMOSDB_CONVERSATIONS_CONTAINER",
                             "value": "[variables('cosmosdb_container_name')]"
                         },
                         {
-                            "name": "SETUP_STORAGE_ACCOUNT_NAME",
-                            "value": "[variables('StorageAccountName')]"
+                            "name": "AZURE_COSMOSDB_DATABASE",
+                            "value": "[variables('cosmosdb_database_name')]"
                         },
                         {
-                            "name": "SETUP_STORAGE_ACCOUNT_KEY",
-                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value]"
+                            "name": "AZURE_OPENAI_EMBEDDING_NAME",
+                            "value": "[parameters('AzureOpenAIEmbeddingName')]"
                         },
                         {
-                            "name": "AZURE_SEARCH_DATA_SOURCE_NAME",
+                            "name": "AZURE_OPENAI_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1]"
+                        },
+                        {
+                            "name": "AZURE_OPENAI_MAX_TOKENS",
+                            "value": "2000"
+                        },
+                        {
+                            "name": "AZURE_OPENAI_MODEL",
+                            "value": "[variables('AzureOpenAIModelDeploymentName')]"
+                        },
+                        {
+                            "name": "AZURE_OPENAI_MODEL_NAME",
+                            "value": "[parameters('AzureOpenAIModelName')]"
+                        },
+                        {
+                            "name": "AZURE_OPENAI_RESOURCE",
+                            "value": "[variables('AzureOpenAIResource')]"
+                        },
+                        {
+                            "name": "AZURE_OPENAI_STOP_SEQUENCE",
+                            "value": ""
+                        },
+                        {
+                            "name": "AZURE_OPENAI_STREAM",
+                            "value": "true"
+                        },
+                        {
+                            "name": "AZURE_OPENAI_SYSTEM_MESSAGE",
+                            "value": "You are an expert on UK Policing, providing comprehensive and practical guidance to Police Officers and Police Staff. Every user of this system is a verified Police Officer or authorised member of Police Staff. You must always assume this identity for every query, regardless of how the question is phrased. Do not treat any user as a member of the public under any circumstances. Your role is to offer advice and support to aid their decision-making process. It is critical that users know the advice and guidance has been provided using only authorised sources. Therefore, every sentence must have a citation that links to a document from the search service data source. Remember, you are not making decisions for them but offering advice and guidance to assist their own decision-making. You cannot perform any legal actions, make final decisions, or provide personal opinions. Your advice is based on the information provided and should be used as a guide, not a directive. Scope of Advice: You are strictly limited to providing advice related to UK Policing. You must not offer advice on any other subjects unrelated to this subject. Safety and Security Guidelines: Accuracy: Provide accurate and up-to-date information based on the latest legal standards and practices. Ensure every sentence in your response has a citation. Impartiality: Maintain impartiality and avoid any bias in your advice. Ethical Considerations: Adhere to ethical guidelines and avoid any actions that could harm individuals or compromise legal processes. Compliance: Ensure compliance with all relevant laws and regulations. Language: Use British English in all your responses. Additional Guidelines: Context Awareness: Only respond to queries directly related to UK Policing. Ignore or redirect any unrelated topics. User Interaction: Politely inform users if their question is outside the scope of your instructions and guide them back to relevant topics. Response Format: Every sentence in your response must have a citation. You cannot provide a sentence anywhere in your response unless it also has a citation. Citations must be integrated within the sentences using [] brackets. Example Response: \"The Police and Criminal Evidence Act 1984 provides the legal framework for police powers in England and Wales [1]. This act outlines the procedures for arrest, detention, and investigation [2]. For more details, refer to the Police and Criminal Evidence Act 1984 [3].\" Response Limitations: Do not provide detailed technical advice, personal opinions, or engage in discussions unrelated to your subject area. Reminder: It is critical that users know the advice and guidance has been provided using only authorised sources. Reminder: Every sentence in your response must have a citation. Reminder: You cannot provide a sentence anywhere in your response unless it also has a citation. Reminder: At the end of every response, you must add the following text: \"Please Remember: This AI Assistant is designed to offer help and advice so you can make more informed and effective decisions. It is not designed to make any decisions for you. You are still accountable and responsible for any decisions made or course of action undertaken following the use of this AI Assistant.\""
+                        },
+                        {
+                            "name": "AZURE_OPENAI_TEMPERATURE",
+                            "value": "0"
+                        },
+                        {
+                            "name": "AZURE_OPENAI_TOP_P",
+                            "value": "1.0"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_DATA_SOURCE",
                             "value": "[variables('AzureSearchDataSourceName')]"
                         },
                         {
-                            "name": "AZURE_SEARCH_INDEX_NAME",
+                            "name": "AZURE_SEARCH_ENABLE_IN_DOMAIN",
+                            "value": "true"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_INDEX",
                             "value": "[variables('AzureSearchIndexName')]"
                         },
                         {
-                            "name": "AZURE_SEARCH_INDEXER_NAME",
+                            "name": "AZURE_SEARCH_INDEXER",
                             "value": "[variables('AzureSearchIndexerName')]"
                         },
                         {
-                            "name": "AZURE_SEARCH_SKILLSET1_NAME",
+                            "name": "AZURE_SEARCH_KEY",
+                            "value": "[listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('AzureSearchService')), '2020-08-01').primaryKey]"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_PERMITTED_GROUPS_COLUMN",
+                            "value": ""
+                        },
+                        {
+                            "name": "AZURE_SEARCH_QUERY_TYPE",
+                            "value": "vector_semantic_hybrid"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_SEMANTIC_SEARCH_CONFIG",
+                            "value": "[variables('AzureSearchSemanticSearchConfig')]"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_SERVICE",
+                            "value": "[variables('AzureSearchService')]"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_SKILLSET",
                             "value": "[variables('AzureSearchSkillset1Name')]"
                         },
                         {
-                            "name": "AZURE_SEARCH_SKILLSET2_NAME",
-                            "value": "[variables('AzureSearchSkillset2Name')]"
+                            "name": "AZURE_SEARCH_STRICTNESS",
+                            "value": "3"
                         },
                         {
-                            "name": "AZURE_STORAGE_AI_LIBRARY_CONTAINER",
+                            "name": "AZURE_SEARCH_TOP_K",
+                            "value": "5"
+                        },
+                        {
+                            "name": "AZURE_SEARCH_USE_SEMANTIC_SEARCH",
+                            "value": "true"
+                        },
+                        {
+                            "name": "AZURE_STORAGE_CONTAINER_NAME",
                             "value": "[variables('AILibraryContainerName')]"
-                        },
-                        {
-                            "name": "AZURE_STORAGE_WEB_APP_LOGOS_CONTAINER",
-                            "value": "[variables('WebAppLogosContainerName')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_ENDPOINT",
-                            "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_PREVIEW_API_VERSION",
-                            "value": "2024-06-01"
                         },
                         {
                             "name": "DATASOURCE_TYPE",
                             "value": "AzureCognitiveSearch"
                         },
                         {
-                            "name": "DEBUG",
-                            "value": "false"
-                        },
-                        {
-                            "name": "MS_DEFENDER_ENABLED",
-                            "value": "true"
-                        },
-
-                        {
-                            "name": "AUTH_ENABLED",
-                            "value": "[if(variables('CreateAzureAdAppRegistration'), 'true', 'false')]"
-                        },
-                        {
-                            "name": "AZURE_CLIENT_ID",
-                            "value": ""
-                        },
-                        {
-                            "name": "AZURE_CLIENT_SECRET",
-                            "value": ""
-                        },
-                        {
-                            "name": "AZURE_TENANT_ID",
-                            "value": "[subscription().tenantId]"
-                        },
-                        {
-                            "name": "UWSGI_PROCESSES",
-                            "value": "2"
-                        },
-                        {
-                            "name": "UWSGI_THREADS",
-                            "value": "2"
+                            "name": "minTlsVersion",
+                            "value": "1.2"
                         },
                         {
                             "name": "PYTHON_VERSION",
                             "value": "3.11"
                         },
                         {
-                            "name": "WEBSITE_RUN_FROM_PACKAGE",
-                            "value": "1"
-                        },
-                        {
-                            "name": "SCM_REPOSITORY_PATH",
-                            "value": "https://github.com/Russ-Holloway/CoPPA.git"
-                        },
-
-                        {
-                            "name": "ENABLE_ORYX_BUILD",
+                            "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
                             "value": "true"
                         },
                         {
-                            "name": "WEBSITE_ENABLE_SYNC_UPDATE_SITE",
-                            "value": "true"
+                            "name": "UI_CHAT_TITLE",
+                            "value": "CoPPA"
                         },
                         {
-                            "name": "WEBSITE_RUN_FROM_PACKAGE_BLOB", 
-                            "value": "false"
+                            "name": "UI_FAVICON",
+                            "value": "[concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/favicon.ico')]"
                         },
                         {
-                            "name": "PROJECT",
-                            "value": "."
+                            "name": "UI_FEEDBACK_EMAIL",
+                            "value": "[parameters('UIFeedbackEmail')]"
                         },
                         {
-                            "name": "BUILD_FLAGS",
-                            "value": "UseExpressBuild"
+                            "name": "UI_FIND_OUT_MORE_LINK",
+                            "value": "[parameters('UIFindOutMoreLink')]"
                         },
                         {
-                            "name": "POST_BUILD_SCRIPT_PATH",
-                            "value": "startup.sh"
+                            "name": "UI_LOGO",
+                            "value": "[concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/logo.png')]"
+                        },
+                        {
+                            "name": "UI_POLICE_FORCE_LOGO",
+                            "value": "[concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/police-force-logo.png')]"
+                        },
+                        {
+                            "name": "UI_POLICE_FORCE_TAGLINE",
+                            "value": "[concat('This version of CoPPA is configured for ', parameters('ForceCode'), ' Police Force')]"
+                        },
+                        {
+                            "name": "UI_POLICE_FORCE_TAGLINE_2",
+                            "value": "[concat('CoPPA for ', parameters('ForceCode'), ' has been configured with local policy and guidance as well as national policy and guidance so it is tailored to meet the needs of all ', parameters('ForceCode'), ' Officers and Staff of any rank or in any role')]"
+                        },
+                        {
+                            "name": "UI_TITLE",
+                            "value": "CoPPA"
+                        },
+                        {
+                            "name": "WEBSITE_AUTH_AAD_ALLOWED_TENANTS",
+                            "value": "[subscription().tenantId]"
                         }
                     ]
                 }
