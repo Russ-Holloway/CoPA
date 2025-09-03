@@ -220,6 +220,9 @@
                 "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]"
             ],
             "kind": "app,linux",
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
                 "siteConfig": {
@@ -630,7 +633,7 @@
             "name": "[format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleAssignmentId'))]",
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', split(format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleDefinitionId')), '/')[0], split(format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleDefinitionId')), '/')[1])]",
-                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName'))).identity.principalId]",
                 "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name'))]"
             },
             "dependsOn": [
@@ -789,7 +792,7 @@
                             "name": "[concat(variables('StorageAccountName'), '/Microsoft.Authorization/', variables('storageRoleAssignmentId'))]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
-                                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2021-02-01', 'Full').identity.principalId]",
+                                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName'))).identity.principalId]",
                                 "principalType": "ServicePrincipal"
                             }
                         }
