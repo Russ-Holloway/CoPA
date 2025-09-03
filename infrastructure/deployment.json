@@ -212,7 +212,7 @@
             }
         },
         {
-            "apiVersion": "2020-06-01",
+            "apiVersion": "2022-03-01",
             "name": "[variables('WebsiteName')]",
             "type": "Microsoft.Web/sites",
             "location": "[resourceGroup().location]",
@@ -221,13 +221,16 @@
                 "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
                 "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
+                "[resourceId('Microsoft.Resources/deploymentScripts', 'setupSearchComponents')]"
             ],
+            "kind": "app,linux",
             "identity": {
                 "type": "SystemAssigned"
             },
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
+                "httpsOnly": true,
                 "siteConfig": {
                     "appSettings": [
                         {
@@ -856,7 +859,57 @@
             },
             "properties": {
                 "azPowerShellVersion": "8.3",
-                "scriptContent": "[concat('Invoke-WebRequest -Uri ''https://stbtpcoppatestdeployment.blob.core.windows.net/deployment/setup_search_components.ps1'' -OutFile ''setup_search_components.ps1''; & ./setup_search_components.ps1 -SearchServiceName ''', variables('AzureSearchService'), ''' -SearchIndexName ''', variables('AzureSearchIndexName'), ''' -SearchIndexerName ''', variables('AzureSearchIndexerName'), ''' -SearchDataSourceName ''', variables('AzureSearchDataSourceName'), ''' -StorageAccountName ''', variables('StorageAccountName'), ''' -StorageContainerName ''', variables('StorageContainerName'), ''' -ResourceGroupName ''', resourceGroup().name, ''' -AzureOpenAIEndpoint ''', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, ''' -AzureOpenAIApiKey ''', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, ''' -EmbeddingDeploymentName ''', parameters('AzureOpenAIEmbeddingName'), ''' -SkillsetName ''', variables('AzureSearchSkillset1Name'), ''' -SubscriptionId ''', subscription().subscriptionId, '''')]",
+                "scriptContent": "$ErrorActionPreference = \"Stop\"\n\n# Get parameters from environment variables\n$SearchServiceName = $env:AZURE_SEARCH_SERVICE\n$SearchIndexName = $env:AZURE_SEARCH_INDEX_NAME\n$SearchIndexerName = $env:AZURE_SEARCH_INDEXER_NAME\n$SearchDataSourceName = $env:AZURE_SEARCH_DATA_SOURCE_NAME\n$StorageAccountName = $env:STORAGE_ACCOUNT_NAME\n$StorageContainerName = $env:STORAGE_CONTAINER_NAME\n$ResourceGroupName = $env:RESOURCE_GROUP_NAME\n$AzureOpenAIEndpoint = $env:AZURE_OPENAI_ENDPOINT\n$AzureOpenAIApiKey = $env:AZURE_OPENAI_KEY\n$EmbeddingDeploymentName = $env:EMBEDDING_DEPLOYMENT_NAME\n$SkillsetName = $env:SKILLSET_NAME\n\nWrite-Host \"=== SCRIPT PARAMETERS ===\"\nWrite-Host \"SearchServiceName: $SearchServiceName\"\nWrite-Host \"ResourceGroupName: $ResourceGroupName\"\nWrite-Host \"StorageAccountName: $StorageAccountName\"\nWrite-Host \"===========================\"\n\n# Get token for REST API calls\n$tokenResponse = Invoke-RestMethod -Uri \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/\" -Method Get -Headers @{Metadata=\"true\"} -ErrorAction Stop\n$accessToken = $tokenResponse.access_token\n$authHeaders = @{\n    'Authorization' = \"Bearer $accessToken\"\n    'Content-Type' = 'application/json'\n}\n\n# Get admin keys\n$searchServiceUri = \"https://management.azure.com/subscriptions/$($env:SUBSCRIPTION_ID)/resourceGroups/$ResourceGroupName/providers/Microsoft.Search/searchServices/$SearchServiceName\"\ntry {\n    $adminKeyResponse = Invoke-RestMethod -Uri \"$searchServiceUri/listAdminKeys?api-version=2023-11-01\" -Method Post -Headers $authHeaders -ErrorAction Stop\n    $adminKey = $adminKeyResponse.primaryKey\n} catch {\n    throw \"Failed to get admin key: $_\"\n}\n\n# Get storage account key\n$storageAccountUri = \"https://management.azure.com/subscriptions/$($env:SUBSCRIPTION_ID)/resourceGroups/$ResourceGroupName/providers/Microsoft.Storage/storageAccounts/$StorageAccountName\"\ntry {\n    $storageKeysResponse = Invoke-RestMethod -Uri \"$storageAccountUri/listKeys?api-version=2023-01-01\" -Method Post -Headers $authHeaders -ErrorAction Stop\n    $storageKey = $storageKeysResponse.keys[0].value\n} catch {\n    throw \"Failed to get storage key: $_\"\n}\n\n# Create data source\nWrite-Host \"Creating data source...\"\n$dataSourceDefinition = @{\n    name = $SearchDataSourceName\n    type = 'azureblob'\n    credentials = @{\n        connectionString = \"DefaultEndpointsProtocol=https;AccountName=$StorageAccountName;AccountKey=$storageKey;EndpointSuffix=core.windows.net\"\n    }\n    container = @{\n        name = $StorageContainerName\n    }\n}\n$dataSourcePayload = $dataSourceDefinition | ConvertTo-Json -Depth 5\n$dataSourceHeaders = @{\n    'api-key' = $adminKey\n    'Content-Type' = 'application/json'\n}\nInvoke-RestMethod -Uri \"https://$SearchServiceName.search.windows.net/datasources/$SearchDataSourceName`?api-version=2024-07-01\" -Method Put -Headers $dataSourceHeaders -Body $dataSourcePayload -SkipHeaderValidation\n\n# Success message\nWrite-Host \"Search components setup completed successfully.\"\n",
+                "environmentVariables": [
+                    {
+                        "name": "AZURE_SEARCH_SERVICE",
+                        "value": "[variables('AzureSearchService')]"
+                    },
+                    {
+                        "name": "AZURE_SEARCH_INDEX_NAME", 
+                        "value": "[variables('AzureSearchIndexName')]"
+                    },
+                    {
+                        "name": "AZURE_SEARCH_INDEXER_NAME",
+                        "value": "[variables('AzureSearchIndexerName')]"
+                    },
+                    {
+                        "name": "AZURE_SEARCH_DATA_SOURCE_NAME",
+                        "value": "[variables('AzureSearchDataSourceName')]"
+                    },
+                    {
+                        "name": "STORAGE_ACCOUNT_NAME",
+                        "value": "[variables('StorageAccountName')]"
+                    },
+                    {
+                        "name": "STORAGE_CONTAINER_NAME",
+                        "value": "[variables('StorageContainerName')]"
+                    },
+                    {
+                        "name": "RESOURCE_GROUP_NAME",
+                        "value": "[resourceGroup().name]"
+                    },
+                    {
+                        "name": "AZURE_OPENAI_ENDPOINT",
+                        "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint]"
+                    },
+                    {
+                        "name": "AZURE_OPENAI_KEY",
+                        "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1]"
+                    },
+                    {
+                        "name": "EMBEDDING_DEPLOYMENT_NAME",
+                        "value": "[parameters('AzureOpenAIEmbeddingName')]"
+                    },
+                    {
+                        "name": "SKILLSET_NAME",
+                        "value": "[variables('AzureSearchSkillset1Name')]"
+                    },
+                    {
+                        "name": "SUBSCRIPTION_ID",
+                        "value": "[subscription().subscriptionId]"
+                    }
+                ],
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D",
