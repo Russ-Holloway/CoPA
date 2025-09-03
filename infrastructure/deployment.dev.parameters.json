@@ -1,0 +1,87 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ForceCode": {
+            "value": "btp"
+        },
+        "EnvironmentSuffix": {
+            "value": "dev"
+        },
+        "InstanceNumber": {
+            "value": "01"
+        },
+        "ResourceGroupName": {
+            "value": "rg-btp-uks-dev-ai-coppa-test"
+        },
+        "AzureOpenAIModelName": {
+            "value": "gpt-4o"
+        },
+        "AzureOpenAIEmbeddingName": {
+            "value": "text-embedding-3-small"
+        },
+        "SearchDataSourceName": {
+            "value": "btp-search-ds-dev-01"
+        },
+        "SearchIndexName": {
+            "value": "btp-search-idx-dev-01"
+        },
+        "SearchIndexerName": {
+            "value": "btp-search-idxr-dev-01"
+        },
+        "CreateAzureAdAppRegistration": {
+            "value": true
+        },
+        "AzureAdAppDisplayName": {
+            "value": "CoPPA-btp-dev"
+        },
+        "webAppName": {
+            "value": "app-uks-dev-ai-coppa-test"
+        },
+        "storageAccountName": {
+            "value": "stouksdevaicoppatest"
+        },
+        "searchServiceName": {
+            "value": "srch-uks-dev-ai-coppa-test"
+        },
+        "openAiServiceName": {
+            "value": "oai-uks-dev-ai-coppa-test"
+        },
+        "openAiSkuName": {
+            "value": "S0"
+        },
+        "chatGptDeploymentName": {
+            "value": "chat-gpt-35-turbo-dev"
+        },
+        "chatGptModelName": {
+            "value": "gpt-35-turbo"
+        },
+        "embeddingDeploymentName": {
+            "value": "text-embedding-ada-002-dev"
+        },
+        "embeddingModelName": {
+            "value": "text-embedding-ada-002"
+        },
+        "documentIntelligenceServiceName": {
+            "value": "di-uks-dev-ai-coppa-test"
+        },
+        "documentIntelligenceSkuName": {
+            "value": "S0"
+        },
+        "storageContainerName": {
+            "value": "docs"
+        },
+        "AILibraryContainerName": {
+            "value": "ai-library"
+        },
+        "WebAppLogosContainerName": {
+            "value": "web-app-logos"
+        },
+        "location": {
+            "value": "uksouth"
+        },
+        "openAiResourceGroupName": {
+            "value": "rg-btp-uks-dev-ai-coppa-test"
+        }
+    }
+}
