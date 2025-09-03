@@ -675,7 +675,7 @@
                         "value": "[variables('cosmosdb_account_name')]"
                     },
                     "principalId": {
-                        "value": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2022-09-01').identity.principalId]"
+                        "value": "00000000-0000-0000-0000-000000000000"
                     },
                     "roleDefinitionId": {
                         "value": "[variables('roleDefinitionId')]"
@@ -863,7 +863,7 @@
                         "value": "[variables('StorageAccountName')]"
                     },
                     "principalId": {
-                        "value": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2022-09-01').identity.principalId]"
+                        "value": "00000000-0000-0000-0000-000000000000"
                     },
                     "roleAssignmentId": {
                         "value": "[variables('storageRoleAssignmentId')]"
