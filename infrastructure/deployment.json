@@ -86,8 +86,8 @@
         }
     },
     "variables": {
-        "deploymentTime": "[utcNow()]",
-        "randomSuffix": "[substring(uniqueString(resourceGroup().id, variables('deploymentTime'), parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber')), 0, 6)]",
+        "guidValue": "[guid(resourceGroup().id, deployment().name)]",
+        "randomSuffix": "[substring(uniqueString(resourceGroup().id, variables('guidValue'), parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber')), 0, 6)]",
         "HostingPlanName": "[concat('asp-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
         "HostingPlanSku": "B3",
         "WebsiteName": "[concat('app-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
