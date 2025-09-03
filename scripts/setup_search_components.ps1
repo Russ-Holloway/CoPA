@@ -106,7 +106,11 @@ try {
         }
         throw
     }
-    $adminKey = ($adminKeyResponse.Content | ConvertFrom-Json).primaryKey
+    # Invoke-RestMethod already returns a parsed object; prefer direct property access
+    $adminKey = $adminKeyResponse.primaryKey
+    if (-not $adminKey -and $adminKeyResponse.Content) {
+        $adminKey = ($adminKeyResponse.Content | ConvertFrom-Json).primaryKey
+    }
    
     if (-not $adminKey) {
         throw "Failed to retrieve admin key for search service '$SearchServiceName'."
@@ -453,13 +457,74 @@ The system is now fully operational and ready for use!
     $sampleDocument | Out-File -FilePath $tempFile -Encoding UTF8
     
     try {
-        # Create storage context
-        $storageContext = New-AzStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $storageKey
-        
-        # Upload the sample document
+        # Upload the sample document via Storage REST API to avoid Az.* module dependencies
         $blobName = "sample-ai-search-document.md"
-        Set-AzStorageBlobContent -File $tempFile -Container $StorageContainerName -Blob $blobName -Context $storageContext -Force
-        Write-Host "Sample document uploaded successfully as '$blobName'"
+        Write-Host "Uploading blob '$blobName' to container '$StorageContainerName' using REST..."
+
+        function Get-StorageAuthorizationHeader {
+            param(
+                [string]$AccountName,
+                [string]$AccountKey,
+                [string]$Method,
+                [string]$ResourcePath, # e.g., "/$StorageContainerName/$blobName"
+                [hashtable]$Headers
+            )
+            $xmsHeaders = $Headers.Keys | Where-Object { $_ -match '^x-ms-' } | Sort-Object
+            $canonicalizedHeaders = ($xmsHeaders | ForEach-Object { "$_:" + $Headers[$_] }) -join "`n"
+            $canonicalizedResource = "/$AccountName$ResourcePath"
+
+            $contentLength = "$($Headers['Content-Length'])"
+            if ($Method -eq 'PUT' -and $contentLength -eq '0') { $contentLength = '' }
+
+            $stringToSign = @(
+                $Method,
+                '', # Content-Encoding
+                '', # Content-Language
+                $contentLength,
+                '', # Content-MD5
+                '', # Content-Type
+                '', # Date
+                '', # If-Modified-Since
+                '', # If-Match
+                '', # If-None-Match
+                '', # If-Unmodified-Since
+                '', # Range
+                $canonicalizedHeaders,
+                $canonicalizedResource
+            ) -join "`n"
+
+            $hmacKey = [Convert]::FromBase64String($AccountKey)
+            $hmac = New-Object System.Security.Cryptography.HMACSHA256
+            $hmac.Key = $hmacKey
+            $signatureBytes = $hmac.ComputeHash([Text.Encoding]::UTF8.GetBytes($stringToSign))
+            $signature = [Convert]::ToBase64String($signatureBytes)
+            return "SharedKey $AccountName:$signature"
+        }
+
+        $fileBytes = [System.IO.File]::ReadAllBytes($tempFile)
+        $contentLength = $fileBytes.Length
+        $xmsDate = [DateTime]::UtcNow.ToString('R')
+        $xmsVersion = '2020-10-02'
+        $resourcePath = "/$StorageContainerName/$blobName"
+        $blobUri = "https://$StorageAccountName.blob.core.windows.net$resourcePath"
+        $putHeaders = @{
+            'x-ms-blob-type' = 'BlockBlob'
+            'x-ms-date' = $xmsDate
+            'x-ms-version' = $xmsVersion
+            'Content-Length' = $contentLength
+        }
+        $authHeader = Get-StorageAuthorizationHeader -AccountName $StorageAccountName -AccountKey $storageKey -Method 'PUT' -ResourcePath $resourcePath -Headers $putHeaders
+        $headers = $putHeaders.Clone()
+        $headers['Authorization'] = $authHeader
+
+        try {
+            Invoke-RestMethod -Uri $blobUri -Method Put -Headers $headers -Body $fileBytes -ErrorAction Stop | Out-Null
+            Write-Host "Sample document uploaded successfully as '$blobName'"
+        } catch {
+            Write-Host "Error uploading blob: $($_.Exception.Message)"
+            if ($_.Exception.Response) { $err = $_.Exception.Response.Content.ReadAsStringAsync().Result; Write-Host "Error response: $err" }
+            throw
+        }
         
         # Trigger indexer to process the sample document
         Write-Host "Triggering indexer to process the sample document..."
