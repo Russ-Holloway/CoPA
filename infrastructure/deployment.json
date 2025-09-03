@@ -102,8 +102,6 @@
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
-        "roleAssignmentId": "00000000-0000-0000-0000-000000000003",
-        "storageRoleAssignmentId": "00000000-0000-0000-0000-000000000004",
         "deployScriptIdentityName": "[concat('id-', parameters('ForceCode'), '-deploy-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
         "AzureOpenAIEmbeddingName": "[parameters('AzureOpenAIEmbeddingName')]",
         "AzureSearchDataSourceName": "[parameters('SearchDataSourceName')]",
@@ -633,7 +631,7 @@
             "condition": "[variables('WebAppEnableChatHistory')]",
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
             "apiVersion": "2021-04-15",
-            "name": "[format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleAssignmentId'))]",
+            "name": "[format('{0}/{1}', variables('cosmosdb_account_name'), guid(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name')), resourceId('Microsoft.Web/sites', variables('WebsiteName'))))]",
             "dependsOn": [
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name'))]",
                 "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
@@ -780,7 +778,7 @@
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2022-04-01",
             "scope": "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]",
-            "name": "[variables('storageRoleAssignmentId')]",
+            "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), resourceId('Microsoft.Web/sites', variables('WebsiteName')), 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]",
                 "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
