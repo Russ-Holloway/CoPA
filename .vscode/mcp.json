@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "azure-arm-helper": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/workspaces/CoPPA/mcp-servers/azure-arm-helper/build/index.js"
+      ]
+    }
+  }
+}
