@@ -470,13 +470,13 @@ The system is now fully operational and ready for use!
                 [hashtable]$Headers
             )
             $xmsHeaders = $Headers.Keys | Where-Object { $_ -match '^x-ms-' } | Sort-Object
-            $canonicalizedHeaders = ($xmsHeaders | ForEach-Object { "$_:" + $Headers[$_] }) -join "`n"
+            $canonicalizedHeaders = ($xmsHeaders | ForEach-Object { "$($_):$($Headers[$_])" }) -join "`n"
             $canonicalizedResource = "/$AccountName$ResourcePath"
 
             $contentLength = "$($Headers['Content-Length'])"
             if ($Method -eq 'PUT' -and $contentLength -eq '0') { $contentLength = '' }
 
-            $stringToSign = @(
+        $stringToSign = @(
                 $Method,
                 '', # Content-Encoding
                 '', # Content-Language
@@ -498,7 +498,7 @@ The system is now fully operational and ready for use!
             $hmac.Key = $hmacKey
             $signatureBytes = $hmac.ComputeHash([Text.Encoding]::UTF8.GetBytes($stringToSign))
             $signature = [Convert]::ToBase64String($signatureBytes)
-            return "SharedKey $AccountName:$signature"
+        return ("SharedKey {0}:{1}" -f $AccountName, $signature)
         }
 
         $fileBytes = [System.IO.File]::ReadAllBytes($tempFile)
