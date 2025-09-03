@@ -640,7 +640,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', split(format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleDefinitionId')), '/')[0], split(format('{0}/{1}', variables('cosmosdb_account_name'), variables('roleDefinitionId')), '/')[1])]",
-                "principalId": "[reference(variables('WebsiteName')).identity.principalId]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2022-09-01', 'full').identity.principalId]",
                 "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name'))]"
             }
         },
@@ -787,7 +787,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
-                "principalId": "[reference(variables('WebsiteName')).identity.principalId]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2022-09-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal"
             }
         },
