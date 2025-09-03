@@ -639,8 +639,35 @@
             ],
             "properties": {
                 "mode": "Incremental",
-                "templateLink": {
-                    "relativePath": "../temp/simpleCosmosPermissions.json"
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "cosmosDbAccountName": {
+                            "type": "string"
+                        },
+                        "principalId": {
+                            "type": "string"
+                        },
+                        "roleDefinitionId": {
+                            "type": "string"
+                        },
+                        "roleAssignmentId": {
+                            "type": "string"
+                        }
+                    },
+                    "resources": [
+                        {
+                            "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
+                            "apiVersion": "2021-04-15",
+                            "name": "[concat(parameters('cosmosDbAccountName'), '/', parameters('roleAssignmentId'))]",
+                            "properties": {
+                                "roleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', parameters('cosmosDbAccountName'), parameters('roleDefinitionId'))]",
+                                "principalId": "[parameters('principalId')]",
+                                "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]"
+                            }
+                        }
+                    ]
                 },
                 "parameters": {
                     "cosmosDbAccountName": {
@@ -800,8 +827,35 @@
             ],
             "properties": {
                 "mode": "Incremental",
-                "templateLink": {
-                    "relativePath": "../temp/simpleStoragePermissions.json"
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "storageAccountName": {
+                            "type": "string"
+                        },
+                        "principalId": {
+                            "type": "string"
+                        },
+                        "roleAssignmentId": {
+                            "type": "string"
+                        }
+                    },
+                    "variables": {
+                        "StorageBlobDataContributor": "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+                    },
+                    "resources": [
+                        {
+                            "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
+                            "apiVersion": "2022-04-01",
+                            "name": "[concat(parameters('storageAccountName'), '/Microsoft.Authorization/', parameters('roleAssignmentId'))]",
+                            "properties": {
+                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', variables('StorageBlobDataContributor'))]",
+                                "principalId": "[parameters('principalId')]",
+                                "principalType": "ServicePrincipal"
+                            }
+                        }
+                    ]
                 },
                 "parameters": {
                     "storageAccountName": {
