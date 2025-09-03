@@ -86,7 +86,8 @@
         }
     },
     "variables": {
-        "randomSuffix": "[substring(uniqueString(resourceGroup().id, resourceGroup().name, deployment().name, parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber')), 0, 3)]",
+        "resourceGroupHash": "[substring(uniqueString(resourceGroup().name), 0, 8)]",
+        "randomSuffix": "[substring(uniqueString(resourceGroup().id, deployment().name, parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), variables('resourceGroupHash')), 0, 5)]",
         "HostingPlanName": "[concat('asp-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
         "HostingPlanSku": "B3",
         "WebsiteName": "[concat('app-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
@@ -974,6 +975,18 @@
         "webAppPrincipalId": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2022-09-01', 'full').identity.principalId]"
+        },
+        "debugInfo": {
+            "type": "object",
+            "value": {
+                "forceCode": "[parameters('ForceCode')]",
+                "environmentSuffix": "[parameters('EnvironmentSuffix')]",
+                "instanceNumber": "[parameters('InstanceNumber')]",
+                "randomSuffix": "[variables('randomSuffix')]",
+                "searchServiceName": "[variables('AzureSearchService')]",
+                "openAIResourceName": "[variables('AzureOpenAIResource')]",
+                "storageAccountName": "[variables('StorageAccountName')]"
+            }
         }
     }
 }
