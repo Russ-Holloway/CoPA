@@ -98,6 +98,8 @@
         "AzureSearchSku": "standard",
         "StorageAccountName": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), variables('randomSuffix'))]",
         "StorageContainerName": "docs",
+        "AILibraryContainerName": "ai-library",
+        "WebAppLogosContainerName": "web-app-logos",
         "cosmosdb_account_name": "[concat('db-app-', parameters('ForceCode'), '-coppa-', variables('randomSuffix'))]",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
@@ -391,6 +393,14 @@
                         {
                             "name": "AZURE_STORAGE_CONTAINER_NAME",
                             "value": "[variables('StorageContainerName')]"
+                        },
+                        {
+                            "name": "AZURE_STORAGE_AI_LIBRARY_CONTAINER",
+                            "value": "[variables('AILibraryContainerName')]"
+                        },
+                        {
+                            "name": "AZURE_STORAGE_WEB_APP_LOGOS_CONTAINER",
+                            "value": "[variables('WebAppLogosContainerName')]"
                         },
                         {
                             "name": "AZURE_OPENAI_ENDPOINT",
@@ -765,13 +775,25 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2021-04-01",
-            "name": "[concat(variables('StorageAccountName'), '/default/', variables('StorageContainerName'))]",
+            "name": "[concat(variables('StorageAccountName'), '/default/', variables('AILibraryContainerName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('StorageAccountName'), 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "properties": {
-                "publicAccess": "Blob"
+                "publicAccess": "Container"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('StorageAccountName'), '/default/', variables('WebAppLogosContainerName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('StorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "Container"
             }
         },
         {
