@@ -17,7 +17,7 @@
                 "description": "Environment suffix (fixed to production)"
             },
             "defaultValue": "prod",
-            "allowedValues": ["prod"]
+            "allowedValues": ["prod", "dev", "test"]
         },
         "InstanceNumber": {
             "type": "string",
@@ -185,9 +185,9 @@
             },
             "kind": "AzurePowerShell",
             "properties": {
-                "azPowerShellVersion": "9.0",
-                "scriptContent": "param([string]$AppDisplayName,[string]$WebAppUrl,[int]$ClientSecretExpirationMonths)\nWrite-Output \"Starting Azure AD App Registration setup...\"\nWrite-Output \"App Display Name: $AppDisplayName\"\nWrite-Output \"Web App URL: $WebAppUrl\"\nWrite-Output \"Client Secret Expiration: $ClientSecretExpirationMonths months\"\n\n# Install required modules\nInstall-Module -Name Az.Accounts -Force -AllowClobber -Scope CurrentUser\nInstall-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser\nConnect-AzAccount -Identity\nWrite-Output \"Successfully connected to Azure using managed identity\"\n\n# Get context information\n$context = Get-AzContext\n$tenantId = $context.Tenant.Id\n$subscriptionId = $context.Subscription.Id\n\nWrite-Output \"Tenant ID: $tenantId\"\nWrite-Output \"Subscription ID: $subscriptionId\"\n\n# Instead of trying to create the app automatically (which requires special permissions),\n# provide clear instructions for manual setup\n\n$instructions = @\"\n\n🔧 AZURE AD SETUP REQUIRED\n\nYour deployment is complete, but Azure AD app registration requires manual setup due to security permissions.\n\nPLEASE COMPLETE THESE STEPS:\n\n1. Go to Azure Portal > Azure Active Directory > App registrations\n2. Click 'New registration'\n3. Name: $AppDisplayName\n4. Supported account types: Accounts in this organizational directory only\n5. Redirect URI: Web > $WebAppUrl/.auth/login/aad/callback\n6. Click 'Register'\n\n7. In the app registration:\n   - Note the Application (client) ID\n   - Go to 'Certificates & secrets' > 'New client secret'\n   - Description: 'CoPPA Deployment Secret'\n   - Expires: $ClientSecretExpirationMonths months\n   - Click 'Add' and COPY THE SECRET VALUE\n\n8. Go to 'Authentication':\n   - Add redirect URI: $WebAppUrl/redirect\n   - Logout URL: $WebAppUrl/.auth/logout\n   - Enable 'ID tokens' under Implicit grant\n\n9. Update your app configuration with:\n   - AZURE_CLIENT_ID: [Application ID from step 7]\n   - AZURE_CLIENT_SECRET: [Secret value from step 7]\n   - AZURE_TENANT_ID: $tenantId\n\nThis manual setup ensures proper security permissions are granted by an administrator.\n\n\"@\n\nWrite-Output $instructions\n\n# Set outputs for manual reference\n$DeploymentScriptOutputs = @{}\n$DeploymentScriptOutputs['TenantId'] = $tenantId\n$DeploymentScriptOutputs['SubscriptionId'] = $subscriptionId\n$DeploymentScriptOutputs['Instructions'] = $instructions\n$DeploymentScriptOutputs['RequiredAppName'] = $AppDisplayName\n$DeploymentScriptOutputs['RequiredRedirectUri'] = \"$WebAppUrl/.auth/login/aad/callback\"\n$DeploymentScriptOutputs['RequiredLogoutUrl'] = \"$WebAppUrl/.auth/logout\"\n\nWrite-Output \"Azure AD setup instructions provided. Manual configuration required.\"",
-                "arguments": "[concat('-AppDisplayName \"', variables('AzureAdAppDisplayName'), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\" -ClientSecretExpirationMonths 24')]",
+                "azPowerShellVersion": "8.3",
+                "scriptContent": "param([string]$AppDisplayName,[string]$WebAppUrl,[int]$ClientSecretExpirationMonths,[string]$TenantId,[string]$SubscriptionId)\nWrite-Output \"Starting Azure AD App Registration setup...\"\nWrite-Output \"App Display Name: $AppDisplayName\"\nWrite-Output \"Web App URL: $WebAppUrl\"\nWrite-Output \"Client Secret Expiration: $ClientSecretExpirationMonths months\"\nWrite-Output \"Tenant ID: $TenantId\"\nWrite-Output \"Subscription ID: $SubscriptionId\"\n\n# Provide clear instructions for manual setup (no Az modules to avoid environment conflicts)\n$instructions = @\"\n\nAZURE AD SETUP REQUIRED\n\nYour deployment is complete, but Azure AD app registration requires manual setup due to security permissions.\n\nPLEASE COMPLETE THESE STEPS:\n\n1. Go to Azure Portal > Azure Active Directory > App registrations\n2. Click 'New registration'\n3. Name: $AppDisplayName\n4. Supported account types: Accounts in this organizational directory only\n5. Redirect URI: Web > $WebAppUrl/.auth/login/aad/callback\n6. Click 'Register'\n\n7. In the app registration:\n   - Note the Application (client) ID\n   - Go to 'Certificates & secrets' > 'New client secret'\n   - Description: 'CoPPA Deployment Secret'\n   - Expires: $ClientSecretExpirationMonths months\n   - Click 'Add' and COPY THE SECRET VALUE\n\n8. Go to 'Authentication':\n   - Add redirect URI: $WebAppUrl/redirect\n   - Logout URL: $WebAppUrl/.auth/logout\n   - Enable 'ID tokens' under Implicit grant\n\n9. Update your app configuration with:\n   - AZURE_CLIENT_ID: [Application ID from step 7]\n   - AZURE_CLIENT_SECRET: [Secret value from step 7]\n   - AZURE_TENANT_ID: $TenantId\n\nThis manual setup ensures proper security permissions are granted by an administrator.\n\n\"@\n\nWrite-Output $instructions\n\n# Set outputs for manual reference\n$DeploymentScriptOutputs = @{}\n$DeploymentScriptOutputs['TenantId'] = $TenantId\n$DeploymentScriptOutputs['SubscriptionId'] = $SubscriptionId\n$DeploymentScriptOutputs['Instructions'] = $instructions\n$DeploymentScriptOutputs['RequiredAppName'] = $AppDisplayName\n$DeploymentScriptOutputs['RequiredRedirectUri'] = \"$WebAppUrl/.auth/login/aad/callback\"\n$DeploymentScriptOutputs['RequiredLogoutUrl'] = \"$WebAppUrl/.auth/logout\"\n\nWrite-Output \"Azure AD setup instructions provided. Manual configuration required.\"",
+                "arguments": "[concat('-AppDisplayName \"', variables('AzureAdAppDisplayName'), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\" -ClientSecretExpirationMonths 24 -TenantId \"', subscription().tenantId, '\" -SubscriptionId \"', subscription().subscriptionId, '\"')]",
                 "supportingScriptUris": [],
                 "storageAccountSettings": {
                     "storageAccountName": "[variables('deploymentScriptStorageAccountName')]",
@@ -216,10 +216,23 @@
             "kind": "linux"
         },
         {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, variables('deployScriptIdentityName'), 'rg-contributor')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'managedIdentityDeployment')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName')), '2018-11-30').principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
             "apiVersion": "2020-06-01",
             "name": "[variables('WebsiteName')]",
             "type": "Microsoft.Web/sites",
-            "location": "uksouth",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
                 "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
@@ -703,7 +716,7 @@
             "type": "Microsoft.CognitiveServices/accounts",
             "apiVersion": "2023-05-01",
             "name": "[variables('AzureOpenAIResource')]",
-            "location": "uksouth",
+            "location": "[resourceGroup().location]",
             "kind": "OpenAI",
             "properties": {
                 "customSubDomainName": "[variables('AzureOpenAIResource')]",
@@ -872,7 +885,8 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
-                "[resourceId('Microsoft.Resources/deployments', 'managedIdentityDeployment')]"
+                "[resourceId('Microsoft.Resources/deployments', 'managedIdentityDeployment')]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, variables('deployScriptIdentityName'), 'rg-contributor'))]"
             ],
             "kind": "AzurePowerShell",
             "identity": {
@@ -886,11 +900,7 @@
                 "scriptContent": "[concat('Invoke-WebRequest -Uri ''https://stbtpcoppatestdeployment.blob.core.windows.net/deployment/setup_search_components.ps1'' -OutFile ''setup_search_components.ps1''; & ./setup_search_components.ps1 -SearchServiceName ''', variables('AzureSearchService'), ''' -SearchIndexName ''', variables('AzureSearchIndexName'), ''' -SearchIndexerName ''', variables('AzureSearchIndexerName'), ''' -SearchDataSourceName ''', variables('AzureSearchDataSourceName'), ''' -StorageAccountName ''', variables('StorageAccountName'), ''' -StorageContainerName ''', variables('StorageContainerName'), ''' -ResourceGroupName ''', resourceGroup().name, ''' -AzureOpenAIEndpoint ''', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, ''' -AzureOpenAIApiKey ''', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, ''' -EmbeddingDeploymentName ''', parameters('AzureOpenAIEmbeddingName'), ''' -SkillsetName ''', variables('AzureSearchSkillset1Name'), ''' -SubscriptionId ''', subscription().subscriptionId, '''')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D",
-                "storageAccountSettings": {
-                    "storageAccountName": "[variables('deploymentScriptStorageAccountName')]",
-                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentScriptStorageAccountName')), '2022-09-01').keys[0].value]"
-                }
+                "retentionInterval": "P1D"
             }
         }
     ]
