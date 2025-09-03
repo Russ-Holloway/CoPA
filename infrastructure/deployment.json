@@ -149,24 +149,7 @@
                 "displayName": "Deployment Script Identity for Azure AD App Registration"
             }
         },
-        {
-            "condition": "[variables('CreateAzureAdAppRegistration')]",
-            "apiVersion": "2022-09-01",
-            "name": "[variables('deploymentScriptStorageAccountName')]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "Standard_LRS"
-            },
-            "kind": "StorageV2",
-            "properties": {
-                "supportsHttpsTrafficOnly": true,
-                "minimumTlsVersion": "TLS1_2"
-            },
-            "tags": {
-                "displayName": "Storage Account for Deployment Scripts"
-            }
-        },
+        
         {
             "condition": "[variables('CreateAzureAdAppRegistration')]",
             "apiVersion": "2020-10-01",
@@ -175,7 +158,7 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('deploymentScriptStorageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "identity": {
                 "type": "UserAssigned",
@@ -190,8 +173,8 @@
                 "arguments": "[concat('-AppDisplayName \"', variables('AzureAdAppDisplayName'), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\" -ClientSecretExpirationMonths 24 -TenantId \"', subscription().tenantId, '\" -SubscriptionId \"', subscription().subscriptionId, '\"')]",
                 "supportingScriptUris": [],
                 "storageAccountSettings": {
-                    "storageAccountName": "[variables('deploymentScriptStorageAccountName')]",
-                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentScriptStorageAccountName')), '2022-09-01').keys[0].value]"
+                    "storageAccountName": "[variables('StorageAccountName')]",
+                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value]"
                 },
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D",
@@ -244,7 +227,7 @@
                 "type": "SystemAssigned"
             },
             "properties": {
-                "serverFarmId": "[variables('HostingPlanName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
                 "siteConfig": {
                     "appSettings": [
                         {
@@ -508,16 +491,7 @@
                             "value": "startup.sh"
                         }
                     ],
-                    "pythonVersion": "3.11",
                     "linuxFxVersion": "PYTHON|3.11"
-                },
-                "sourceControl": {
-                    "repoUrl": "https://github.com/Russ-Holloway/CoPPA.git",
-                    "branch": "main",
-                    "isManualIntegration": false,
-                    "deploymentRollbackEnabled": true,
-                    "isMercurial": false,
-                    "isGitHubAction": true
                 }
             }
         },
@@ -900,7 +874,11 @@
                 "scriptContent": "[concat('Invoke-WebRequest -Uri ''https://stbtpcoppatestdeployment.blob.core.windows.net/deployment/setup_search_components.ps1'' -OutFile ''setup_search_components.ps1''; & ./setup_search_components.ps1 -SearchServiceName ''', variables('AzureSearchService'), ''' -SearchIndexName ''', variables('AzureSearchIndexName'), ''' -SearchIndexerName ''', variables('AzureSearchIndexerName'), ''' -SearchDataSourceName ''', variables('AzureSearchDataSourceName'), ''' -StorageAccountName ''', variables('StorageAccountName'), ''' -StorageContainerName ''', variables('StorageContainerName'), ''' -ResourceGroupName ''', resourceGroup().name, ''' -AzureOpenAIEndpoint ''', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))).endpoint, ''' -AzureOpenAIApiKey ''', listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource')), '2021-10-01').key1, ''' -EmbeddingDeploymentName ''', parameters('AzureOpenAIEmbeddingName'), ''' -SkillsetName ''', variables('AzureSearchSkillset1Name'), ''' -SubscriptionId ''', subscription().subscriptionId, '''')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
+                "retentionInterval": "P1D",
+                "storageAccountSettings": {
+                    "storageAccountName": "[variables('StorageAccountName')]",
+                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2021-04-01').keys[0].value]"
+                }
             }
         }
     ]
