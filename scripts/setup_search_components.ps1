@@ -12,21 +12,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $StorageContainerName,
     [Parameter(Mandatory=$true)]
-    [str        function Get-StorageAuthorizationHeader {
-            param(
-                [string]$AccountName,
-                [string]$AccountKey,
-                [string]$Method,
-                [string]$ResourcePath,
-                [hashtable]$Headers,
-                [int]$ContentLength = 0
-            )
-            $xmsHeaders = $Headers.Keys | Where-Object { $_ -match '^x-ms-' } | Sort-Object
-            $canonicalizedHeaders = ($xmsHeaders | ForEach-Object { "$($_):$($Headers[$_])" }) -join "`n"
-            $canonicalizedResource = "/$AccountName$ResourcePath"
-
-            # Use the provided ContentLength for the signature
-            $contentLengthStr = if ($ContentLength -gt 0) { "$ContentLength" } else { '' }roupName,
+    [string] $ResourceGroupName,
     [Parameter(Mandatory=$true)]
     [string] $AzureOpenAIEndpoint,
     [Parameter(Mandatory=$true)]
@@ -164,7 +150,7 @@ try {
         'Content-Type' = 'application/json'
     }
    
-    $dataSourceResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/datasources/$SearchDataSourceName`?api-version=2024-07-01" -Method Put -Headers $dataSourceHeaders -Body $dataSourcePayload
+    $dataSourceResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/datasources/$SearchDataSourceName`?api-version=2024-07-01" -Method Put -Headers $dataSourceHeaders -Body $dataSourcePayload -SkipHeaderValidation
     Write-Host "Data source created successfully."
  
     # Create search index
@@ -296,7 +282,7 @@ try {
         'Content-Type' = 'application/json'
     }
    
-    $indexResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/indexes/$SearchIndexName`?api-version=2024-07-01" -Method Put -Headers $indexHeaders -Body $indexPayload
+    $indexResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/indexes/$SearchIndexName`?api-version=2024-07-01" -Method Put -Headers $indexHeaders -Body $indexPayload -SkipHeaderValidation
     Write-Host "Search index created successfully."
  
     # Create skillset
@@ -389,7 +375,7 @@ try {
         'Content-Type' = 'application/json'
     }
    
-    $skillsetResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/skillsets/$SkillsetName`?api-version=2024-07-01" -Method Put -Headers $skillsetHeaders -Body $skillsetPayload
+    $skillsetResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/skillsets/$SkillsetName`?api-version=2024-07-01" -Method Put -Headers $skillsetHeaders -Body $skillsetPayload -SkipHeaderValidation
     Write-Host "Skillset created successfully."
  
     # Create indexer
@@ -419,7 +405,7 @@ try {
         'Content-Type' = 'application/json'
     }
    
-    $indexerResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/indexers/$SearchIndexerName`?api-version=2024-07-01" -Method Put -Headers $indexerHeaders -Body $indexerPayload
+    $indexerResponse = Invoke-RestMethod -Uri "https://$SearchServiceName.search.windows.net/indexers/$SearchIndexerName`?api-version=2024-07-01" -Method Put -Headers $indexerHeaders -Body $indexerPayload -SkipHeaderValidation
     Write-Host "Indexer created successfully."
     
     # Create and upload a sample document for testing
@@ -481,15 +467,15 @@ The system is now fully operational and ready for use!
                 [string]$AccountKey,
                 [string]$Method,
                 [string]$ResourcePath, # e.g., "/$StorageContainerName/$blobName"
-                [hashtable]$Headers
+                [hashtable]$Headers,
+                [int]$ContentLength = 0
             )
             $xmsHeaders = $Headers.Keys | Where-Object { $_ -match '^x-ms-' } | Sort-Object
             $canonicalizedHeaders = ($xmsHeaders | ForEach-Object { "$($_):$($Headers[$_])" }) -join "`n"
             $canonicalizedResource = "/$AccountName$ResourcePath"
 
             # For blob storage REST API, we need Content-Length in the signature but not in headers
-            $contentLength = if ($Headers.ContainsKey('Content-Length')) { "$($Headers['Content-Length'])" } else { '0' }
-            if ($Method -eq 'PUT' -and $contentLength -eq '0') { $contentLength = '' }
+            $contentLengthStr = if ($ContentLength -gt 0) { "$ContentLength" } else { '' }
 
         $stringToSign = @(
                 $Method,
