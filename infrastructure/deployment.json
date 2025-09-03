@@ -97,7 +97,6 @@
         "AzureOpenAIResource": "[concat('cog-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
         "AzureSearchSku": "standard",
         "StorageAccountName": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), variables('randomSuffix'))]",
-        "StorageContainerName": "docs",
         "AILibraryContainerName": "ai-library",
         "WebAppLogosContainerName": "web-app-logos",
         "cosmosdb_account_name": "[concat('db-app-', parameters('ForceCode'), '-coppa-', variables('randomSuffix'))]",
@@ -389,10 +388,6 @@
                         {
                             "name": "AZURE_SEARCH_SKILLSET2_NAME",
                             "value": "[variables('AzureSearchSkillset2Name')]"
-                        },
-                        {
-                            "name": "AZURE_STORAGE_CONTAINER_NAME",
-                            "value": "[variables('StorageContainerName')]"
                         },
                         {
                             "name": "AZURE_STORAGE_AI_LIBRARY_CONTAINER",
@@ -874,7 +869,7 @@
                     },
                     {
                         "name": "STORAGE_CONTAINER_NAME",
-                        "value": "[variables('StorageContainerName')]"
+                        "value": "[variables('AILibraryContainerName')]"
                     },
                     {
                         "name": "RESOURCE_GROUP_NAME",

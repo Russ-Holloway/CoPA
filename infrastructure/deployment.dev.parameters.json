@@ -68,9 +68,6 @@
         "documentIntelligenceSkuName": {
             "value": "S0"
         },
-        "storageContainerName": {
-            "value": "docs"
-        },
         "AILibraryContainerName": {
             "value": "ai-library"
         },
