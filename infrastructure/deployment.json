@@ -212,30 +212,22 @@
             }
         },
         {
-            "apiVersion": "2022-03-01",
+            "apiVersion": "2022-09-01",
             "name": "[variables('WebsiteName')]",
             "type": "Microsoft.Web/sites",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
-                "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('AzureOpenAIResource'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIModelDeploymentName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('AzureOpenAIResource'), variables('AzureOpenAIEmbeddingName'))]",
-                "[resourceId('Microsoft.Resources/deploymentScripts', 'setupSearchComponents')]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]"
             ],
             "kind": "app,linux",
-            "identity": {
-                "type": "SystemAssigned"
-            },
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
-                "httpsOnly": true,
                 "siteConfig": {
+                    "linuxFxVersion": "PYTHON|3.11",
                     "appSettings": [
                         {
-                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference(resourceId('Microsoft.Insights/components', variables('ApplicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "true"
                         },
                         {
                             "name": "AZURE_SEARCH_SERVICE",
@@ -417,18 +409,7 @@
                             "name": "MS_DEFENDER_ENABLED",
                             "value": "true"
                         },
-                        {
-                            "name": "AZURE_CLIENT_ID",
-                            "value": ""
-                        },
-                        {
-                            "name": "AZURE_CLIENT_SECRET",
-                            "value": ""
-                        },
-                        {
-                            "name": "AZURE_TENANT_ID",
-                            "value": ""
-                        },
+
                         {
                             "name": "AUTH_ENABLED",
                             "value": "[if(variables('CreateAzureAdAppRegistration'), 'true', 'false')]"
@@ -465,10 +446,7 @@
                             "name": "SCM_REPOSITORY_PATH",
                             "value": "https://github.com/Russ-Holloway/CoPPA.git"
                         },
-                        {
-                            "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", 
-                            "value": "true"
-                        },
+
                         {
                             "name": "ENABLE_ORYX_BUILD",
                             "value": "true"
@@ -493,8 +471,7 @@
                             "name": "POST_BUILD_SCRIPT_PATH",
                             "value": "startup.sh"
                         }
-                    ],
-                    "linuxFxVersion": "PYTHON|3.11"
+                    ]
                 }
             }
         },
