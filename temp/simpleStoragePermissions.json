@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the storage account"
+            }
+        },
+        "principalId": {
+            "type": "string",
+            "metadata": {
+                "description": "The principal ID of the web app's managed identity"
+            }
+        },
+        "roleAssignmentId": {
+            "type": "string",
+            "metadata": {
+                "description": "A unique ID for the role assignment"
+            }
+        }
+    },
+    "variables": {
+        "StorageBlobDataContributor": "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[concat(parameters('storageAccountName'), '/Microsoft.Authorization/', parameters('roleAssignmentId'))]",
+            "properties": {
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', variables('StorageBlobDataContributor'))]",
+                "principalId": "[parameters('principalId')]",
+                "principalType": "ServicePrincipal"
+            }
+        }
+    ]
+}
