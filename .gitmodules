@@ -1,3 +1,0 @@
-[submodule "tools/arm-ttk"]
-	path = tools/arm-ttk
-	url = https://github.com/Azure/arm-ttk.git
