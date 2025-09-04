@@ -233,7 +233,11 @@
   line-height: 30px;
   text-align: center;
   letter-spacing: -0.01em;
-  color: #667eea;
+  color: #667eea !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
   max-width: 600px;
   transition: all 0.3s ease;
 }
