@@ -119,9 +119,9 @@ const Layout = () => {
           </div>
           <div className={styles.headerCenterContent}>
             <Link to="/" style={{ textDecoration: 'none' }}>
-              <h1 className={styles.headerTitle}>CoPPA</h1>
+              <h1 className={styles.headerTitle}>CoPA</h1>
               <p className={styles.headerSubtitle}>
-                CoPPA is configured to assist with policing queries and provide guidance from official sources
+                College of Policing Assistant
               </p>
             </Link>
           </div>

@@ -5,8 +5,19 @@
   min-height: 120px;
   position: relative;
   margin: 0;
-  background: #ffffff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  back.sendButtonDisabled {
+  width: 32px;
+  height: 56px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: not-allowed;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
@@ -19,7 +30,6 @@
 :global(.dark-mode) .questionInputContainer {
   background: #2d3748;
   border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 /* Speech-to-text toggle container */
@@ -170,7 +180,7 @@
   height: 4px;
   left: 0%;
   bottom: 0%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #003366;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
 }

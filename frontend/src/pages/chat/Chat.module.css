@@ -68,17 +68,11 @@
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 1000;
-  box-shadow:
-    0 6px 20px rgba(31, 41, 55, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .clearChatSidebar:hover {
   background: #111827;
   transform: translateY(-50%) translateY(-2px);
-  box-shadow:
-    0 8px 25px rgba(31, 41, 55, 0.4),
-    0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .clearChatSidebar:focus {
@@ -132,7 +126,6 @@
   align-items: center;
   background: var(--chat-container-bg);
   border-radius: 16px;
-  box-shadow: 0 10px 30px var(--shadow-light);
   overflow: hidden;
   border: 1px solid var(--border-primary);
   backdrop-filter: blur(10px);
@@ -208,11 +201,7 @@
   font-weight: 700;
   font-size: 48px;
   line-height: 56px;
-  color: var(--chat-empty-title);
-  background: var(--accent-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #003366;
   transition: all 0.3s ease;
   margin: 0 auto;
   letter-spacing: -0.5px;
@@ -255,7 +244,6 @@
 .chatIcon {
   height: 80px;
   width: auto;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
 .chatMessageStream {
@@ -303,7 +291,6 @@
   background: var(--bg-user-message);
   color: var(--text-user-message);
   border-radius: 16px 16px 4px 16px;
-  box-shadow: 0 4px 12px var(--shadow-user-message);
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -353,9 +340,6 @@
 .chatMessageError {
   padding: 20px;
   border-radius: 8px;
-  box-shadow:
-    rgba(182, 52, 67, 1) 1px 1px 2px,
-    rgba(182, 52, 67, 1) 0px 0px 1px;
   color: #242424;
   flex: none;
   order: 0;
@@ -528,9 +512,6 @@
   padding: 16px !important;
   gap: 8px !important;
   background: var(--bg-secondary) !important;
-  box-shadow:
-    0px 2px 4px var(--shadow-light),
-    0px 0px 2px var(--shadow-light) !important;
   border-radius: 8px !important;
   flex: 0 0 min(40vw, 600px) !important; /* Responsive width: 40% of viewport or max 600px */
   order: 0 !important;
@@ -691,7 +672,7 @@ a {
 }
 
 .clearChatButton {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #003366;
   border: 2px solid var(--chat-container-bg);
   border-radius: 12px;
   padding: 18px 36px;
@@ -700,10 +681,6 @@ a {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow:
-    0 6px 20px rgba(102, 126, 234, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -716,20 +693,12 @@ a {
 
 .clearChatButton:hover {
   transform: translateY(-1px);
-  box-shadow:
-    0 8px 25px rgba(102, 126, 234, 0.4),
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  background: #002244;
   border-color: #f0f9ff;
 }
 
 .clearChatButton:active {
   transform: translateY(1px);
-  box-shadow:
-    0 2px 8px rgba(102, 126, 234, 0.3),
-    0 1px 2px rgba(0, 0, 0, 0.1),
-    inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .clearChatButton:disabled {
@@ -737,9 +706,6 @@ a {
   color: #94a3b8;
   cursor: not-allowed;
   transform: none;
-  box-shadow:
-    0 2px 8px rgba(148, 163, 184, 0.2),
-    inset 0 1px 2px rgba(0, 0, 0, 0.05);
   border: 2px solid #e2e8f0;
 }
 
@@ -777,13 +743,11 @@ a {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .taglineInput:focus {
   outline: none;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   background: var(--bg-secondary);
   color: var(--text-primary);
 }
