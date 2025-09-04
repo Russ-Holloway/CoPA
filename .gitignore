@@ -13,5 +13,10 @@ __pycache__/
 dist/
 build/
 
+# Security scan results (generated files, not source code)
+security-scan-results.txt
+security-audit-*.log
+*-scan-results.txt
+
 # External tools (should be installed separately, not tracked in Git)
 tools/arm-ttk/
