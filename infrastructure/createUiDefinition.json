@@ -138,6 +138,77 @@
                         ]
                     }
                 ]
+            },
+            {
+                "name": "gitConfig",
+                "label": "Git Deployment Configuration",
+                "elements": [
+                    {
+                        "name": "deploymentConfig",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Source Code Deployment",
+                        "elements": [
+                            {
+                                "name": "enableGitDeployment",
+                                "type": "Microsoft.Common.DropDown",
+                                "label": "Enable Automatic Git Deployment",
+                                "defaultValue": "Yes",
+                                "toolTip": "Automatically configure Git deployment from the CoPPA repository. This eliminates manual setup in the Deployment Center.",
+                                "constraints": {
+                                    "allowedValues": [
+                                        {
+                                            "label": "Yes - Configure automatic deployment",
+                                            "value": "Yes"
+                                        },
+                                        {
+                                            "label": "No - I'll configure manually",
+                                            "value": "No"
+                                        }
+                                    ],
+                                    "required": true
+                                }
+                            },
+                            {
+                                "name": "gitRepositoryUrl",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Git Repository URL",
+                                "defaultValue": "https://github.com/Russ-Holloway/CoPPA.git",
+                                "toolTip": "The URL of the Git repository to deploy from. Default is the official CoPPA repository.",
+                                "visible": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
+                                "constraints": {
+                                    "required": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
+                                    "regex": "^https://.*\\.git$",
+                                    "validationMessage": "Must be a valid Git repository URL ending with .git"
+                                }
+                            },
+                            {
+                                "name": "gitBranch",
+                                "type": "Microsoft.Common.DropDown",
+                                "label": "Git Branch",
+                                "defaultValue": "main",
+                                "toolTip": "The branch to deploy from. Use 'main' for production releases.",
+                                "visible": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
+                                "constraints": {
+                                    "allowedValues": [
+                                        {
+                                            "label": "main (recommended for production)",
+                                            "value": "main"
+                                        },
+                                        {
+                                            "label": "develop",
+                                            "value": "develop"
+                                        },
+                                        {
+                                            "label": "feature/latest",
+                                            "value": "Feature-Deployment-Automation"
+                                        }
+                                    ],
+                                    "required": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]"
+                                }
+                            }
+                        ]
+                    }
+                ]
             }
         ],
         "outputs": {
@@ -147,7 +218,10 @@
             "CreateAzureAdAppRegistration": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
             "AzureAdAppDisplayName": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]",
             "UIFeedbackEmail": "[steps('uiConfig').uiCustomization.feedbackEmail]",
-            "UIFindOutMoreLink": "[steps('uiConfig').uiCustomization.findOutMoreLink]"
+            "UIFindOutMoreLink": "[steps('uiConfig').uiCustomization.findOutMoreLink]",
+            "EnableGitDeployment": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
+            "GitRepositoryUrl": "[steps('gitConfig').deploymentConfig.gitRepositoryUrl]",
+            "GitBranch": "[steps('gitConfig').deploymentConfig.gitBranch]"
         }
     }
 }

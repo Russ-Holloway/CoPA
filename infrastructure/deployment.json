@@ -97,6 +97,27 @@
                 "description": "URL for 'Find Out More' link in the UI"
             },
             "defaultValue": ""
+        },
+        "GitRepositoryUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "Git repository URL for automatic deployment"
+            },
+            "defaultValue": "https://github.com/Russ-Holloway/CoPPA.git"
+        },
+        "GitBranch": {
+            "type": "string",
+            "metadata": {
+                "description": "Git branch to deploy from"
+            },
+            "defaultValue": "main"
+        },
+        "EnableGitDeployment": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable automatic Git deployment configuration"
+            },
+            "defaultValue": true
         }
     },
     "variables": {
@@ -459,6 +480,23 @@
                         "enabled": true
                     }
                 }
+            }
+        },
+        {
+            "condition": "[parameters('EnableGitDeployment')]",
+            "type": "Microsoft.Web/sites/sourcecontrols",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(variables('WebsiteName'), '/web')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
+            ],
+            "properties": {
+                "repoUrl": "[parameters('GitRepositoryUrl')]",
+                "branch": "[parameters('GitBranch')]",
+                "isManualIntegration": true,
+                "isGitHubAction": false,
+                "deploymentRollbackEnabled": false,
+                "isMercurial": false
             }
         },
         {
