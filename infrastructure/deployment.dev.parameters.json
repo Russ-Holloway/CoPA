@@ -85,6 +85,15 @@
         },
         "openAiResourceGroupName": {
             "value": "rg-btp-uks-dev-ai-coppa-test"
+        },
+        "EnableGitDeployment": {
+            "value": true
+        },
+        "GitRepositoryUrl": {
+            "value": "https://github.com/Russ-Holloway/CoPPA.git"
+        },
+        "GitBranch": {
+            "value": "Feature-Deployment-Automation"
         }
     }
 }
