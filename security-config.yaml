@@ -1,0 +1,345 @@
+# CoPPA Security Configuration
+# This file defines security policies and configuration for the CoPPA application
+
+# Security scanning configuration
+security:
+  # Secret scanning settings
+  secrets:
+    enabled: true
+    patterns:
+      - "password\\s*=\\s*['\\\"][^'\\\"]{3,}['\\\"]"
+      - "secret\\s*=\\s*['\\\"][^'\\\"]{8,}['\\\"]"
+      - "api[_-]?key\\s*=\\s*['\\\"][^'\\\"]{8,}['\\\"]"
+      - "-----BEGIN.*PRIVATE.*KEY-----"
+      - "ssh-rsa\\s+[A-Za-z0-9+/]{100,}"
+    exclude_files:
+      - "*.example"
+      - "*.sample" 
+      - "*.md"
+      - "*.txt"
+      - "SECURITY.md"
+
+  # File security settings
+  files:
+    # Files that should never be committed
+    forbidden_files:
+      - ".env"
+      - ".env.local"
+      - ".env.production"
+      - "id_rsa"
+      - "id_dsa"
+      - "*.key"
+      - "*.pem" 
+      - "*.p12"
+      - "*.pfx"
+      - "*.jks"
+      - "config.json"
+      - "secrets.json"
+    
+    # Maximum file size (bytes) - 10MB
+    max_file_size: 10485760
+    
+    # Required file permissions
+    sensitive_file_permissions: "600"
+    
+    # Files that should have restrictive permissions
+    sensitive_files:
+      - ".env*"
+      - "*.key"
+      - "*.pem"
+      - "*id_rsa*"
+      - "*id_dsa*"
+
+  # Dependency security settings
+  dependencies:
+    # Known vulnerable packages to avoid
+    forbidden_packages:
+      python:
+        - "bitcoin-miner"
+        - "crypto-miner"
+        - "password-stealer"
+        - "keylogger"
+      npm:
+        - "bitcoin-miner"
+        - "crypto-miner" 
+        - "flatmap-stream"  # Known malicious package
+        - "event-stream"    # Had malicious version
+    
+    # Licenses that are not compatible with commercial use
+    forbidden_licenses:
+      - "GPL-3.0"
+      - "AGPL-3.0"
+      - "SSPL"
+      - "Commons Clause"
+    
+    # Vulnerability severity levels to block
+    block_severity:
+      - "critical"
+      - "high"
+    
+    # Maximum age for security updates (days)
+    max_vulnerability_age: 30
+
+  # Code quality and security
+  code:
+    # Patterns that indicate debug code
+    debug_patterns:
+      - "console\\.log\\("
+      - "debugger;"
+      - "print\\("
+      - "var_dump\\("
+      - "DEBUG\\s*=\\s*True"
+      - "debug\\s*=\\s*true"
+    
+    # Patterns that indicate hardcoded credentials
+    hardcoded_patterns:
+      - "password\\s*=\\s*['\\\"].+['\\\"]"
+      - "username\\s*=\\s*['\\\"].+['\\\"]"
+      - "host\\s*=\\s*['\\\"]\\d+\\.\\d+\\.\\d+\\.\\d+['\\\"]"
+    
+    # File types to scan
+    scannable_extensions:
+      - ".py"
+      - ".js"
+      - ".ts"
+      - ".php"
+      - ".java"
+      - ".cs"
+      - ".cpp"
+      - ".c"
+      - ".go"
+      - ".rs"
+      - ".rb"
+      - ".yaml"
+      - ".yml"
+      - ".json"
+      - ".xml"
+      - ".sql"
+
+  # Azure-specific security settings
+  azure:
+    # ARM template security
+    arm_template:
+      # Check for hardcoded values in ARM templates
+      check_hardcoded_values: true
+      # Check for proper parameter usage
+      require_parameters: true
+      # Check for secure string usage
+      require_secure_strings: true
+    
+    # Azure Key Vault integration
+    key_vault:
+      # Require Key Vault for secrets in production
+      required_for_production: true
+      # Key Vault naming pattern
+      naming_pattern: "kv-coppa-{environment}-{region}"
+    
+    # Azure AD security
+    azure_ad:
+      # Require MFA for admin accounts
+      require_mfa: true
+      # Maximum session timeout (hours)
+      max_session_timeout: 8
+      # Require secure cookies
+      require_secure_cookies: true
+
+  # Docker security settings  
+  docker:
+    # Dockerfile security checks
+    dockerfile:
+      # Require non-root user
+      require_non_root_user: true
+      # Disallow broad COPY operations
+      disallow_broad_copy: true
+      # Require specific base image versions
+      require_specific_versions: true
+    
+    # Container security
+    container:
+      # Disallow privileged containers
+      disallow_privileged: true
+      # Require read-only root filesystem
+      require_readonly_rootfs: true
+      # Resource limits required
+      require_resource_limits: true
+
+  # Network security
+  network:
+    # Allowed domains for external requests
+    allowed_domains:
+      - "api.openai.com"
+      - "management.azure.com" 
+      - "login.microsoftonline.com"
+      - "graph.microsoft.com"
+      - "*.azurewebsites.net"
+      - "*.blob.core.windows.net"
+      - "*.search.windows.net"
+    
+    # Blocked IP ranges (example private ranges that shouldn't be accessed)
+    blocked_ip_ranges:
+      - "169.254.169.254/32"  # Azure metadata service (unless specifically needed)
+    
+    # Required security headers
+    required_headers:
+      - "X-Content-Type-Options: nosniff"
+      - "X-Frame-Options: DENY"
+      - "X-XSS-Protection: 1; mode=block"
+      - "Strict-Transport-Security: max-age=31536000; includeSubDomains"
+      - "Content-Security-Policy: default-src 'self'"
+
+# Compliance and regulatory requirements
+compliance:
+  # Data protection requirements
+  data_protection:
+    # Encryption requirements
+    encryption:
+      # Require encryption at rest
+      require_at_rest: true
+      # Require encryption in transit
+      require_in_transit: true
+      # Minimum encryption strength
+      minimum_key_length: 256
+    
+    # Data retention policies
+    retention:
+      # Maximum data retention period (days)
+      max_retention_days: 2555  # 7 years for police data
+      # Require data deletion procedures
+      require_deletion_procedures: true
+      # Audit trail retention (days)
+      audit_retention_days: 2555
+  
+  # Access control requirements
+  access_control:
+    # Authentication requirements
+    authentication:
+      # Require multi-factor authentication
+      require_mfa: true
+      # Password complexity requirements
+      require_complex_passwords: true
+      # Maximum password age (days)
+      max_password_age: 90
+      # Account lockout threshold
+      lockout_threshold: 5
+    
+    # Authorization requirements
+    authorization:
+      # Require role-based access control
+      require_rbac: true
+      # Principle of least privilege
+      enforce_least_privilege: true
+      # Regular access reviews required
+      require_access_reviews: true
+
+  # Audit and logging requirements
+  audit:
+    # Logging requirements
+    logging:
+      # Require comprehensive audit logging
+      require_audit_logs: true
+      # Log retention period (days)
+      log_retention_days: 2555
+      # Require log integrity protection
+      require_log_integrity: true
+      # Sensitive data logging restrictions
+      restrict_sensitive_data_logging: true
+    
+    # Monitoring requirements
+    monitoring:
+      # Require security monitoring
+      require_security_monitoring: true
+      # Incident response procedures
+      require_incident_response: true
+      # Regular security assessments
+      require_regular_assessments: true
+
+# Security testing configuration
+testing:
+  # Automated security testing
+  automated:
+    # SAST (Static Application Security Testing)
+    sast:
+      enabled: true
+      tools: ["semgrep", "bandit", "eslint-security"]
+      fail_on_high: true
+    
+    # DAST (Dynamic Application Security Testing)
+    dast:
+      enabled: true
+      tools: ["zap", "nikto"]
+      fail_on_high: true
+    
+    # Dependency scanning
+    dependency_scanning:
+      enabled: true
+      tools: ["safety", "npm-audit", "snyk"]
+      fail_on_high: true
+    
+    # Infrastructure scanning
+    infrastructure_scanning:
+      enabled: true
+      tools: ["checkov", "terrascan", "arm-ttk"]
+      fail_on_high: true
+
+  # Manual security testing
+  manual:
+    # Penetration testing requirements
+    penetration_testing:
+      # Frequency (months)
+      frequency: 12
+      # Scope requirements
+      scope: "full-application"
+      # Required expertise level
+      expertise_level: "professional"
+    
+    # Code review requirements
+    code_review:
+      # Security-focused code review required
+      require_security_review: true
+      # Minimum reviewers for security-sensitive changes
+      min_security_reviewers: 2
+      # Security checklist required
+      require_security_checklist: true
+
+# Incident response configuration
+incident_response:
+  # Incident classification
+  classification:
+    critical:
+      - "data_breach"
+      - "unauthorized_access"
+      - "system_compromise"
+    high:
+      - "privilege_escalation" 
+      - "sensitive_data_exposure"
+      - "denial_of_service"
+    medium:
+      - "security_misconfiguration"
+      - "vulnerable_component"
+      - "broken_authentication"
+  
+  # Response procedures
+  procedures:
+    # Incident response team contacts
+    team_contacts:
+      - role: "Security Officer"
+        contact: "security@police.uk"
+      - role: "Technical Lead"
+        contact: "tech-lead@police.uk"
+      - role: "Data Protection Officer" 
+        contact: "dpo@police.uk"
+    
+    # Response timeframes (hours)
+    response_times:
+      critical: 1
+      high: 4
+      medium: 24
+    
+    # Notification requirements
+    notifications:
+      # External notification required for data breaches
+      require_external_notification: true
+      # Notification timeframe (hours)
+      notification_timeframe: 72
+      # Regulatory notifications required
+      require_regulatory_notification: true
