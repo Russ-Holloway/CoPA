@@ -1,164 +1,85 @@
 # CoPPA - College of Policing Assistant
 
-**CoPPA (College of Policing Assistant)** is an advanced AI-powered Smart Assistant designed to enhance police decision-making and effectiveness. Built within a secure Microsoft Azure environment, this assistant integrates trusted data, policy, and user feedback to deliver actionable, transparent, and secure guidance.
+**CoPPA (College of Policing Assistant)** is an AI-powered assistant designed to enhance police decision-making and effectiveness. Built on secure Microsoft Azure infrastructure, it integrates trusted data sources to deliver actionable, transparent guidance for law enforcement professionals.
 
 ---
 
-## Table of Contents
+## Quick Links
 
-- [Vision & Purpose](#vision--purpose)
-- [Key Features](#key-features)
-- [How It Works](#how-it-works)
-- [Key Benefits](#key-benefits)
-- [Accessibility](#accessibility)
-- [Screenshots](#screenshots)
-- [Repository Structure](#repository-structure)
-- [Deployment](#deployment)
-- [Quick Start](#quick-start)
-- [Configure the App](#configure-the-app)
-- [Authentication](#authentication)
-- [App Configuration](#app-configuration)
-- [Best Practices](#best-practices)
-- [Contributing](#contributing)
-- [Changelog](#changelog)
-- [Community & Support](#community--support)
-- [Trademarks](#trademarks)
-- [Disclaimer](#disclaimer)
+- [🚀 **Deploy to Azure**](#deployment) - One-click deployment for UK Police Forces
+- [📋 **Project Structure**](#repository-structure) - Navigate the codebase
+- [⚡ **Quick Start**](#quick-start) - Local development setup
+- [🔒 **Security**](security/SECURITY.md) - Security policies and compliance
+- [📖 **Documentation**](docs/) - Detailed guides and procedures
 
 ---
 
-## Repository Structure
+## Key Features
 
-📁 **Well-organized codebase for easy navigation:**
-
-```
-├── 🏗️ Core Application
-│   ├── frontend/     # React/TypeScript web application  
-│   ├── backend/      # Python Flask backend services
-│   └── app.py        # Main Flask application entry point
-│
-├── 🛠️ Deployment & Infrastructure  
-│   ├── deployment/
-│   │   ├── azure/    # Bicep & ARM templates
-│   │   ├── docker/   # Container configuration
-│   │   └── scripts/  # Deployment automation
-│   └── scripts/      # Data processing utilities
-│
-├── 📚 Documentation
-│   ├── docs/
-│   │   ├── deployment/   # Deployment guides
-│   │   ├── development/  # Developer setup
-│   │   └── user/         # End-user guides
-│   └── README.md         # This file
-│
-├── 🔒 Security
-│   ├── security/
-│   │   ├── tools/    # Security scanning tools
-│   │   └── *.md      # Security policies
-│   └── tests/        # Test suites
-│
-└── ⚙️ Configuration
-    ├── .github/      # GitHub workflows
-    ├── .vscode/      # Development settings
-    └── azure.yaml    # Azure Developer CLI config
-```
-
-**📋 For detailed structure guide:** See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+✅ **AI-Powered Guidance** - Advanced assistant for Criminal Justice, Investigations, Prevention, and Neighbourhood Policing  
+✅ **Trusted Sources** - Integrates College of Policing APP, CPS Guidance, and local force policies  
+✅ **Full Transparency** - Every response includes source citations and references  
+✅ **WCAG 2.1 AA Compliant** - Fully accessible interface for all users  
+✅ **PDS Compliant** - Automatic compliance with Police Digital Service standards  
+✅ **Enterprise Security** - Built on secure Azure infrastructure with enterprise-grade protection  
 
 ---
 
 ## Deployment
 
-### PDS Compliant Deployment (For UK Police Forces)
+### 🚔 **One-Click Deployment for UK Police Forces**
 
-**🚔 For all 44 UK Police Forces:** Use our simplified PDS-compliant deployment. Just create a resource group following PDS naming (e.g., `rg-btp-prod-01`) and deploy - all resource names are generated automatically!
+Deploy instantly with PDS-compliant naming and automatic configuration:
 
-**✅ Compliance Features:**
-- **PDS Naming Standards:** Automatic compliance with Police Digital Service naming conventions
-- **WCAG 2.1 AA Accessibility:** Full accessibility compliance for inclusive access
-- **Security Standards:** Enterprise-grade security with Azure best practices
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpcoppatestdeployment.blob.core.windows.net%2Fdeployment%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fstbtpcoppatestdeployment.blob.core.windows.net%2Fdeployment%2FcreateUiDefinition.json)
 
-[![Deploy PDS Compliant](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpcoppatestdeployment.blob.core.windows.net%2Fdeployment%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fstbtpcoppatestdeployment.blob.core.windows.net%2Fdeployment%2FcreateUiDefinition.json)
+**Deployment Process:**
+1. **Click Deploy** → Azure infrastructure provisioned with PDS naming
+2. **Auto-Configuration** → Environment variables and search components configured
+3. **Ready to Use** → Application immediately available for officers
 
-**🎯 Simplified Deployment Process:**
-1. **Click Deploy:** All Azure resources and code deployed automatically with PDS-compliant names
-2. **Wait for Setup:** Search components, environment variables, and sample documents configured automatically
-3. **Start Using:** Application is immediately ready for police officers to use
-4. **Optional:** Enable Azure AD authentication later if required
+**Post-Deployment Setup:**
+- **Authentication:** Run `deployment/scripts/setup_azure_ad_auth.ps1`
+- **Search Setup:** Run `deployment/scripts/setup-search-components.ps1`
 
-**✨ Zero Manual Configuration Required!** 
-- ✅ Environment variables set automatically
-- ✅ Application code deployed automatically  
-- ✅ Search components configured automatically
-- ✅ Sample documents uploaded automatically
-
-📋 **[PDS Deployment Guide](docs/PDS-DEPLOYMENT-GUIDE.md)** - Complete guide for police forces  
-📋 **[Azure Naming Guidelines](docs/azure-naming-guidelines.md)** - PDS naming conventions
-
-### Post-Deployment Setup
-
-After infrastructure deployment completes, you need to deploy your application code and configure authentication.
-
-#### Code Deployment (Required)
-The ARM template creates the Azure infrastructure but doesn't automatically deploy application code. You have several options:
-
-**Option 1: GitHub Actions (Recommended)**
-```yaml
-# Set up GitHub Actions workflow for automated deployment
-- uses: azure/webapps-deploy@v2
-  with:
-    app-name: 'your-app-name'
-    package: '.'
-```
-
-**Option 2: Azure CLI**
-```bash
-# Deploy using Azure CLI
-az webapp deployment source config-zip \
-  --resource-group your-resource-group \
-  --name your-app-name \
-  --src app.zip
-```
-
-**Option 3: Visual Studio Code**
-- Install Azure App Service extension
-- Right-click on your app folder and select "Deploy to Web App"
-
-**📖 Full Guide:** [Code Deployment Guide](docs/code-deployment-guide.md)
-
-#### Authentication Setup (Required)
-**🚀 Quick Setup:** Run the automated authentication script:
-```powershell
-.\scripts\setup_azure_ad_auth.ps1 -WebAppName "your-web-app-name" -ResourceGroupName "your-resource-group"
-```
-
-**📋 Quick Reference:** [Azure AD Quick Reference](AZURE_AD_QUICK_REFERENCE.md)  
-**📖 Full Guide:** [Azure AD Setup Guide](AZURE_AD_SETUP_GUIDE.md)
-
-#### Search Components Setup (Required)
-After infrastructure deployment, you'll need to manually configure the Azure Cognitive Search components:
-
-```powershell
-.\scripts\setup-search-components.ps1 -ResourceGroupName "your-resource-group-name" -SearchServiceName "your-search-service-name" -StorageAccountName "your-storage-account-name" -OpenAIServiceName "your-openai-service-name"
-```
-
-This will create:
-- Search index with vector search capabilities
-- Data source connected to blob storage
-- Skillsets for document processing and embedding generation
-- Indexers to process documents
-
-**📖 Full Guide:** [Search Components Setup Guide](docs/search_components_setup.md)
+📖 **Guides:** [PDS Deployment](docs/deployment/PDS-DEPLOYMENT-GUIDE.md) | [Azure Naming](docs/deployment/azure-naming-guidelines.md)
 
 ---
 
-## Vision & Purpose
+## Repository Structure
 
-- **Improving Police Decision-Making:**  
-  Supports officers with advice grounded in national/local policy, leveraging AI to process information from trusted sources such as the College of Policing, CPS Guidance, and local force policies.
+📁 **Organized codebase for easy navigation:**
 
-- **Human in the Loop:**  
-  Augments (but does not replace) human decision-making, supporting College of Policing’s four key areas: Criminal Justice, Investigations, Prevention, and Neighbourhood Policing.
+```
+├── 🏗️ Core Application
+│   ├── frontend/         # React/TypeScript web application  
+│   ├── backend/          # Python Flask backend services
+│   └── app.py            # Main Flask application entry point
+│
+├── 🛠️ Deployment & Infrastructure  
+│   ├── deployment/azure/  # Bicep & ARM templates
+│   ├── deployment/docker/ # Container configuration
+│   └── deployment/scripts/ # Deployment automation
+│
+├── 📚 Documentation
+│   ├── docs/deployment/  # Deployment guides
+│   ├── docs/development/ # Developer setup
+│   └── docs/user/        # End-user guides
+│
+├── 🔒 Security & Testing
+│   ├── security/tools/   # Security scanning tools
+│   ├── security/*.md     # Security policies
+│   └── tests/           # Test suites
+│
+└── ⚙️ Configuration
+    ├── scripts/         # Data processing utilities
+    ├── .github/         # CI/CD workflows
+    └── azure.yaml       # Azure Developer CLI config
+```
+
+📋 **Detailed Guide:** [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+
+---
 
 ---
 
@@ -246,28 +167,82 @@ The application has been comprehensively tested using:
 
 ## Quick Start
 
-1. **Clone the Repository:**
+### Local Development Setup
+
+1. **Clone Repository**
    ```bash
    git clone https://github.com/Russ-Holloway/CoPPA.git
    cd CoPPA
    ```
 
-2. **Install Dependencies:**
+2. **Install Dependencies**
    ```bash
-   # Backend (Python)
    pip install -r requirements.txt
-
-   # Frontend (TypeScript)
-   cd frontend
-   npm install
-   npm run build
+   cd frontend && npm install && npm run build
    ```
 
-3. **Start the App:**
-   - Use `start.cmd` or `start.sh` to build and launch both frontend and backend, or follow [Configure the App](#configure-the-app) for environment setup.
+3. **Configure Environment**
+   - Copy `.env.example` to `.env`
+   - Add your Azure service credentials
+   - See [Configuration Guide](docs/development/automated_search_setup.md)
 
-4. **Access the App:**
-   - Open [http://127.0.0.1:50505](http://127.0.0.1:50505) in your browser.
+4. **Start Application**
+   ```bash
+   ./start.sh  # Linux/Mac
+   start.cmd   # Windows
+   ```
+
+5. **Access Application**
+   - Open [http://127.0.0.1:50505](http://127.0.0.1:50505)
+
+---
+
+## Authentication & Security
+
+### Azure AD Authentication
+Configure authentication using the automated setup script:
+
+```powershell
+deployment/scripts/setup_azure_ad_auth.ps1 -WebAppName "your-app" -ResourceGroupName "your-rg"
+```
+
+### Security Features
+- Enterprise-grade Azure security
+- PDS-compliant naming conventions
+- WCAG 2.1 AA accessibility compliance
+- Comprehensive security scanning tools
+
+📖 **Security Documentation:** [security/SECURITY.md](security/SECURITY.md)
+
+---
+
+## Documentation
+
+| Audience | Documentation |
+|----------|---------------|
+| **Developers** | [docs/development/](docs/development/) |
+| **DevOps** | [docs/deployment/](docs/deployment/) |
+| **End Users** | [docs/user/](docs/user/) |
+| **Security** | [security/](security/) |
+
+---
+
+## Contributing
+
+We welcome contributions! Please see:
+- [Contributing Guidelines](CODE_OF_CONDUCT.md)
+- [Security Policy](security/SECURITY.md)
+- [Project Structure](PROJECT_STRUCTURE.md)
+
+---
+
+## Support & Legal
+
+**Support:** For questions or issues, please open a GitHub issue  
+**License:** See [LICENSE](LICENSE) for details  
+**Disclaimer:** CoPPA is an advisory tool. Ultimate responsibility for decisions remains with the user.
+
+---
 
 ---
 
