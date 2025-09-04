@@ -234,12 +234,23 @@
   text-align: center;
   letter-spacing: -0.01em;
   color: #667eea !important;
-  background: none !important;
-  -webkit-background-clip: unset !important;
-  -webkit-text-fill-color: unset !important;
-  background-clip: unset !important;
+  background: transparent !important;
+  background-image: none !important;
+  background-clip: border-box !important;
+  -webkit-background-clip: border-box !important;
+  -webkit-text-fill-color: #667eea !important;
+  -webkit-text-stroke-color: #667eea !important;
   max-width: 600px;
   transition: all 0.3s ease;
+}
+
+/* Additional specificity to override any inherited styles */
+p.chatEmptyStateTagline,
+.chatEmptyStateTagline p {
+  color: #667eea !important;
+  background: transparent !important;
+  background-image: none !important;
+  -webkit-text-fill-color: #667eea !important;
 }
 
 .chatIcon {
