@@ -815,17 +815,17 @@ const Chat = () => {
 
                 {/* Main content area */}
                 <div className={styles.mainContentArea}>
-                  {/* CoPA Title at top position (box 1) */}
-                  <div className={styles.chatEmptyStateLogo}>
-                    <h1 className={styles.chatEmptyStateTitle}>CoPA</h1>
-                    {/* Police force taglines displayed below CoPA title when configured */}
-                    {ui?.police_force_tagline && (
-                      <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
-                    )}
-                    {ui?.police_force_tagline_2 && (
-                      <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline_2}</p>
-                    )}
-                  </div>
+                  {/* Police force taglines displayed when configured */}
+                  {(ui?.police_force_tagline || ui?.police_force_tagline_2) && (
+                    <div className={styles.chatEmptyStateLogo}>
+                      {ui?.police_force_tagline && (
+                        <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
+                      )}
+                      {ui?.police_force_tagline_2 && (
+                        <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline_2}</p>
+                      )}
+                    </div>
+                  )}
 
                   {/* Input section at position 2 - now full width */}
                   <Stack className={`${styles.chatInputCentered} ${styles.inputFullWidth}`}>
