@@ -94,6 +94,15 @@
         },
         "GitBranch": {
             "value": "Feature-Deployment-Automation"
+        },
+        "LogoUrl": {
+            "value": ""
+        },
+        "PoliceForceLogoUrl": {
+            "value": ""
+        },
+        "FaviconUrl": {
+            "value": ""
         }
     }
 }

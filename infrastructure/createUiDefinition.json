@@ -134,6 +134,42 @@
                                     "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?$",
                                     "validationMessage": "Must be a valid URL (starting with http:// or https://) or leave empty."
                                 }
+                            },
+                            {
+                                "name": "logoUrl",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Main Application Logo URL (Optional)",
+                                "placeholder": "https://example.com/logo.png",
+                                "toolTip": "URL of your main application logo. Should be PNG format, approximately 200x60 pixels. If not provided, a default placeholder will be used.",
+                                "constraints": {
+                                    "required": false,
+                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(png|jpg|jpeg|svg)$",
+                                    "validationMessage": "Must be a valid image URL (PNG, JPG, JPEG, or SVG) or leave empty."
+                                }
+                            },
+                            {
+                                "name": "policeForceLogoUrl",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Police Force Logo URL (Optional)",
+                                "placeholder": "https://example.com/force-logo.png",
+                                "toolTip": "URL of your police force logo. Should be PNG format, approximately 100x100 pixels. If not provided, a default placeholder will be used.",
+                                "constraints": {
+                                    "required": false,
+                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(png|jpg|jpeg|svg)$",
+                                    "validationMessage": "Must be a valid image URL (PNG, JPG, JPEG, or SVG) or leave empty."
+                                }
+                            },
+                            {
+                                "name": "faviconUrl",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Favicon URL (Optional)",
+                                "placeholder": "https://example.com/favicon.ico",
+                                "toolTip": "URL of your favicon. Should be ICO format, 32x32 pixels. If not provided, a default favicon will be used.",
+                                "constraints": {
+                                    "required": false,
+                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(ico|png)$",
+                                    "validationMessage": "Must be a valid favicon URL (ICO or PNG) or leave empty."
+                                }
                             }
                         ]
                     }
@@ -219,6 +255,9 @@
             "AzureAdAppDisplayName": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]",
             "UIFeedbackEmail": "[steps('uiConfig').uiCustomization.feedbackEmail]",
             "UIFindOutMoreLink": "[steps('uiConfig').uiCustomization.findOutMoreLink]",
+            "LogoUrl": "[steps('uiConfig').uiCustomization.logoUrl]",
+            "PoliceForceLogoUrl": "[steps('uiConfig').uiCustomization.policeForceLogoUrl]",
+            "FaviconUrl": "[steps('uiConfig').uiCustomization.faviconUrl]",
             "EnableGitDeployment": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
             "GitRepositoryUrl": "[steps('gitConfig').deploymentConfig.gitRepositoryUrl]",
             "GitBranch": "[steps('gitConfig').deploymentConfig.gitBranch]"
