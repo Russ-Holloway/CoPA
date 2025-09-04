@@ -2,6 +2,28 @@
   box-sizing: border-box;
 }
 
+/* FORCE SOLID BLUE for tagline text - GLOBAL OVERRIDE */
+p:contains("British Transport Police"),
+p:contains("configured for"),
+p:contains("BTP has both"),
+[class*="chatEmptyStateTagline"],
+[class*="solidBlueText"] {
+  color: #667eea !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #667eea !important;
+}
+
+/* Alternative approach - target any paragraph with police force content */
+p[class*="tagline" i] {
+  color: #667eea !important;
+  background: transparent !important;
+  background-image: none !important;
+  -webkit-text-fill-color: #667eea !important;
+}
+
 /* CSS Custom Properties for Light and Dark themes */
 :root {
   /* Light theme variables */
@@ -13,7 +35,7 @@
   --text-muted: #6b7280;
   --border-primary: rgba(255, 255, 255, 0.2);
   --border-secondary: rgba(102, 126, 234, 0.2);
-  --accent-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --accent-primary: #667eea; /* Changed from gradient to solid blue */
   --accent-secondary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   --shadow-light: rgba(0, 0, 0, 0.1);
   --shadow-medium: rgba(0, 0, 0, 0.15);
@@ -21,8 +43,8 @@
   --chat-container-bg: #ffffff;
   --chat-empty-title: #2c3e50;
   --scrollbar-track: rgba(0, 0, 0, 0.1);
-  --scrollbar-thumb: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --scrollbar-thumb-hover: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  --scrollbar-thumb: #667eea; /* Changed from gradient to solid blue */
+  --scrollbar-thumb-hover: #5a67d8; /* Changed from gradient to solid blue */
 
   /* User message colors - light theme */
   --bg-user-message: #667eea;
