@@ -7,7 +7,7 @@
 }
 
 .header {
-  background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, #667eea 50%, #764ba2 100%);
+  background: #003366;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   padding: 35px 0;
   position: relative;
