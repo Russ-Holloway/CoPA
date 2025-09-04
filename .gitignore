@@ -12,3 +12,6 @@ __pycache__/
 *.log
 dist/
 build/
+
+# External tools (should be installed separately, not tracked in Git)
+tools/arm-ttk/
