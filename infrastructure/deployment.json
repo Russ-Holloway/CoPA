@@ -165,34 +165,11 @@
         "AzureSearchIndexName": "[parameters('SearchIndexName')]",
         "AzureSearchIndexerName": "[parameters('SearchIndexerName')]",
         "AzureSearchSkillset1Name": "[concat(parameters('ForceCode'), '-skillset-1-', parameters('EnvironmentSuffix'))]",
-        "AzureSearchSkillset2Name": "[concat(parameters('ForceCode'), '-skillset-2-', parameters('EnvironmentSuffix'))]",
-        "AzureSearchUseSemanticSearch": "true",
         "AzureSearchSemanticSearchConfig": "default",
-        "AzureSearchIndexIsPrechunked": "false",
         "AzureAdAppDisplayName": "[parameters('AzureAdAppDisplayName')]",
         "CreateAzureAdAppRegistration": "[parameters('CreateAzureAdAppRegistration')]",
-        "deploymentScriptStorageAccountName": "[take(concat('st', parameters('ForceCode'), 'deploy', variables('randomSuffix')), 24)]",
-        "AzureSearchTopK": "5",
-        "AzureSearchEnableInDomain": "true",
-        "WebAppPrincipalId": "00000000-0000-0000-0000-000000000001",
-        "AzureSearchContentColumns": "content",
-        "AzureSearchFilenameColumn": "filename",
-        "AzureSearchTitleColumn": "title",
-        "AzureSearchUrlColumn": "url",
-        "AzureOpenAITemperature": "0",
-        "AzureOpenAITopP": "1.0",
-        "AzureOpenAIMaxTokens": "2000",
-        "AzureOpenAIStopSequence": "",
-        "AzureOpenAIModelName": "gpt-4o",
         "AzureOpenAIModelDeploymentName": "policingGptDeployment",
         "AzureOpenAISystemMessage": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
-        "AzureOpenAIStream": true,
-        "AzureOpenAISku": "S0",
-        "AzureOpenAICapacity": 1000,
-        "AzureSearchQueryType": "simple",
-        "AzureSearchVectorFields": "",
-        "AzureSearchPermittedGroupsField": "",
-        "AzureSearchStrictness": 3,
         "WebAppEnableChatHistory": true
     },
     "resources": [
@@ -737,8 +714,6 @@
                 },
                 "networkAcls": {
                     "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
-                    "ipRules": [],
                     "defaultAction": "Allow"
                 }
             }
@@ -757,9 +732,6 @@
                 },
                 "changeFeed": {
                     "enabled": false
-                },
-                "cors": {
-                    "corsRules": []
                 }
             }
         },
@@ -869,7 +841,7 @@
                     },
                     {
                         "name": "RESOURCE_GROUP_NAME",
-                        "value": "[resourceGroup().name]"
+                        "value": "[parameters('ResourceGroupName')]"
                     },
                     {
                         "name": "AZURE_OPENAI_ENDPOINT",
@@ -933,7 +905,7 @@
                     },
                     {
                         "name": "RESOURCE_GROUP_NAME",
-                        "value": "[resourceGroup().name]"
+                        "value": "[parameters('ResourceGroupName')]"
                     },
                     {
                         "name": "LOGO_URL",
