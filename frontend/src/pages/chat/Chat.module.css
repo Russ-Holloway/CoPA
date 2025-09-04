@@ -244,6 +244,16 @@
   transition: all 0.3s ease;
 }
 
+/* Force solid blue with maximum specificity */
+.chatEmptyStateTagline.chatEmptyStateTagline.chatEmptyStateTagline {
+  color: #667eea !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #667eea !important;
+}
+
 /* Additional specificity to override any inherited styles */
 p.chatEmptyStateTagline,
 .chatEmptyStateTagline p {
@@ -251,6 +261,24 @@ p.chatEmptyStateTagline,
   background: transparent !important;
   background-image: none !important;
   -webkit-text-fill-color: #667eea !important;
+}
+
+/* New class specifically for solid blue text */
+.solidBlueText {
+  color: #667eea !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #667eea !important;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
+  letter-spacing: -0.01em;
+  margin-top: 12px;
+  max-width: 600px;
 }
 
 .chatIcon {

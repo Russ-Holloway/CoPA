@@ -819,10 +819,10 @@ const Chat = () => {
                   {(ui?.police_force_tagline || ui?.police_force_tagline_2) && (
                     <div className={styles.chatEmptyStateLogo}>
                       {ui?.police_force_tagline && (
-                        <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline}</p>
+                        <p className={`${styles.chatEmptyStateTagline} ${styles.solidBlueText}`}>{ui.police_force_tagline}</p>
                       )}
                       {ui?.police_force_tagline_2 && (
-                        <p className={styles.chatEmptyStateTagline}>{ui.police_force_tagline_2}</p>
+                        <p className={`${styles.chatEmptyStateTagline} ${styles.solidBlueText}`}>{ui.police_force_tagline_2}</p>
                       )}
                     </div>
                   )}
