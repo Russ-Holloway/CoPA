@@ -5,7 +5,7 @@
     "parameters": {
         "config": {
             "basics": {
-                "description": "Deploy the Policing Assistant solution with automatic resource naming and random suffixes to prevent conflicts.",
+                "description": "Deploy the Policing Assistant solution with automatic resource naming, random suffixes to prevent conflicts, and pre-configured startup commands for optimal performance.",
                 "location": {
                     "visible": true,
                     "allowedValues": [
