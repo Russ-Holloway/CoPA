@@ -12,6 +12,7 @@
 - [Key Benefits](#key-benefits)
 - [Accessibility](#accessibility)
 - [Screenshots](#screenshots)
+- [Repository Structure](#repository-structure)
 - [Deployment](#deployment)
 - [Quick Start](#quick-start)
 - [Configure the App](#configure-the-app)
@@ -23,6 +24,46 @@
 - [Community & Support](#community--support)
 - [Trademarks](#trademarks)
 - [Disclaimer](#disclaimer)
+
+---
+
+## Repository Structure
+
+📁 **Well-organized codebase for easy navigation:**
+
+```
+├── 🏗️ Core Application
+│   ├── frontend/     # React/TypeScript web application  
+│   ├── backend/      # Python Flask backend services
+│   └── app.py        # Main Flask application entry point
+│
+├── 🛠️ Deployment & Infrastructure  
+│   ├── deployment/
+│   │   ├── azure/    # Bicep & ARM templates
+│   │   ├── docker/   # Container configuration
+│   │   └── scripts/  # Deployment automation
+│   └── scripts/      # Data processing utilities
+│
+├── 📚 Documentation
+│   ├── docs/
+│   │   ├── deployment/   # Deployment guides
+│   │   ├── development/  # Developer setup
+│   │   └── user/         # End-user guides
+│   └── README.md         # This file
+│
+├── 🔒 Security
+│   ├── security/
+│   │   ├── tools/    # Security scanning tools
+│   │   └── *.md      # Security policies
+│   └── tests/        # Test suites
+│
+└── ⚙️ Configuration
+    ├── .github/      # GitHub workflows
+    ├── .vscode/      # Development settings
+    └── azure.yaml    # Azure Developer CLI config
+```
+
+**📋 For detailed structure guide:** See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
 
 ---
 
