@@ -1,4 +1,4 @@
-Security Scan Results - Thu Sep  4 09:53:08 UTC 2025
+Security Scan Results - Thu Sep  4 10:06:57 UTC 2025
 ======================================
 Scanning for potential secrets...
-POTENTIAL SECRET: secret\s*=\s*['"][^'"]{8,}['"]
+POTENTIAL SECRET: password\s*=\s*['"][^'"]{4,}['"]
