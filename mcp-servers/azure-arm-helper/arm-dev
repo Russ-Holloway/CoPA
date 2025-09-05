@@ -1,0 +1,115 @@
+#!/bin/bash
+# Azure ARM Helper Wrapper Script
+
+ARM_HELPER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ARM_HELPER_DIR"
+
+# Function to run ARM helper command
+run_arm_command() {
+    local method="$1"
+    shift
+    local params="$*"
+    
+    if [[ -n "$params" ]]; then
+        echo "$method $params" | npm start
+    else
+        echo "$method {}" | npm start
+    fi
+}
+
+# Handle different command types
+case "$1" in
+    "validate")
+        if [[ -n "$2" ]]; then
+            if [[ -f "$2" ]]; then
+                # File path provided
+                run_arm_command "validate_arm_template" "{\"templatePath\": \"$2\"}"
+            else
+                # Assume it's template content
+                run_arm_command "validate_arm_template" "{\"templateContent\": \"$2\"}"
+            fi
+        else
+            echo "Usage: arm-validate <template-file-or-content>"
+        fi
+        ;;
+    "identity")
+        if [[ -n "$2" && -n "$3" ]]; then
+            run_arm_command "fix_identity_reference" "{\"resourceType\": \"$2\", \"identityType\": \"$3\"}"
+        else
+            echo "Usage: arm-identity <resource-type> <identity-type>"
+            echo "Example: arm-identity Microsoft.Web/sites SystemAssigned"
+        fi
+        ;;
+    "role")
+        if [[ -n "$2" && -n "$3" && -n "$4" ]]; then
+            run_arm_command "suggest_role_assignment_pattern" "{\"sourceResourceType\": \"$2\", \"targetResourceType\": \"$3\", \"roleDefinition\": \"$4\"}"
+        else
+            echo "Usage: arm-role <source-type> <target-type> <role-name>"
+            echo "Example: arm-role Microsoft.Web/sites Microsoft.Storage/storageAccounts 'Storage Blob Data Contributor'"
+        fi
+        ;;
+    "deps"|"dependencies")
+        if [[ -n "$2" ]]; then
+            if [[ -f "$2" ]]; then
+                run_arm_command "analyze_dependencies" "{\"templatePath\": \"$2\"}"
+            else
+                run_arm_command "analyze_dependencies" "{\"templateContent\": \"$2\"}"
+            fi
+        else
+            echo "Usage: arm-deps <template-file-or-content>"
+        fi
+        ;;
+    "best"|"practices")
+        if [[ -n "$2" ]]; then
+            if [[ -f "$2" ]]; then
+                run_arm_command "check_best_practices" "{\"templatePath\": \"$2\"}"
+            else
+                run_arm_command "check_best_practices" "{\"templateContent\": \"$2\"}"
+            fi
+        else
+            echo "Usage: arm-best <template-file-or-content>"
+        fi
+        ;;
+    "start")
+        echo "🚀 Starting Azure ARM Helper MCP Server..."
+        npm run service:start
+        ;;
+    "stop")
+        echo "🛑 Stopping Azure ARM Helper MCP Server..."
+        npm run service:stop
+        ;;
+    "status")
+        npm run service:status
+        ;;
+    "logs")
+        npm run service:logs
+        ;;
+    "test")
+        echo "🧪 Testing Azure ARM Helper functionality..."
+        run_arm_command "fix_identity_reference" "{\"resourceType\": \"Microsoft.Web/sites\", \"identityType\": \"SystemAssigned\"}"
+        ;;
+    *)
+        echo "Azure ARM Helper MCP Server Commands:"
+        echo ""
+        echo "🔍 Template Operations:"
+        echo "  arm-validate <file|content>     - Validate ARM template"
+        echo "  arm-deps <file|content>         - Analyze dependencies" 
+        echo "  arm-best <file|content>         - Check best practices"
+        echo ""
+        echo "🛡️ Identity & Roles:"
+        echo "  arm-identity <type> <mode>      - Fix identity references"
+        echo "  arm-role <source> <target> <role> - Get role assignment pattern"
+        echo ""
+        echo "🔧 Service Management:"
+        echo "  arm-start                       - Start server as background service"
+        echo "  arm-stop                        - Stop background service"
+        echo "  arm-status                      - Check service status"
+        echo "  arm-logs                        - View service logs"
+        echo "  arm-test                        - Test server functionality"
+        echo ""
+        echo "💡 Examples:"
+        echo "  arm-validate main.bicep"
+        echo "  arm-identity Microsoft.Web/sites SystemAssigned"
+        echo "  arm-role Microsoft.Web/sites Microsoft.Storage/storageAccounts 'Storage Blob Data Contributor'"
+        ;;
+esac

@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss", 
+    "esbenp.prettier-vscode",
+    "ms-vscode.azure-account",
+    "msazurermtools.azurerm-vscode-tools",
+    "ms-azuretools.vscode-bicep",
+    "ms-azuretools.vscode-azureresourcegroups"
+  ]
+}
