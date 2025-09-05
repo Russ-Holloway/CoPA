@@ -1,0 +1,25 @@
+{
+  "github.copilot.chat.welcomeMessage": "🚔 CoPPA Assistant Ready!\n\n🎯 What exactly needs changing?\n\n⚡ MCP Commands:\n• coppa-component <name>\n• coppa-api <endpoint>\n• arm-validate <file>\n\n💡 Add '**search Microsoft docs**' for official guidance",
+  
+  "github.copilot.chat.localeOverride": "en",
+  
+  "github.copilot.advanced": {
+    "debug.overrideEngine": "copilot-chat",
+    "debug.testOverrideProxyUrl": "https://copilot-proxy.githubusercontent.com"
+  },
+  
+  "mcp.servers.autoStart": true,
+  "mcp.servers.coppa-dev-helper.enabled": true,
+  "mcp.servers.azure-arm-helper.enabled": true,
+  "mcp.servers.microsoft.docs.mcp.enabled": true,
+  
+  "editor.inlineSuggest.enabled": true,
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": true,
+    "markdown": true,
+    "json": true,
+    "bicep": true
+  }
+}

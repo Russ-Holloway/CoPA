@@ -1,0 +1,73 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "MCP: Generate Component",
+            "type": "shell",
+            "command": "coppa-component",
+            "args": ["${input:componentName}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "MCP: Validate ARM Template",
+            "type": "shell",
+            "command": "arm-validate",
+            "args": ["${file}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "MCP: Create API Endpoint",
+            "type": "shell",
+            "command": "coppa-api",
+            "args": ["${input:apiName}"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Focus: Task Checklist",
+            "type": "shell",
+            "command": "echo",
+            "args": [
+                "🎯 TASK FOCUS CHECKLIST:\n✓ What exactly needs to be changed?\n✓ What files are in-scope vs out-of-scope?\n✓ Can MCP servers help (coppa-component, arm-validate)?\n✓ Am I making minimal, targeted changes?\n✓ Am I preserving working code?\n\n📖 See: .vscode/TASK_FOCUS_CHECKLIST.md"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "componentName",
+            "description": "Component name (e.g., UserProfile, IncidentForm)",
+            "default": "MyComponent",
+            "type": "promptString"
+        },
+        {
+            "id": "apiName",
+            "description": "API endpoint name (e.g., login, search, report)",
+            "default": "endpoint",
+            "type": "promptString"
+        }
+    ]
+}

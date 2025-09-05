@@ -1,0 +1,29 @@
+[
+    {
+        "key": "ctrl+shift+m c",
+        "command": "workbench.action.tasks.runTask",
+        "args": "MCP: Generate Component"
+    },
+    {
+        "key": "ctrl+shift+m a",
+        "command": "workbench.action.tasks.runTask", 
+        "args": "MCP: Create API Endpoint"
+    },
+    {
+        "key": "ctrl+shift+m v",
+        "command": "workbench.action.tasks.runTask",
+        "args": "MCP: Validate ARM Template"
+    },
+    {
+        "key": "ctrl+shift+m h",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "mcp-help\n"
+        }
+    },
+    {
+        "key": "ctrl+shift+f t",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Focus: Task Checklist"
+    }
+]
