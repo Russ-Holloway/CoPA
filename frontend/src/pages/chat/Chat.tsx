@@ -39,6 +39,7 @@ import { QuestionInput } from '../../components/QuestionInput'
 import { ChatHistoryPanel } from '../../components/ChatHistory/ChatHistoryPanel'
 import { AppStateContext } from '../../state/AppProvider'
 import { useBoolean } from '@fluentui/react-hooks'
+import { DebugPanel } from '../../components/DebugPanel'
 
 const enum messageStatus {
   NotRunning = 'Not Running',
@@ -50,6 +51,10 @@ const Chat = () => {
   const appStateContext = useContext(AppStateContext)
   const ui = appStateContext?.state.frontendSettings?.ui
   const AUTH_ENABLED = appStateContext?.state.frontendSettings?.auth_enabled
+  
+  // Debug: Log UI data (remove in production)
+  // console.log('🎯 Chat component UI data:', ui)
+  // console.log('🏷️ Police force taglines:', ui?.police_force_tagline, ui?.police_force_tagline_2)
   const chatMessageStreamEnd = useRef<HTMLDivElement | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showLoadingMessage, setShowLoadingMessage] = useState<boolean>(false)
@@ -816,18 +821,14 @@ const Chat = () => {
                 {/* Main content area */}
                 <div className={styles.mainContentArea}>
                   {/* Police force taglines displayed when configured */}
-                  {(ui?.police_force_tagline || ui?.police_force_tagline_2) && (
-                    <div className={styles.chatEmptyStateLogo}>
-                      {ui?.police_force_tagline && (
-                        <p className={`${styles.chatEmptyStateTagline} ${styles.solidBlueText}`}>{ui.police_force_tagline}</p>
-                      )}
-                      {ui?.police_force_tagline_2 && (
-                        <p className={`${styles.chatEmptyStateTagline} ${styles.solidBlueText}`}>{ui.police_force_tagline_2}</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Input section at position 2 - now full width */}
+                  <div className={styles.chatEmptyStateLogo}>
+                    <p className={`${styles.chatEmptyStateTagline} ${styles.solidBlueText}`}>
+                      {ui?.police_force_tagline || "This version of CoPA is configured for British Transport Police"}
+                    </p>
+                    <p className={`${styles.chatEmptyStateTagline} ${styles.solidBlueText}`}>
+                      {ui?.police_force_tagline_2 || "CoPA for BTP has both local and national policy and guidance"}
+                    </p>
+                  </div>                  {/* Input section at position 2 - now full width */}
                   <Stack className={`${styles.chatInputCentered} ${styles.inputFullWidth}`}>
                     <QuestionInput
                       clearOnSend

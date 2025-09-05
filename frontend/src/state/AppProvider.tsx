@@ -139,12 +139,14 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
 
   useEffect(() => {
     const getFrontendSettings = async () => {
+      console.log('🔍 Fetching frontend settings...')
       frontendSettings()
         .then(response => {
+          console.log('✅ Frontend settings received:', response)
           dispatch({ type: 'FETCH_FRONTEND_SETTINGS', payload: response as FrontendSettings })
         })
         .catch(_err => {
-          console.error('There was an issue fetching your data.')
+          console.error('❌ There was an issue fetching your data.')
         })
     }
     getFrontendSettings()

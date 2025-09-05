@@ -8,20 +8,20 @@ p:contains("configured for"),
 p:contains("BTP has both"),
 [class*="chatEmptyStateTagline"],
 [class*="solidBlueText"] {
-  color: #667eea !important;
+  color: #003366 !important;
   background: none !important;
   background-image: none !important;
   background-clip: initial !important;
   -webkit-background-clip: initial !important;
-  -webkit-text-fill-color: #667eea !important;
+  -webkit-text-fill-color: #003366 !important;
 }
 
 /* Alternative approach - target any paragraph with police force content */
 p[class*="tagline" i] {
-  color: #667eea !important;
+  color: #003366 !important;
   background: transparent !important;
   background-image: none !important;
-  -webkit-text-fill-color: #667eea !important;
+  -webkit-text-fill-color: #003366 !important;
 }
 
 /* CSS Custom Properties for Light and Dark themes */
@@ -222,4 +222,19 @@ div[class*="ms-Stack-item"][class*="citationPanel"] {
     min-width: 450px !important;
     width: 500px !important;
   }
+}
+
+/* Global override for police taglines to prevent any gradient inheritance */
+.police-tagline,
+[class*="police"],
+[class*="tagline"],
+.solidBlueText,
+.solidBlueText * {
+  color: #003366 !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: #003366 !important;
+  text-shadow: none !important;
 }
