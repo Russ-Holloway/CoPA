@@ -1,0 +1,166 @@
+#!/bin/bash
+# CoPPA MCP Server - Common Development Commands
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Navigate to MCP server directory
+MCP_DIR="$(dirname "$0")"
+cd "$MCP_DIR"
+
+show_help() {
+    echo -e "${BLUE}CoPPA Development Helper - Common Commands${NC}"
+    echo ""
+    echo -e "${YELLOW}Quick Actions:${NC}"
+    echo "  ./coppa-dev component <ComponentName>     - Generate React component"
+    echo "  ./coppa-dev route <route_name> <path>     - Generate Flask route"  
+    echo "  ./coppa-dev interface <InterfaceName>     - Generate TypeScript interface"
+    echo "  ./coppa-dev form <FormName>               - Generate accessible form"
+    echo "  ./coppa-dev security-check                - Run security analysis"
+    echo "  ./coppa-dev accessibility-check           - Run accessibility check"
+    echo ""
+    echo -e "${YELLOW}Server Management:${NC}"
+    echo "  ./coppa-dev start                         - Start MCP server"
+    echo "  ./coppa-dev stop                          - Stop MCP server"
+    echo "  ./coppa-dev restart                       - Restart MCP server"
+    echo "  ./coppa-dev status                        - Check server status"
+    echo "  ./coppa-dev logs                          - View server logs"
+    echo ""
+    echo -e "${YELLOW}Development:${NC}"
+    echo "  ./coppa-dev build                         - Build the server"
+    echo "  ./coppa-dev dev                           - Run in development mode"
+    echo "  ./coppa-dev test                          - Quick functionality test"
+    echo "  ./coppa-dev setup                         - Initial setup"
+    echo ""
+    echo -e "${YELLOW}Examples:${NC}"
+    echo "  ./coppa-dev component IncidentReport"
+    echo "  ./coppa-dev route create_incident /api/incidents"
+    echo "  ./coppa-dev interface PoliceReportData"
+    echo "  ./coppa-dev form IncidentReportForm"
+}
+
+run_mcp_command() {
+    local command="$1"
+    echo -e "${BLUE}Running MCP command: ${command}${NC}"
+    echo "${command}" | timeout 10s npm start
+}
+
+case "$1" in
+    "component")
+        if [ -z "$2" ]; then
+            echo -e "${RED}Error: Component name required${NC}"
+            echo "Usage: ./coppa-dev component <ComponentName>"
+            exit 1
+        fi
+        COMPONENT_NAME="$2"
+        COMMAND="generate_react_component {\"componentName\": \"${COMPONENT_NAME}\", \"useFluentUI\": true, \"isAccessible\": true, \"includeTests\": true}"
+        run_mcp_command "$COMMAND"
+        ;;
+    
+    "route")
+        if [ -z "$2" ] || [ -z "$3" ]; then
+            echo -e "${RED}Error: Route name and path required${NC}"
+            echo "Usage: ./coppa-dev route <route_name> <path>"
+            exit 1
+        fi
+        ROUTE_NAME="$2"
+        ROUTE_PATH="$3"
+        COMMAND="create_flask_route {\"routeName\": \"${ROUTE_NAME}\", \"path\": \"${ROUTE_PATH}\", \"methods\": [\"GET\", \"POST\"], \"requiresAuth\": true, \"requiresCosmosDB\": true}"
+        run_mcp_command "$COMMAND"
+        ;;
+    
+    "interface")
+        if [ -z "$2" ]; then
+            echo -e "${RED}Error: Interface name required${NC}"
+            echo "Usage: ./coppa-dev interface <InterfaceName>"
+            exit 1
+        fi
+        INTERFACE_NAME="$2"
+        COMMAND="create_typescript_interface {\"interfaceName\": \"${INTERFACE_NAME}\", \"fields\": [{\"name\": \"id\", \"type\": \"string\"}, {\"name\": \"createdAt\", \"type\": \"Date\"}]}"
+        run_mcp_command "$COMMAND"
+        ;;
+    
+    "form")
+        if [ -z "$2" ]; then
+            echo -e "${RED}Error: Form name required${NC}"
+            echo "Usage: ./coppa-dev form <FormName>"
+            exit 1
+        fi
+        FORM_NAME="$2"
+        COMMAND="generate_accessible_form {\"formName\": \"${FORM_NAME}\", \"fields\": [{\"name\": \"title\", \"type\": \"text\", \"label\": \"Title\", \"required\": true}], \"includeValidation\": true}"
+        run_mcp_command "$COMMAND"
+        ;;
+    
+    "security-check")
+        COMMAND="check_security_patterns {\"language\": \"typescript\", \"context\": \"frontend\"}"
+        run_mcp_command "$COMMAND"
+        ;;
+    
+    "accessibility-check")
+        COMMAND="check_accessibility_compliance {\"componentType\": \"form\", \"wcagLevel\": \"AA\"}"
+        run_mcp_command "$COMMAND"
+        ;;
+    
+    "start")
+        echo -e "${GREEN}Starting MCP server...${NC}"
+        npm run service:start
+        sleep 2
+        npm run service:status
+        ;;
+    
+    "stop")
+        echo -e "${YELLOW}Stopping MCP server...${NC}"
+        npm run service:stop
+        ;;
+    
+    "restart")
+        echo -e "${YELLOW}Restarting MCP server...${NC}"
+        npm run service:restart
+        sleep 2
+        npm run service:status
+        ;;
+    
+    "status")
+        npm run service:status
+        ;;
+    
+    "logs")
+        echo -e "${BLUE}Showing MCP server logs (Ctrl+C to exit):${NC}"
+        npm run logs
+        ;;
+    
+    "build")
+        echo -e "${BLUE}Building MCP server...${NC}"
+        npm run rebuild
+        ;;
+    
+    "dev")
+        echo -e "${BLUE}Starting in development mode...${NC}"
+        npm run dev
+        ;;
+    
+    "test")
+        echo -e "${BLUE}Running quick functionality test...${NC}"
+        npm run quick-test
+        ;;
+    
+    "setup")
+        echo -e "${BLUE}Running initial setup...${NC}"
+        ./setup.sh
+        ;;
+    
+    "help"|"--help"|"-h"|"")
+        show_help
+        ;;
+    
+    *)
+        echo -e "${RED}Unknown command: $1${NC}"
+        echo ""
+        show_help
+        exit 1
+        ;;
+esac
