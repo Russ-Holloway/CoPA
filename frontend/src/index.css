@@ -223,3 +223,18 @@ div[class*="ms-Stack-item"][class*="citationPanel"] {
     width: 500px !important;
   }
 }
+
+/* Global override for police taglines to prevent any gradient inheritance */
+.police-tagline,
+[class*="police"],
+[class*="tagline"],
+.solidBlueText,
+.solidBlueText * {
+  color: #003366 !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: #003366 !important;
+  text-shadow: none !important;
+}
