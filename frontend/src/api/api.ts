@@ -314,14 +314,27 @@ export const historyEnsure = async (): Promise<CosmosDBHealth> => {
 }
 
 export const frontendSettings = async (): Promise<Response | null> => {
-  const response = await fetch('/frontend_settings', {
+  console.log('🌐 API: Making request to /frontend_settings')
+  // Try direct connection first, then fallback to proxy
+  const url = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+    ? 'http://localhost:8000/frontend_settings' 
+    : '/frontend_settings'
+  
+  console.log('🎯 API: Using URL:', url)
+  
+  const response = await fetch(url, {
     method: 'GET'
   })
     .then(res => {
+      console.log('📡 API: Response status:', res.status, res.statusText)
       return res.json()
     })
+    .then(data => {
+      console.log('📦 API: Response data:', data)
+      return data
+    })
     .catch(_err => {
-      console.error('There was an issue fetching your data.')
+      console.error('❌ API: Error fetching frontend_settings:', _err)
       return null
     })
 
