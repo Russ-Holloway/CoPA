@@ -159,6 +159,53 @@ The application has been comprehensively tested using:
 
 ---
 
+## Development Tools - MCP Servers
+
+**🚀 AI-Powered Development Assistant** - CoPPA includes three specialized Model Context Protocol (MCP) servers to accelerate secure, accessible development.
+
+### 🔧 Available MCP Servers
+
+| Server | Purpose | Key Features |
+|--------|---------|--------------|
+| **CoPPA Dev Helper** | React/Flask development | Generate accessible components, secure APIs, TypeScript interfaces |
+| **Azure ARM Helper** | Infrastructure validation | ARM template validation, identity fixes, role assignment patterns |
+| **Microsoft Docs** | Official documentation | Real-time access to Microsoft's latest docs and best practices |
+
+### ⚡ Quick Setup (One Command)
+
+```bash
+./setup-mcp-servers.sh    # Installs and configures all MCP servers
+```
+
+### 💡 Usage Examples
+
+```bash
+# Generate accessible React components
+coppa-component IncidentReport
+
+# Validate Azure infrastructure
+arm-validate infra/main.bicep
+arm-web-identity              # Fix identity reference errors
+
+# Access Microsoft documentation (via VS Code Copilot)
+# Ask: "What are the Azure CLI commands for...? **search Microsoft docs**"
+```
+
+### 🎯 Perfect for CoPPA Development
+
+- **Accessibility Built-in:** All generated components follow WCAG 2.1 AA standards
+- **Security First:** Police data protection patterns and input validation
+- **Azure Optimized:** Infrastructure helpers for our Azure deployment
+- **Microsoft Standards:** Official guidance for TypeScript, React, and .NET
+
+### 📖 Documentation
+
+- [CoPPA Dev Helper Guide](mcp-servers/coppa-dev-helper/README.md)
+- [Azure ARM Helper Guide](mcp-servers/azure-arm-helper/QUICK_START.md) 
+- [Microsoft Docs Setup](mcp-servers/microsoft-docs/README.md)
+
+---
+
 ## Screenshots
 
 > _Include screenshots or GIFs here to demonstrate the interface and functionality._
