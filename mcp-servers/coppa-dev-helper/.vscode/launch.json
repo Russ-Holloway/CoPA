@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug CoPPA Dev Helper MCP Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/index.js",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "preLaunchTask": "build",
+      "outFiles": ["${workspaceFolder}/build/**/*.js"]
+    }
+  ]
+}
