@@ -233,44 +233,44 @@
   line-height: 30px;
   text-align: center;
   letter-spacing: -0.01em;
-  color: #667eea !important;
+  color: #003366 !important;
   background: transparent !important;
   background-image: none !important;
   background-clip: border-box !important;
   -webkit-background-clip: border-box !important;
-  -webkit-text-fill-color: #667eea !important;
-  -webkit-text-stroke-color: #667eea !important;
+  -webkit-text-fill-color: #003366 !important;
+  -webkit-text-stroke-color: #003366 !important;
   max-width: 600px;
   transition: all 0.3s ease;
 }
 
 /* Force solid blue with maximum specificity */
 .chatEmptyStateTagline.chatEmptyStateTagline.chatEmptyStateTagline {
-  color: #667eea !important;
+  color: #003366 !important;
   background: none !important;
   background-image: none !important;
   background-clip: initial !important;
   -webkit-background-clip: initial !important;
-  -webkit-text-fill-color: #667eea !important;
+  -webkit-text-fill-color: #003366 !important;
 }
 
 /* Additional specificity to override any inherited styles */
 p.chatEmptyStateTagline,
 .chatEmptyStateTagline p {
-  color: #667eea !important;
+  color: #003366 !important;
   background: transparent !important;
   background-image: none !important;
-  -webkit-text-fill-color: #667eea !important;
+  -webkit-text-fill-color: #003366 !important;
 }
 
 /* New class specifically for solid blue text */
 .solidBlueText {
-  color: #667eea !important;
+  color: #003366 !important;
   background: none !important;
   background-image: none !important;
   background-clip: initial !important;
   -webkit-background-clip: initial !important;
-  -webkit-text-fill-color: #667eea !important;
+  -webkit-text-fill-color: #003366 !important;
   font-style: normal;
   font-weight: 500;
   font-size: 20px;

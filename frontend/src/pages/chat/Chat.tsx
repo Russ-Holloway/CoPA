@@ -39,6 +39,7 @@ import { QuestionInput } from '../../components/QuestionInput'
 import { ChatHistoryPanel } from '../../components/ChatHistory/ChatHistoryPanel'
 import { AppStateContext } from '../../state/AppProvider'
 import { useBoolean } from '@fluentui/react-hooks'
+import { DebugPanel } from '../../components/DebugPanel'
 
 const enum messageStatus {
   NotRunning = 'Not Running',
@@ -50,6 +51,10 @@ const Chat = () => {
   const appStateContext = useContext(AppStateContext)
   const ui = appStateContext?.state.frontendSettings?.ui
   const AUTH_ENABLED = appStateContext?.state.frontendSettings?.auth_enabled
+  
+  // Debug logging
+  console.log('🎯 Chat component UI data:', ui)
+  console.log('🏷️ Police force taglines:', ui?.police_force_tagline, ui?.police_force_tagline_2)
   const chatMessageStreamEnd = useRef<HTMLDivElement | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showLoadingMessage, setShowLoadingMessage] = useState<boolean>(false)
@@ -769,6 +774,7 @@ const Chat = () => {
 
   return (
     <div className={styles.container} role="main">
+      <DebugPanel />
       {showAuthMessage ? (
         <Stack className={styles.chatEmptyState}>
           <ShieldLockRegular
