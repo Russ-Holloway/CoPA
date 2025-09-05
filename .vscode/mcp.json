@@ -6,6 +6,10 @@
       "args": [
         "/workspaces/CoPPA/mcp-servers/azure-arm-helper/build/index.js"
       ]
+    },
+    "microsoft.docs.mcp": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
     }
   }
 }

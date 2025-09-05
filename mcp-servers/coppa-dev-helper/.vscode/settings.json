@@ -1,0 +1,17 @@
+{
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/build": true,
+    "**/*.log": true,
+    "**/*.pid": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/build": true
+  }
+}

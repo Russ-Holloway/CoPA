@@ -1,0 +1,98 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ARM Helper: Build",
+      "type": "shell", 
+      "command": "npm",
+      "args": ["run", "build"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "ARM Helper: Start Server",
+      "type": "shell",
+      "command": "npm", 
+      "args": ["start"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always", 
+        "focus": false,
+        "panel": "shared"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Azure ARM Helper MCP Server started$",
+          "endsPattern": "^Type method name followed by JSON parameters, or \"exit\" to quit$"
+        }
+      }
+    },
+    {
+      "label": "ARM Helper: Test Identity Fix",
+      "type": "shell",
+      "command": "./arm-dev",
+      "args": ["identity", "Microsoft.Web/sites", "SystemAssigned"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ARM Helper: Test Role Pattern", 
+      "type": "shell",
+      "command": "./arm-dev",
+      "args": ["role", "Microsoft.Web/sites", "Microsoft.Storage/storageAccounts", "Storage Blob Data Contributor"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,  
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ARM Helper: Validate Template",
+      "type": "shell",
+      "command": "./arm-dev", 
+      "args": ["validate", "${file}"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ARM Helper: Check Best Practices",
+      "type": "shell",
+      "command": "./arm-dev",
+      "args": ["best", "${file}"],  
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}

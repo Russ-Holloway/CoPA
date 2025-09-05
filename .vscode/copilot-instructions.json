@@ -1,0 +1,17 @@
+{
+  "coppa_rules": [
+    "1. MINIMAL CHANGES - Only modify what's needed",
+    "2. MCP FIRST - Use coppa-component, coppa-api, arm-validate", 
+    "3. PRESERVE PATTERNS - Follow existing code style",
+    "4. ONE TASK - Complete fully, then stop",
+    "5. CLEAN UP - Remove backup/duplicate files after changes",
+    "6. SECURITY + A11Y - Police data + WCAG 2.1 AA"
+  ],
+  "mcp_commands": {
+    "component": "coppa-component <name>",
+    "api": "coppa-api <endpoint>",
+    "azure": "arm-validate <file>",
+    "docs": "**search Microsoft docs**"
+  },
+  "workflow": ["clarify", "mcp_first", "minimal_change", "test", "cleanup", "stop"]
+}
