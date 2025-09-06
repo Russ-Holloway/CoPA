@@ -54,21 +54,21 @@
             "metadata": {
                 "description": "Name for the search data source"
             },
-            "defaultValue": "[concat(parameters('ForceCode'), '-search-ds-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
+            "defaultValue": "[concat(parameters('ForceCode'), '-copa-datasource-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
         },
         "SearchIndexName": {
             "type": "string",
             "metadata": {
                 "description": "Name for the search index"
             },
-            "defaultValue": "[concat(parameters('ForceCode'), '-search-idx-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
+            "defaultValue": "[concat(parameters('ForceCode'), '-copa-datasource-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
         },
         "SearchIndexerName": {
             "type": "string",
             "metadata": {
                 "description": "Name for the search indexer"
             },
-            "defaultValue": "[concat(parameters('ForceCode'), '-search-idxr-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
+            "defaultValue": "[concat(parameters('ForceCode'), '-copa-datasource-index-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
         },
         "CreateAzureAdAppRegistration": {
             "type": "bool",
@@ -82,7 +82,7 @@
             "metadata": {
                 "description": "Display name for the Azure AD application"
             },
-            "defaultValue": "[concat('CoPPA-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'))]"
+            "defaultValue": "[concat('CoPA-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'))]"
         },
         "UIFeedbackEmail": {
             "type": "string",
@@ -103,7 +103,7 @@
             "metadata": {
                 "description": "Git repository URL for automatic deployment"
             },
-            "defaultValue": "https://github.com/Russ-Holloway/CoPPA.git"
+            "defaultValue": "https://github.com/Russ-Holloway/CoPA.git"
         },
         "GitBranch": {
             "type": "string",
@@ -119,26 +119,26 @@
             },
             "defaultValue": true
         },
-        "LogoUrl": {
+        "AppStartupCommand": {
             "type": "string",
             "metadata": {
-                "description": "URL of the main application logo (PNG format recommended)"
+                "description": "Command to start the application"
             },
-            "defaultValue": ""
+            "defaultValue": "python -m gunicorn app:app"
         },
-        "PoliceForceLogoUrl": {
+        "DeploymentSource": {
             "type": "string",
             "metadata": {
-                "description": "URL of the police force logo (PNG format recommended)"
+                "description": "Source type for deployment (External Git, GitHub, Local Git)"
             },
-            "defaultValue": ""
+            "defaultValue": "External Git"
         },
-        "FaviconUrl": {
+        "RepositoryType": {
             "type": "string",
             "metadata": {
-                "description": "URL of the favicon (ICO format recommended)"
+                "description": "Repository access type (Public or Private)"
             },
-            "defaultValue": ""
+            "defaultValue": "Public"
         }
     },
     "variables": {
@@ -165,7 +165,7 @@
         "AzureSearchIndexName": "[parameters('SearchIndexName')]",
         "AzureSearchIndexerName": "[parameters('SearchIndexerName')]",
         "AzureSearchSkillset1Name": "[concat(parameters('ForceCode'), '-skillset-1-', parameters('EnvironmentSuffix'))]",
-        "AzureSearchSemanticSearchConfig": "default",
+        "AzureSearchSemanticSearchConfig": "copa-datasource-semantic-configuration",
         "AzureAdAppDisplayName": "[parameters('AzureAdAppDisplayName')]",
         "CreateAzureAdAppRegistration": "[parameters('CreateAzureAdAppRegistration')]",
         "AzureOpenAIModelDeploymentName": "policingGptDeployment",
@@ -261,7 +261,7 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
                 "siteConfig": {
                     "linuxFxVersion": "PYTHON|3.11",
-                    "appCommandLine": "python -m gunicorn --config gunicorn.conf.py app:app",
+                    "appCommandLine": "[parameters('AppStartupCommand')]",
                     "appSettings": [
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
@@ -361,7 +361,7 @@
                         },
                         {
                             "name": "AZURE_SEARCH_SKILLSET",
-                            "value": "[variables('AzureSearchSkillset1Name')]"
+                            "value": "[variables('AzureSearchSkillsetName')]"
                         },
                         {
                             "name": "AZURE_SEARCH_STRICTNESS",
@@ -397,11 +397,11 @@
                         },
                         {
                             "name": "UI_CHAT_TITLE",
-                            "value": "CoPPA"
+                            "value": "CoPA"
                         },
                         {
                             "name": "UI_FAVICON",
-                            "value": "[if(empty(parameters('FaviconUrl')), 'https://via.placeholder.com/32x32/003366/ffffff?text=C', concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/favicon.ico'))]"
+                            "value": "[concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/favicon.ico')]"
                         },
                         {
                             "name": "UI_FEEDBACK_EMAIL",
@@ -413,23 +413,23 @@
                         },
                         {
                             "name": "UI_LOGO",
-                            "value": "[if(empty(parameters('LogoUrl')), 'https://via.placeholder.com/200x60/003366/ffffff?text=CoPPA', concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/logo.png'))]"
+                            "value": "[concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/logo.png')]"
                         },
                         {
                             "name": "UI_POLICE_FORCE_LOGO",
-                            "value": "[if(empty(parameters('PoliceForceLogoUrl')), 'https://via.placeholder.com/100x100/003366/ffffff?text=POLICE', concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/police-force-logo.png'))]"
+                            "value": "[concat('https://', variables('StorageAccountName'), '.blob.core.windows.net/', variables('WebAppLogosContainerName'), '/police-force-logo.png')]"
                         },
                         {
                             "name": "UI_POLICE_FORCE_TAGLINE",
-                            "value": "[concat('This version of CoPPA is configured for ', parameters('ForceCode'), ' Police Force')]"
+                            "value": "[concat('This version of CoPA is configured for ', parameters('ForceCode'), ' Police Force')]"
                         },
                         {
                             "name": "UI_POLICE_FORCE_TAGLINE_2",
-                            "value": "[concat('CoPPA for ', parameters('ForceCode'), ' has been configured with local policy and guidance as well as national policy and guidance so it is tailored to meet the needs of all ', parameters('ForceCode'), ' Officers and Staff of any rank or in any role')]"
+                            "value": "[concat('CoPA for ', parameters('ForceCode'), ' has been configured with local policy and guidance as well as national policy and guidance so it is tailored to meet the needs of all ', parameters('ForceCode'), ' Officers and Staff of any rank or in any role')]"
                         },
                         {
                             "name": "UI_TITLE",
-                            "value": "CoPPA"
+                            "value": "CoPA"
                         },
                         {
                             "name": "WEBSITE_AUTH_AAD_ALLOWED_TENANTS",
@@ -857,7 +857,7 @@
                     },
                     {
                         "name": "SKILLSET_NAME",
-                        "value": "[variables('AzureSearchSkillset1Name')]"
+                        "value": "[variables('AzureSearchSkillsetName')]"
                     },
                     {
                         "name": "SUBSCRIPTION_ID",
@@ -865,66 +865,6 @@
                     }
                 ],
                 "timeout": "PT30M",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D",
-                "storageAccountSettings": {
-                    "storageAccountName": "[variables('StorageAccountName')]",
-                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2023-04-01').keys[0].value]"
-                }
-            }
-        },
-        {
-            "condition": "[or(not(empty(parameters('LogoUrl'))), not(empty(parameters('PoliceForceLogoUrl'))), not(empty(parameters('FaviconUrl'))))]",
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2023-08-01",
-            "name": "uploadLogos",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('StorageAccountName'), 'default', variables('WebAppLogosContainerName'))]",
-                "[resourceId('Microsoft.Resources/deployments', 'managedIdentityDeployment')]",
-                "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, variables('deployScriptIdentityName'), 'rg-contributor'))]"
-            ],
-            "kind": "AzurePowerShell",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
-                }
-            },
-            "properties": {
-                "azPowerShellVersion": "8.3",
-                "scriptContent": "$ErrorActionPreference = \"Stop\"\n\n# Get parameters from environment variables\n$StorageAccountName = $env:STORAGE_ACCOUNT_NAME\n$ContainerName = $env:CONTAINER_NAME\n$ResourceGroupName = $env:RESOURCE_GROUP_NAME\n$LogoUrl = $env:LOGO_URL\n$PoliceForceLogoUrl = $env:POLICE_FORCE_LOGO_URL\n$FaviconUrl = $env:FAVICON_URL\n\nWrite-Host \"=== LOGO UPLOAD SCRIPT ===\"\nWrite-Host \"StorageAccountName: $StorageAccountName\"\nWrite-Host \"ContainerName: $ContainerName\"\nWrite-Host \"LogoUrl: $LogoUrl\"\nWrite-Host \"PoliceForceLogoUrl: $PoliceForceLogoUrl\"\nWrite-Host \"FaviconUrl: $FaviconUrl\"\nWrite-Host \"=============================\"\n\n# Install Azure CLI if not present\nif (!(Get-Command az -ErrorAction SilentlyContinue)) {\n    Write-Host \"Installing Azure CLI...\"\n    Invoke-RestMethod -Uri https://aka.ms/installazurecliwindows | Invoke-Expression\n}\n\n# Login using managed identity\nWrite-Host \"Logging in with managed identity...\"\naz login --identity\n\n# Function to upload logo from URL\nfunction Upload-LogoFromUrl {\n    param(\n        [string]$SourceUrl,\n        [string]$BlobName,\n        [string]$StorageAccount,\n        [string]$Container,\n        [string]$ResourceGroup\n    )\n    \n    if ([string]::IsNullOrEmpty($SourceUrl)) {\n        Write-Host \"No URL provided for $BlobName, skipping...\"\n        return\n    }\n    \n    try {\n        Write-Host \"Downloading $BlobName from: $SourceUrl\"\n        $tempFile = [System.IO.Path]::GetTempFileName()\n        \n        # Determine file extension from URL or default to original blob name extension\n        $urlExtension = [System.IO.Path]::GetExtension($SourceUrl.Split('?')[0])\n        if (![string]::IsNullOrEmpty($urlExtension)) {\n            $tempFile = $tempFile + $urlExtension\n        }\n        \n        # Download the image with proper headers\n        $webClient = New-Object System.Net.WebClient\n        $webClient.Headers.Add('User-Agent', 'CoPPA-Logo-Uploader/1.0')\n        $webClient.DownloadFile($SourceUrl, $tempFile)\n        \n        Write-Host \"Downloaded file size: $((Get-Item $tempFile).Length) bytes\"\n        \n        # Upload to blob storage using Azure CLI\n        Write-Host \"Uploading $BlobName to blob storage...\"\n        az storage blob upload `\n            --account-name $StorageAccount `\n            --container-name $Container `\n            --name $BlobName `\n            --file $tempFile `\n            --overwrite `\n            --auth-mode login\n            \n        if ($LASTEXITCODE -eq 0) {\n            Write-Host \"Successfully uploaded $BlobName to blob storage\"\n        } else {\n            throw \"Azure CLI upload failed with exit code $LASTEXITCODE\"\n        }\n        \n        # Cleanup temp file\n        Remove-Item $tempFile -Force -ErrorAction SilentlyContinue\n        \n    } catch {\n        Write-Error \"Failed to upload $BlobName : $_\"\n        # Clean up temp file on error\n        Remove-Item $tempFile -Force -ErrorAction SilentlyContinue\n        throw\n    }\n}\n\n# Upload logos if URLs are provided\nUpload-LogoFromUrl -SourceUrl $LogoUrl -BlobName 'logo.png' -StorageAccount $StorageAccountName -Container $ContainerName -ResourceGroup $ResourceGroupName\nUpload-LogoFromUrl -SourceUrl $PoliceForceLogoUrl -BlobName 'police-force-logo.png' -StorageAccount $StorageAccountName -Container $ContainerName -ResourceGroup $ResourceGroupName\nUpload-LogoFromUrl -SourceUrl $FaviconUrl -BlobName 'favicon.ico' -StorageAccount $StorageAccountName -Container $ContainerName -ResourceGroup $ResourceGroupName\n\nWrite-Host \"Logo upload process completed successfully.\"",
-                "environmentVariables": [
-                    {
-                        "name": "STORAGE_ACCOUNT_NAME",
-                        "value": "[variables('StorageAccountName')]"
-                    },
-                    {
-                        "name": "CONTAINER_NAME",
-                        "value": "[variables('WebAppLogosContainerName')]"
-                    },
-                    {
-                        "name": "RESOURCE_GROUP_NAME",
-                        "value": "[parameters('ResourceGroupName')]"
-                    },
-                    {
-                        "name": "LOGO_URL",
-                        "value": "[parameters('LogoUrl')]"
-                    },
-                    {
-                        "name": "POLICE_FORCE_LOGO_URL",
-                        "value": "[parameters('PoliceForceLogoUrl')]"
-                    },
-                    {
-                        "name": "FAVICON_URL",
-                        "value": "[parameters('FaviconUrl')]"
-                    },
-                    {
-                        "name": "SUBSCRIPTION_ID",
-                        "value": "[subscription().subscriptionId]"
-                    }
-                ],
-                "timeout": "PT10M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D",
                 "storageAccountSettings": {
