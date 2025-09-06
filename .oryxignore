@@ -1,0 +1,4 @@
+frontend/
+mcp-servers/
+.vite/
+node_modules/

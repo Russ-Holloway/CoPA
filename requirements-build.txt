@@ -1,0 +1,6 @@
+# Build-time requirements
+# Include all production requirements
+-r requirements.txt
+
+# Additional build tools if needed
+# (currently none needed for Python-only build)
