@@ -31,7 +31,7 @@
 
 Deploy instantly with PDS-compliant naming and automatic configuration:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstbtpcoppatestdeployment.blob.core.windows.net%2Fdeployment%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fstbtpcoppatestdeployment.blob.core.windows.net%2Fdeployment%2FcreateUiDefinition.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstcoppadeployment.blob.core.windows.net%2Fcoppa-deployment%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fstcoppadeployment.blob.core.windows.net%2Fcoppa-deployment%2FcreateUiDefinition.json)
 
 **Deployment Process:**
 1. **Click Deploy** → Azure infrastructure provisioned with PDS naming
