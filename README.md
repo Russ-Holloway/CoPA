@@ -1,6 +1,6 @@
-# CoPPA - College of Policing Assistant
+# CoPA - College of Policing Assistant
 
-**CoPPA (College of Policing Assistant)** is an AI-powered assistant designed to enhance police decision-making and effectiveness. Built on secure Microsoft Azure infrastructure, it integrates trusted data sources to deliver actionable, transparent guidance for law enforcement professionals.
+**CoPA (College of Policing Assistant)** is an AI-powered assistant designed to enhance police decision-making and effectiveness. Built on secure Microsoft Azure infrastructure, it integrates trusted data sources to deliver actionable, transparent guidance for law enforcement professionals.
 
 ---
 
