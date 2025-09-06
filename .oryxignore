@@ -2,3 +2,13 @@ frontend/
 mcp-servers/
 .vite/
 node_modules/
+package.json
+package-lock.json
+tsconfig.json
+vite.config.ts
+jest.config.ts
+eslint.config.ts
+*.ts
+*.tsx
+*.js
+*.jsx

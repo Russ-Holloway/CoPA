@@ -1,3 +1,1 @@
-platform=python
-platform-version=3.11
-disable-nodejs-detection=true
+ORYX_PLATFORM=python

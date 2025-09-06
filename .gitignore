@@ -11,6 +11,10 @@ __pycache__/
 *.log
 dist/
 build/
+.vite/
+
+# Temporarily renamed files to avoid Oryx Node.js detection
+*.bak
 
 # Security scan results (generated files, not source code)
 security-scan-results.txt
