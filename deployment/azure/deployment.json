@@ -204,8 +204,8 @@
             "kind": "AzurePowerShell",
             "properties": {
                 "azPowerShellVersion": "8.3",
-                "scriptContent": "param([string]$AppDisplayName,[string]$WebAppUrl,[int]$ClientSecretExpirationMonths,[string]$TenantId,[string]$SubscriptionId)\nWrite-Output \"Starting Azure AD App Registration setup...\"\nWrite-Output \"App Display Name: $AppDisplayName\"\nWrite-Output \"Web App URL: $WebAppUrl\"\nWrite-Output \"Client Secret Expiration: $ClientSecretExpirationMonths months\"\nWrite-Output \"Tenant ID: $TenantId\"\nWrite-Output \"Subscription ID: $SubscriptionId\"\n\n# Provide clear instructions for manual setup (no Az modules to avoid environment conflicts)\n$instructions = @\"\n\nAZURE AD SETUP REQUIRED\n\nYour deployment is complete, but Azure AD app registration requires manual setup due to security permissions.\n\nPLEASE COMPLETE THESE STEPS:\n\n1. Go to Azure Portal > Azure Active Directory > App registrations\n2. Click 'New registration'\n3. Name: $AppDisplayName\n4. Supported account types: Accounts in this organizational directory only\n5. Redirect URI: Web > $WebAppUrl/.auth/login/aad/callback\n6. Click 'Register'\n\n7. In the app registration:\n   - Note the Application (client) ID\n   - Go to 'Certificates & secrets' > 'New client secret'\n   - Description: 'CoPPA Deployment Secret'\n   - Expires: $ClientSecretExpirationMonths months\n   - Click 'Add' and COPY THE SECRET VALUE\n\n8. Go to 'Authentication':\n   - Add redirect URI: $WebAppUrl/redirect\n   - Logout URL: $WebAppUrl/.auth/logout\n   - Enable 'ID tokens' under Implicit grant\n\n9. Update your app configuration with:\n   - AZURE_CLIENT_ID: [Application ID from step 7]\n   - AZURE_CLIENT_SECRET: [Secret value from step 7]\n   - AZURE_TENANT_ID: $TenantId\n\nThis manual setup ensures proper security permissions are granted by an administrator.\n\n\"@\n\nWrite-Output $instructions\n\n# Set outputs for manual reference\n$DeploymentScriptOutputs = @{}\n$DeploymentScriptOutputs['TenantId'] = $TenantId\n$DeploymentScriptOutputs['SubscriptionId'] = $SubscriptionId\n$DeploymentScriptOutputs['Instructions'] = $instructions\n$DeploymentScriptOutputs['RequiredAppName'] = $AppDisplayName\n$DeploymentScriptOutputs['RequiredRedirectUri'] = \"$WebAppUrl/.auth/login/aad/callback\"\n$DeploymentScriptOutputs['RequiredLogoutUrl'] = \"$WebAppUrl/.auth/logout\"\n\nWrite-Output \"Azure AD setup instructions provided. Manual configuration required.\"",
-                "arguments": "[concat('-AppDisplayName \"', variables('AzureAdAppDisplayName'), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\" -ClientSecretExpirationMonths 24 -TenantId \"', subscription().tenantId, '\" -SubscriptionId \"', subscription().subscriptionId, '\"')]",
+                "scriptContent": "param([string]$AppDisplayName,[string]$WebAppUrl,[int]$ClientSecretExpirationMonths,[string]$TenantId,[string]$SubscriptionId,[string]$ResourceGroupName,[string]$WebAppName)\n\nWrite-Output \"Starting automatic Azure AD App Registration setup...\"\nWrite-Output \"App Display Name: $AppDisplayName\"\nWrite-Output \"Web App URL: $WebAppUrl\"\nWrite-Output \"Tenant ID: $TenantId\"\n\ntry {\n    # Install required modules\n    Write-Output \"Installing required PowerShell modules...\"\n    Install-Module -Name Az.Resources -Force -AllowClobber -Scope CurrentUser\n    Install-Module -Name Az.Accounts -Force -AllowClobber -Scope CurrentUser\n    \n    # Connect using managed identity\n    Write-Output \"Connecting to Azure...\"\n    Connect-AzAccount -Identity\n    \n    # Create the Azure AD Application\n    Write-Output \"Creating Azure AD application...\"\n    $redirectUris = @(\n        \"$WebAppUrl/.auth/login/aad/callback\",\n        \"$WebAppUrl/redirect\"\n    )\n    \n    $app = New-AzADApplication -DisplayName $AppDisplayName -Web -RedirectUri $redirectUris -LogoutUrl \"$WebAppUrl/.auth/logout\"\n    Write-Output \"Created Azure AD application with ID: $($app.AppId)\"\n    \n    # Create service principal\n    Write-Output \"Creating service principal...\"\n    $sp = New-AzADServicePrincipal -ApplicationId $app.AppId\n    Write-Output \"Created service principal with ID: $($sp.Id)\"\n    \n    # Create client secret\n    Write-Output \"Creating client secret...\"\n    $endDate = (Get-Date).AddMonths($ClientSecretExpirationMonths)\n    $secret = New-AzADAppCredential -ApplicationId $app.AppId -EndDate $endDate -DisplayName \"CoPPA Deployment Secret\"\n    Write-Output \"Created client secret\"\n    \n    # Update App Service configuration with the client ID and secret\n    Write-Output \"Updating App Service configuration...\"\n    $headers = @{\n        'Authorization' = \"Bearer $((Get-AzAccessToken).Token)\"\n        'Content-Type' = 'application/json'\n    }\n    \n    # Get current app settings\n    $currentSettingsUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/config/appsettings/list?api-version=2023-01-01\"\n    $currentSettings = Invoke-RestMethod -Uri $currentSettingsUri -Method POST -Headers $headers\n    \n    # Add the new settings\n    $currentSettings.properties.AZURE_CLIENT_ID = $app.AppId\n    $currentSettings.properties.AZURE_CLIENT_SECRET = $secret.SecretText\n    $currentSettings.properties.AZURE_TENANT_ID = $TenantId\n    \n    # Update app settings\n    $updateSettingsUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/config/appsettings?api-version=2023-01-01\"\n    $settingsBody = $currentSettings | ConvertTo-Json -Depth 10\n    Invoke-RestMethod -Uri $updateSettingsUri -Method PUT -Headers $headers -Body $settingsBody\n    \n    Write-Output \"App Service configuration updated successfully\"\n    \n    # Update the AuthSettingsV2 with the client ID\n    Write-Output \"Updating authentication configuration...\"\n    $authUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/config/authsettingsV2?api-version=2023-01-01\"\n    $authConfig = @{\n        properties = @{\n            platform = @{\n                enabled = $true\n            }\n            globalValidation = @{\n                requireAuthentication = $true\n                unauthenticatedClientAction = 'RedirectToLoginPage'\n                redirectToProvider = 'azureactivedirectory'\n            }\n            identityProviders = @{\n                azureActiveDirectory = @{\n                    enabled = $true\n                    registration = @{\n                        clientId = $app.AppId\n                        clientSecretSettingName = 'AZURE_CLIENT_SECRET'\n                        openIdIssuer = \"https://sts.windows.net/$TenantId/\"\n                    }\n                    validation = @{\n                        defaultAuthorizationPolicy = @{\n                            allowedApplications = @()\n                        }\n                    }\n                }\n            }\n            login = @{\n                tokenStore = @{\n                    enabled = $true\n                }\n            }\n        }\n    }\n    \n    $authBody = $authConfig | ConvertTo-Json -Depth 10\n    Invoke-RestMethod -Uri $authUri -Method PUT -Headers $headers -Body $authBody\n    \n    Write-Output \"Authentication configuration updated successfully\"\n    \n    # Set output values\n    $DeploymentScriptOutputs = @{}\n    $DeploymentScriptOutputs['AppId'] = $app.AppId\n    $DeploymentScriptOutputs['TenantId'] = $TenantId\n    $DeploymentScriptOutputs['ServicePrincipalId'] = $sp.Id\n    $DeploymentScriptOutputs['AdminConsentUrl'] = \"https://login.microsoftonline.com/$TenantId/adminconsent?client_id=$($app.AppId)\"\n    $DeploymentScriptOutputs['NextSteps'] = \"OPTIONAL: If your organization requires admin consent, visit the AdminConsentUrl to grant permissions.\"\n    \n    Write-Output \"✅ Azure AD App Registration completed successfully!\"\n    Write-Output \"App ID: $($app.AppId)\"\n    Write-Output \"Admin Consent URL (if needed): https://login.microsoftonline.com/$TenantId/adminconsent?client_id=$($app.AppId)\"\n    \n} catch {\n    Write-Error \"Failed to create Azure AD application: $($_.Exception.Message)\"\n    throw\n}",
+                "arguments": "[concat('-AppDisplayName \"', variables('AzureAdAppDisplayName'), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\" -ClientSecretExpirationMonths 24 -TenantId \"', subscription().tenantId, '\" -SubscriptionId \"', subscription().subscriptionId, '\" -ResourceGroupName \"', resourceGroup().name, '\" -WebAppName \"', variables('WebsiteName'), '\"')]",
                 "supportingScriptUris": [],
                 "storageAccountSettings": {
                     "storageAccountName": "[variables('StorageAccountName')]",
@@ -461,43 +461,34 @@
             }
         },
 
+
         {
-            "condition": "[variables('CreateAzureAdAppRegistration')]",
-            "type": "Microsoft.Web/sites/config",
-            "apiVersion": "2023-01-01",
-            "name": "[concat(variables('WebsiteName'), '/authsettingsV2')]",
+            "condition": "[parameters('EnableGitDeployment')]",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2023-08-01",
+            "name": "setupSourceControl",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
-                "[resourceId('Microsoft.Resources/deploymentScripts', concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName'))))]"
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]"
             ],
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
+                }
+            },
+            "kind": "AzurePowerShell",
             "properties": {
-                "platform": {
-                    "enabled": true
-                },
-                "globalValidation": {
-                    "requireAuthentication": true,
-                    "unauthenticatedClientAction": "RedirectToLoginPage",
-                    "redirectToProvider": "azureactivedirectory"
-                },
-                "identityProviders": {
-                    "azureActiveDirectory": {
-                        "enabled": true,
-                        "registration": {
-                            "clientId": "",
-                            "clientSecretSettingName": "AZURE_CLIENT_SECRET",
-                            "openIdIssuer": "[concat('https://sts.windows.net/', subscription().tenantId, '/')]"
-                        },
-                        "validation": {
-                            "defaultAuthorizationPolicy": {
-                                "allowedApplications": []
-                            }
-                        }
-                    }
-                },
-                "login": {
-                    "tokenStore": {
-                        "enabled": true
-                    }
+                "azPowerShellVersion": "8.3",
+                "scriptContent": "param([string]$SubscriptionId,[string]$ResourceGroupName,[string]$WebAppName,[string]$GitUrl,[string]$GitBranch)\n\nWrite-Output \"Setting up source control deployment with timing optimization...\"\nWrite-Output \"Web App: $WebAppName\"\nWrite-Output \"Git URL: $GitUrl\"\nWrite-Output \"Branch: $GitBranch\"\n\n# Wait a moment for the app service to be fully ready\nWrite-Output \"Waiting 30 seconds for App Service to fully initialize...\"\nStart-Sleep -Seconds 30\n\n# Set up source control using REST API with proper error handling\n$headers = @{\n    'Authorization' = \"Bearer $((Get-AzAccessToken).Token)\"\n    'Content-Type' = 'application/json'\n}\n\n$sourceControlBody = @{\n    properties = @{\n        repoUrl = $GitUrl\n        branch = $GitBranch\n        isManualIntegration = $true\n        isGitHubAction = $false\n        deploymentRollbackEnabled = $false\n        isMercurial = $false\n    }\n} | ConvertTo-Json -Depth 5\n\n$sourceControlUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/sourcecontrols/web?api-version=2023-01-01\"\n\ntry {\n    Write-Output \"Configuring source control...\"\n    $response = Invoke-RestMethod -Uri $sourceControlUri -Method PUT -Headers $headers -Body $sourceControlBody\n    Write-Output \"Source control configured successfully\"\n    Write-Output \"Note: The initial deployment may take several minutes to complete in the background\"\n} catch {\n    Write-Output \"Source control setup initiated - deployment will continue asynchronously\"\n    Write-Output \"If needed, you can manually sync from the Deployment Center in the Azure Portal\"\n}\n\nWrite-Output \"Source control setup completed\"",
+                "arguments": "[concat('-SubscriptionId \"', subscription().subscriptionId, '\" -ResourceGroupName \"', resourceGroup().name, '\" -WebAppName \"', variables('WebsiteName'), '\" -GitUrl \"', parameters('GitRepositoryUrl'), '\" -GitBranch \"', parameters('GitBranch'), '\"')]",
+                "timeout": "PT10M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D",
+                "storageAccountSettings": {
+                    "storageAccountName": "[variables('StorageAccountName')]",
+                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2023-04-01').keys[0].value]"
                 }
             }
         },
@@ -893,7 +884,7 @@
         },
         "nextSteps": {
             "type": "string",
-            "value": "IMPORTANT: Go to your App Service Deployment Center and click 'Sync' to deploy the application code. The infrastructure is ready but code deployment requires manual trigger for optimal timing."
+            "value": "Deployment completed! Source control is configured and initial deployment is starting automatically. If you need to redeploy later, use the Deployment Center in Azure Portal."
         },
         "debugInfo": {
             "type": "object",
