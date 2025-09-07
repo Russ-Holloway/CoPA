@@ -165,6 +165,7 @@
         "AzureSearchIndexName": "[parameters('SearchIndexName')]",
         "AzureSearchIndexerName": "[parameters('SearchIndexerName')]",
         "AzureSearchSkillset1Name": "[concat(parameters('ForceCode'), '-skillset-1-', parameters('EnvironmentSuffix'))]",
+        "AzureSearchSkillsetName": "[concat(parameters('ForceCode'), '-skillset-1-', parameters('EnvironmentSuffix'))]",
         "AzureSearchSemanticSearchConfig": "copa-datasource-semantic-configuration",
         "AzureAdAppDisplayName": "[parameters('AzureAdAppDisplayName')]",
         "CreateAzureAdAppRegistration": "[parameters('CreateAzureAdAppRegistration')]",
