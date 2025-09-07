@@ -397,6 +397,18 @@
                             "value": "true"
                         },
                         {
+                            "name": "WEBSITE_ENABLE_SYNC_UPDATE_SITE",
+                            "value": "true"
+                        },
+                        {
+                            "name": "ORYX_PLATFORM",
+                            "value": "python"
+                        },
+                        {
+                            "name": "DISABLE_NODE_BUILD",
+                            "value": "true"
+                        },
+                        {
                             "name": "UI_CHAT_TITLE",
                             "value": "CoPA"
                         },
