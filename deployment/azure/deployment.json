@@ -447,6 +447,14 @@
                         {
                             "name": "WEBSITE_AUTH_AAD_ALLOWED_TENANTS",
                             "value": "[subscription().tenantId]"
+                        },
+                        {
+                            "name": "DEPLOYMENT_BRANCH",
+                            "value": "[parameters('GitBranch')]"
+                        },
+                        {
+                            "name": "REPOSITORY_URL", 
+                            "value": "[parameters('GitRepositoryUrl')]"
                         }
                     ]
                 }
@@ -491,23 +499,6 @@
                         "enabled": true
                     }
                 }
-            }
-        },
-        {
-            "condition": "[parameters('EnableGitDeployment')]",
-            "type": "Microsoft.Web/sites/sourcecontrols",
-            "apiVersion": "2023-01-01",
-            "name": "[concat(variables('WebsiteName'), '/web')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
-            ],
-            "properties": {
-                "repoUrl": "[parameters('GitRepositoryUrl')]",
-                "branch": "[parameters('GitBranch')]",
-                "isManualIntegration": true,
-                "isGitHubAction": false,
-                "deploymentRollbackEnabled": false,
-                "isMercurial": false
             }
         },
         {
@@ -891,6 +882,18 @@
         "webAppPrincipalId": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2023-01-01', 'full').identity.principalId]"
+        },
+        "websiteUrl": {
+            "type": "string",
+            "value": "[concat('https://', variables('WebsiteName'), '.azurewebsites.net')]"
+        },
+        "deploymentCenter": {
+            "type": "string",
+            "value": "[concat('https://portal.azure.com/#@/resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', variables('WebsiteName'), '/vstscd')]"
+        },
+        "nextSteps": {
+            "type": "string",
+            "value": "IMPORTANT: Go to your App Service Deployment Center and click 'Sync' to deploy the application code. The infrastructure is ready but code deployment requires manual trigger for optimal timing."
         },
         "debugInfo": {
             "type": "object",
