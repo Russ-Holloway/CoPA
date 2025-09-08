@@ -217,32 +217,6 @@
             "kind": "linux"
         },
         {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2022-04-01",
-            "name": "[guid(resourceGroup().id, variables('deployScriptIdentityName'), 'rg-contributor')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'managedIdentityDeployment')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName')), '2023-01-31').principalId]",
-                "principalType": "ServicePrincipal"
-            }
-        },
-        {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2022-04-01",
-            "name": "[guid(resourceGroup().id, variables('deployScriptIdentityName'), 'app-admin')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'managedIdentityDeployment')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName')), '2023-01-31').principalId]",
-                "principalType": "ServicePrincipal"
-            }
-        },
-        {
             "apiVersion": "2023-01-01",
             "name": "[variables('WebsiteName')]",
             "type": "Microsoft.Web/sites",
@@ -465,15 +439,8 @@
             "name": "setupSourceControl",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
             ],
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
-                }
-            },
             "kind": "AzurePowerShell",
             "properties": {
                 "azPowerShellVersion": "8.3",
@@ -766,45 +733,17 @@
             }
         },
         {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2015-01-01",
-            "name": "managedIdentityDeployment",
-            "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": [
-                        {
-                            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-                            "apiVersion": "2018-11-30",
-                            "name": "[variables('deployScriptIdentityName')]",
-                            "location": "[resourceGroup().location]"
-                        }
-                    ]
-                }
-            }
-        },
-        {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2023-08-01",
             "name": "setupSearchComponents",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]",
-                "[resourceId('Microsoft.Resources/deployments', 'managedIdentityDeployment')]",
-                "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, variables('deployScriptIdentityName'), 'rg-contributor'))]"
+                "[resourceId('Microsoft.Search/searchServices', variables('AzureSearchService'))]"
             ],
             "kind": "AzurePowerShell",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
-                }
-            },
             "properties": {
                 "azPowerShellVersion": "8.3",
-                "scriptContent": "$ErrorActionPreference = \"Stop\"\n\n# Get parameters from environment variables\n$SearchServiceName = $env:AZURE_SEARCH_SERVICE\n$SearchIndexName = $env:AZURE_SEARCH_INDEX_NAME\n$SearchIndexerName = $env:AZURE_SEARCH_INDEXER_NAME\n$SearchDataSourceName = $env:AZURE_SEARCH_DATA_SOURCE_NAME\n$StorageAccountName = $env:STORAGE_ACCOUNT_NAME\n$StorageContainerName = $env:STORAGE_CONTAINER_NAME\n$ResourceGroupName = $env:RESOURCE_GROUP_NAME\n$AzureOpenAIEndpoint = $env:AZURE_OPENAI_ENDPOINT\n$AzureOpenAIApiKey = $env:AZURE_OPENAI_KEY\n$EmbeddingDeploymentName = $env:EMBEDDING_DEPLOYMENT_NAME\n$SkillsetName = $env:SKILLSET_NAME\n\nWrite-Host \"=== SCRIPT PARAMETERS ===\"\nWrite-Host \"SearchServiceName: $SearchServiceName\"\nWrite-Host \"ResourceGroupName: $ResourceGroupName\"\nWrite-Host \"StorageAccountName: $StorageAccountName\"\nWrite-Host \"===========================\"\n\n# Get token for REST API calls\n$tokenResponse = Invoke-RestMethod -Uri \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/\" -Method Get -Headers @{Metadata=\"true\"} -ErrorAction Stop\n$accessToken = $tokenResponse.access_token\n$authHeaders = @{\n    'Authorization' = \"Bearer $accessToken\"\n    'Content-Type' = 'application/json'\n}\n\n# Get admin keys\n$searchServiceUri = \"https://management.azure.com/subscriptions/$($env:SUBSCRIPTION_ID)/resourceGroups/$ResourceGroupName/providers/Microsoft.Search/searchServices/$SearchServiceName\"\ntry {\n    $adminKeyResponse = Invoke-RestMethod -Uri \"$searchServiceUri/listAdminKeys?api-version=2023-11-01\" -Method Post -Headers $authHeaders -ErrorAction Stop\n    $adminKey = $adminKeyResponse.primaryKey\n} catch {\n    throw \"Failed to get admin key: $_\"\n}\n\n# Get storage account key\n$storageAccountUri = \"https://management.azure.com/subscriptions/$($env:SUBSCRIPTION_ID)/resourceGroups/$ResourceGroupName/providers/Microsoft.Storage/storageAccounts/$StorageAccountName\"\ntry {\n    $storageKeysResponse = Invoke-RestMethod -Uri \"$storageAccountUri/listKeys?api-version=2023-01-01\" -Method Post -Headers $authHeaders -ErrorAction Stop\n    $storageKey = $storageKeysResponse.keys[0].value\n} catch {\n    throw \"Failed to get storage key: $_\"\n}\n\n# Create data source\nWrite-Host \"Creating data source...\"\n$dataSourceDefinition = @{\n    name = $SearchDataSourceName\n    type = 'azureblob'\n    credentials = @{\n        connectionString = \"DefaultEndpointsProtocol=https;AccountName=$StorageAccountName;AccountKey=$storageKey;EndpointSuffix=core.windows.net\"\n    }\n    container = @{\n        name = $StorageContainerName\n    }\n}\n$dataSourcePayload = $dataSourceDefinition | ConvertTo-Json -Depth 5\n$dataSourceHeaders = @{\n    'api-key' = $adminKey\n    'Content-Type' = 'application/json'\n}\nInvoke-RestMethod -Uri \"https://$SearchServiceName.search.windows.net/datasources/$SearchDataSourceName`?api-version=2024-07-01\" -Method Put -Headers $dataSourceHeaders -Body $dataSourcePayload -SkipHeaderValidation\n\n# Success message\nWrite-Host \"Search components setup completed successfully.\"\n",
+                "scriptContent": "$ErrorActionPreference = \"Stop\"\n\n# Get parameters from environment variables\n$SearchServiceName = $env:AZURE_SEARCH_SERVICE\n$SearchIndexName = $env:AZURE_SEARCH_INDEX_NAME\n$SearchIndexerName = $env:AZURE_SEARCH_INDEXER_NAME\n$SearchDataSourceName = $env:AZURE_SEARCH_DATA_SOURCE_NAME\n$StorageAccountName = $env:STORAGE_ACCOUNT_NAME\n$StorageContainerName = $env:STORAGE_CONTAINER_NAME\n$ResourceGroupName = $env:RESOURCE_GROUP_NAME\n$AzureOpenAIEndpoint = $env:AZURE_OPENAI_ENDPOINT\n$AzureOpenAIApiKey = $env:AZURE_OPENAI_KEY\n$EmbeddingDeploymentName = $env:EMBEDDING_DEPLOYMENT_NAME\n$SkillsetName = $env:SKILLSET_NAME\n\nWrite-Host \"=== SCRIPT PARAMETERS ===\"\nWrite-Host \"SearchServiceName: $SearchServiceName\"\nWrite-Host \"ResourceGroupName: $ResourceGroupName\"\nWrite-Host \"StorageAccountName: $StorageAccountName\"\nWrite-Host \"===========================\"\n\n# Get token using deployment context\n$accessToken = (Get-AzAccessToken).Token\n$authHeaders = @{\n    'Authorization' = \"Bearer $accessToken\"\n    'Content-Type' = 'application/json'\n}\n\n# Get admin keys\n$searchServiceUri = \"https://management.azure.com/subscriptions/$($env:SUBSCRIPTION_ID)/resourceGroups/$ResourceGroupName/providers/Microsoft.Search/searchServices/$SearchServiceName\"\ntry {\n    $adminKeyResponse = Invoke-RestMethod -Uri \"$searchServiceUri/listAdminKeys?api-version=2023-11-01\" -Method Post -Headers $authHeaders -ErrorAction Stop\n    $adminKey = $adminKeyResponse.primaryKey\n} catch {\n    throw \"Failed to get admin key: $_\"\n}\n\n# Get storage account key\n$storageAccountUri = \"https://management.azure.com/subscriptions/$($env:SUBSCRIPTION_ID)/resourceGroups/$ResourceGroupName/providers/Microsoft.Storage/storageAccounts/$StorageAccountName\"\ntry {\n    $storageKeysResponse = Invoke-RestMethod -Uri \"$storageAccountUri/listKeys?api-version=2023-01-01\" -Method Post -Headers $authHeaders -ErrorAction Stop\n    $storageKey = $storageKeysResponse.keys[0].value\n} catch {\n    throw \"Failed to get storage key: $_\"\n}\n\n# Create data source\nWrite-Host \"Creating data source...\"\n$dataSourceDefinition = @{\n    name = $SearchDataSourceName\n    type = 'azureblob'\n    credentials = @{\n        connectionString = \"DefaultEndpointsProtocol=https;AccountName=$StorageAccountName;AccountKey=$storageKey;EndpointSuffix=core.windows.net\"\n    }\n    container = @{\n        name = $StorageContainerName\n    }\n}\n$dataSourcePayload = $dataSourceDefinition | ConvertTo-Json -Depth 5\n$dataSourceHeaders = @{\n    'api-key' = $adminKey\n    'Content-Type' = 'application/json'\n}\nInvoke-RestMethod -Uri \"https://$SearchServiceName.search.windows.net/datasources/$SearchDataSourceName`?api-version=2024-07-01\" -Method Put -Headers $dataSourceHeaders -Body $dataSourcePayload -SkipHeaderValidation\n\n# Success message\nWrite-Host \"Search components setup completed successfully.\"\n",
                 "environmentVariables": [
                     {
                         "name": "AZURE_SEARCH_SERVICE",
