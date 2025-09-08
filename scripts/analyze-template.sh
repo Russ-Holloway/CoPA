@@ -12,8 +12,8 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Configuration
-TEMPLATE_FILE="infrastructure/deployment.json"
-PARAMETERS_FILE="infrastructure/deployment.dev.parameters.json"
+TEMPLATE_FILE="deployment/azure/deployment.json"
+PARAMETERS_FILE="deployment/azure/deployment.dev.parameters.json"
 
 echo -e "${GREEN}🔍 ARM Template Structure Analysis${NC}"
 echo -e "Template: ${YELLOW}${TEMPLATE_FILE}${NC}"

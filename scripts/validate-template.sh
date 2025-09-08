@@ -9,13 +9,13 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-TEMPLATE_FILE="infrastructure/deployment.json"
-PARAMETERS_FILE="infrastructure/deployment.dev.parameters.json"
+TEMPLATE_FILE="deployment/azure/deployment.json"
+PARAMETERS_FILE="deployment/azure/deployment.dev.parameters.json"
 
 # Check if parameters file exists
 if [ ! -f "$PARAMETERS_FILE" ]; then
-    if [ -f "infrastructure/deployment.parameters.json" ]; then
-        PARAMETERS_FILE="infrastructure/deployment.parameters.json"
+    if [ -f "deployment/azure/deployment.parameters.json" ]; then
+        PARAMETERS_FILE="deployment/azure/deployment.parameters.json"
     else
         PARAMETERS_FILE=""
     fi
