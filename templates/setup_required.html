@@ -186,8 +186,8 @@
         
         // If we have the special setup parameters, use them
         if (urlParams.get('setupMode') === 'true') {
-            // Extract all the parameters and build the setup URL
-            const setupUrl = 'https://russ-holloway.github.io/CoPA/azure-ad-setup/?' + 
+            // Extract all the parameters and build the setup URL (Azure-hosted)
+            const setupUrl = '/azure-ad-setup?' + 
                 Array.from(urlParams.entries())
                     .filter(([key]) => key !== 'setupMode')
                     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)

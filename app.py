@@ -134,6 +134,12 @@ async def index():
     )
 
 
+@bp.route("/azure-ad-setup")
+async def azure_ad_setup():
+    """Azure AD setup interface hosted on Azure App Service"""
+    return await render_template("azure_ad_setup.html")
+
+
 @bp.route("/favicon.ico")
 async def favicon():
     return await bp.send_static_file("favicon.ico")
