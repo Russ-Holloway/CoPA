@@ -261,21 +261,13 @@
             
             // Update button to show alternative action
             const button = document.getElementById('setupButton');
-            button.textContent = '🔄 Back to Deployment Outputs';
+            button.textContent = '� Find Setup URL in Azure Portal';
             button.onclick = function() {
                 // Get parameters from URL
                 const urlParams = new URLSearchParams(window.location.search);
                 const subscriptionId = urlParams.get('subscriptionId');
                 const resourceGroupName = urlParams.get('resourceGroupName');
                 const deploymentId = urlParams.get('deploymentId');
-                
-                // Debug: log what we have
-                console.log('Available parameters:', {
-                    subscriptionId,
-                    resourceGroupName,
-                    deploymentId,
-                    allParams: Object.fromEntries(urlParams.entries())
-                });
                 
                 if (subscriptionId && resourceGroupName && deploymentId) {
                     // Construct the exact deployment outputs URL
@@ -287,8 +279,70 @@
                     const resourceGroupUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/overview`;
                     window.open(resourceGroupUrl, '_blank');
                 } else {
-                    // Final fallback - just go to Azure Portal home
-                    window.open('https://portal.azure.com/#home', '_blank');
+                    // Try to get resource group info from Azure Instance Metadata Service
+                    button.textContent = '🔍 Finding Your Resource Group...';
+                    button.disabled = true;
+                    
+                    // Try IMDS first
+                    fetch('http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01', {
+                        headers: { 'Metadata': 'true' },
+                        timeout: 5000
+                    })
+                    .then(response => response.json())
+                    .then(metadata => {
+                        const resourceGroupName = metadata.resourceGroupName;
+                        const subscriptionId = metadata.subscriptionId;
+                        
+                        if (resourceGroupName && subscriptionId) {
+                            // Success! Go directly to the resource group
+                            const resourceGroupUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/overview`;
+                            window.open(resourceGroupUrl, '_blank');
+                            
+                            // Show detailed, step-by-step instructions
+                            setTimeout(() => {
+                                alert('✅ SUCCESS! Opening your resource group: ' + resourceGroupName + '\n\n' +
+                                      '📋 STEP-BY-STEP INSTRUCTIONS:\n\n' +
+                                      '1️⃣ Look for "Deployments" in the LEFT MENU and click it\n' +
+                                      '2️⃣ Find "Microsoft.Template-..." deployment (ignore PolicyDeployment items)\n' +
+                                      '3️⃣ Click on the "Microsoft.Template-..." row\n' +
+                                      '4️⃣ Click the "Outputs" tab at the top\n' +
+                                      '5️⃣ Find "completeSetupUrl" and click the copy button\n' +
+                                      '6️⃣ Paste that URL in a new browser tab\n\n' +
+                                      '💡 TIP: The Microsoft.Template deployment will be at the top of the list!');
+                            }, 1500);
+                        } else {
+                            throw new Error('Resource group info not found in metadata');
+                        }
+                    })
+                    .catch(error => {
+                        console.log('IMDS failed, falling back to smart detection:', error);
+                        // Fallback to smart detection
+                        const hostname = window.location.hostname;
+                        const appName = hostname.split('.')[0];
+                        
+                        let searchHint = '';
+                        if (appName.includes('app-')) {
+                            const parts = appName.replace('app-', '').split('-');
+                            if (parts.length >= 2) {
+                                searchHint = `\n🎯 QUICK FIND: Look for resource group starting with "rg-${parts[0]}-${parts[1]}-"`;
+                            }
+                        }
+                        
+                        alert('🔍 FINDING YOUR SETUP URL:\n\n' +
+                              '1. Look for your resource group (starts with "rg-")' + searchHint + '\n' +
+                              '2. Click on the resource group to open it\n' +
+                              '3. Click "Deployments" in the left menu\n' +
+                              '4. Click "Microsoft.Template-..." deployment (NOT PolicyDeployment)\n' +
+                              '5. Click "Outputs" tab\n' +
+                              '6. Copy the "completeSetupUrl" value\n\n' +
+                              'Opening Azure Portal Resource Groups...');
+                        
+                        window.open('https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups', '_blank');
+                    })
+                    .finally(() => {
+                        button.textContent = '📋 Find Setup URL in Azure Portal';
+                        button.disabled = false;
+                    });
                 }
                 return false;
             };
