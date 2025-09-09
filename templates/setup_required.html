@@ -283,12 +283,12 @@
                     const outputsUrl = `https://portal.azure.com/#view/HubsExtension/DeploymentDetailsBlade/~/outputs/id/${deploymentPath}`;
                     window.open(outputsUrl, '_blank');
                 } else if (subscriptionId && resourceGroupName) {
-                    // Fallback to deployments list
-                    const deploymentsUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/deployments`;
-                    window.open(deploymentsUrl, '_blank');
+                    // Fallback to resource group page where they can find deployments
+                    const resourceGroupUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/overview`;
+                    window.open(resourceGroupUrl, '_blank');
                 } else {
-                    // Final fallback
-                    window.open('https://portal.azure.com/#blade/HubsExtension/DeploymentsBlade', '_blank');
+                    // Final fallback - just go to Azure Portal home
+                    window.open('https://portal.azure.com/#home', '_blank');
                 }
                 return false;
             };
