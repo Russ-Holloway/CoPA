@@ -87,7 +87,7 @@
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes - Create new app registration (recommended)",
+                                    "label": "✅ YES - Create new app registration (RECOMMENDED for first deployment)",
                                     "value": "Yes"
                                 },
                                 {
@@ -121,15 +121,15 @@
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Accounts in this organizational directory only (Single tenant - recommended)",
+                                    "label": "✅ Single tenant only (RECOMMENDED for police force security)",
                                     "value": "AzureADMyOrg"
                                 },
                                 {
-                                    "label": "Accounts in any organizational directory (Multi-tenant)",
+                                    "label": "Multi-tenant (any organizational directory)",
                                     "value": "AzureADMultipleOrgs"
                                 },
                                 {
-                                    "label": "Accounts in any organizational directory and personal Microsoft accounts",
+                                    "label": "Multi-tenant + personal accounts (not recommended for police use)",
                                     "value": "AzureADandPersonalMicrosoftAccount"
                                 }
                             ],
@@ -146,11 +146,11 @@
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes - Enable ID tokens (required for CoPPA)",
+                                    "label": "✅ YES - Enable ID tokens (REQUIRED for CoPPA authentication)",
                                     "value": "Yes"
                                 },
                                 {
-                                    "label": "No - Disable implicit flow",
+                                    "label": "❌ No - Disable implicit flow (will break authentication)",
                                     "value": "No"
                                 }
                             ],
@@ -167,11 +167,11 @@
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes - Grant User.Read permission (required)",
+                                    "label": "✅ YES - Grant User.Read permission (REQUIRED for login)",
                                     "value": "Yes"
                                 },
                                 {
-                                    "label": "No - Skip this permission",
+                                    "label": "❌ No - Skip this permission (will break login)",
                                     "value": "No"
                                 }
                             ],
@@ -188,11 +188,11 @@
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes - Grant Group.Read.All permission (recommended)",
+                                    "label": "✅ YES - Grant Group.Read.All (RECOMMENDED for role-based access)",
                                     "value": "Yes"
                                 },
                                 {
-                                    "label": "No - Skip group permissions",
+                                    "label": "No - Skip group permissions (limits role functionality)",
                                     "value": "No"
                                 }
                             ],
@@ -242,16 +242,16 @@
                         "type": "Microsoft.Common.DropDown",
                         "label": "User Assignment Required",
                         "defaultValue": "No",
-                        "toolTip": "Control whether users must be explicitly assigned to the application before they can access it. 'Yes' provides more security by requiring admin to assign users, 'No' allows all authenticated users in your organization to access the application.",
+                        "toolTip": "⚠️ IMPORTANT CHOICE: 'No' = Easy setup, all users in your organization can access CoPPA immediately. 'Yes' = Enhanced security, but requires manual user assignment after deployment (admins must assign each user individually in Azure AD Enterprise Applications).",
                         "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "No - All authenticated users can access (default)",
+                                    "label": "✅ NO - All authenticated users can access (RECOMMENDED for easier setup)",
                                     "value": "No"
                                 },
                                 {
-                                    "label": "Yes - Only assigned users can access (more secure)",
+                                    "label": "🔒 YES - Only assigned users can access (enhanced security, requires manual user assignment)",
                                     "value": "Yes"
                                 }
                             ],
