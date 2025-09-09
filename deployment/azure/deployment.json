@@ -807,23 +807,26 @@
         "setupRequired": {
             "condition": "[parameters('CreateAzureAdAppRegistration')]",
             "type": "string", 
-            "value": "🚨 COMPLETE SETUP: Click the Azure AD Setup URL below to secure your application"
+            "value": "🚨 COMPLETE SETUP: Copy the azureAdSetupUrl below and paste it in a new browser tab to secure your application. Select the entire URL, copy it (Ctrl+C), then paste in your browser address bar."
         },
         "azureAdSetupUrl": {
             "condition": "[parameters('CreateAzureAdAppRegistration')]",
             "type": "string",
-            "value": "[concat('https://russ-holloway.github.io/CoPA/azure-ad-setup/?', 'displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')))]"
+            "value": "[concat('https://russ-holloway.github.io/CoPA/azure-ad-setup/?', 'displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')))]",
+            "metadata": {
+                "description": "🚀 CLICK HERE: Complete Azure AD Setup - Copy this URL and paste it in a new browser tab to finish setting up authentication for your CoPA application."
+            }
         },
         "websiteUrl": {
             "type": "string",
-            "value": "[concat('https://', variables('WebsiteName'), '.azurewebsites.net')]",
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName'))), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]",
             "metadata": {
-                "description": "[if(parameters('CreateAzureAdAppRegistration'), 'Your CoPA application URL (complete Azure AD setup first)', 'Your ready-to-use CoPA application')]"
+                "description": "[if(parameters('CreateAzureAdAppRegistration'), '🚀 CLICK HERE: Your CoPA application with automatic Azure AD setup', 'Your ready-to-use CoPA application')]"
             }
         },
         "instructions": {
             "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'IMPORTANT: 1️⃣ Click azureAdSetupUrl above to complete authentication setup 2️⃣ Then access your secured app at websiteUrl', 'Your CoPA application is ready! Click websiteUrl to access your application.')]"
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'SIMPLE SETUP: Just click the websiteUrl above! It will automatically guide you through the Azure AD setup process with a beautiful interface and big clickable buttons.', 'Your CoPA application is ready! Click the websiteUrl to access your application.')]"
         },
         "webAppPrincipalId": {
             "type": "string",

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoPA Setup Required</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .status {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .status h2 {
+            color: #856404;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .status p {
+            color: #856404;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .setup-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 20px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+            margin: 20px 0;
+        }
+        
+        .setup-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(46, 204, 113, 0.4);
+            background: linear-gradient(45deg, #219a52, #27ae60);
+        }
+        
+        .steps {
+            text-align: left;
+            margin: 30px 0;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+        }
+        
+        .steps h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .steps ol {
+            margin-left: 20px;
+        }
+        
+        .steps li {
+            margin: 10px 0;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            background: #ecf0f1;
+            padding: 20px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="icon">🚔</span>
+            <h1>CoPA</h1>
+            <p>Comprehensive Police Application</p>
+        </div>
+        
+        <div class="content">
+            <div class="status">
+                <h2>⚠️ Setup Required</h2>
+                <p>Your CoPA infrastructure has been deployed successfully, but Azure AD authentication needs to be configured before you can access the application.</p>
+            </div>
+            
+            <a href="#" class="setup-button" id="setupButton">
+                🚀 Complete Azure AD Setup
+            </a>
+            
+            <div class="steps">
+                <h3>What happens next:</h3>
+                <ol>
+                    <li><strong>Click the setup button</strong> above to start the automated process</li>
+                    <li><strong>Sign in</strong> with your Azure admin account when prompted</li>
+                    <li><strong>Grant consent</strong> for the required permissions (one click)</li>
+                    <li><strong>Setup completes automatically</strong> - your app will be secured</li>
+                    <li><strong>Access your application</strong> - you'll be redirected back here when done</li>
+                </ol>
+            </div>
+            
+            <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                <strong>🔐 Admin Privileges Required:</strong> You need Global Administrator or Application Administrator permissions to complete this setup.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🛡️ Secure • Accessible • Compliant</p>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters to build the setup link
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // If we have the special setup parameters, use them
+        if (urlParams.get('setupMode') === 'true') {
+            // Extract all the parameters and build the setup URL
+            const setupUrl = 'https://russ-holloway.github.io/CoPA/azure-ad-setup/?' + 
+                Array.from(urlParams.entries())
+                    .filter(([key]) => key !== 'setupMode')
+                    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+                    .join('&');
+            
+            document.getElementById('setupButton').href = setupUrl;
+        } else {
+            // If no parameters, show a generic message
+            document.getElementById('setupButton').onclick = function() {
+                alert('Setup parameters not found. Please redeploy your CoPA application with Azure AD configuration enabled.');
+                return false;
+            };
+        }
+    </script>
+</body>
+</html>

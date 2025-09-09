@@ -115,6 +115,22 @@ def create_app():
 
 @bp.route("/")
 async def index():
+    # Check if Azure AD is configured
+    azure_client_id = os.getenv("AZURE_CLIENT_ID")
+    azure_client_secret = os.getenv("AZURE_CLIENT_SECRET")
+    
+    # If Azure AD credentials are not configured, show setup page
+    if not azure_client_id or not azure_client_secret or azure_client_id == "your-client-id-here":
+        # Check if this is a setup redirect (contains setup parameters)
+        setup_params = request.args.get('setupMode')
+        if setup_params or any(param in request.args for param in ['displayName', 'webAppUrl', 'tenantId']):
+            # This is a setup redirect, show the setup page with parameters
+            return await render_template("setup_required.html")
+        else:
+            # No setup parameters, show generic setup message
+            return await render_template("setup_required.html")
+    
+    # Azure AD is configured, show the normal application
     return await render_template(
         "index.html",
         title=app_settings.ui.title,
