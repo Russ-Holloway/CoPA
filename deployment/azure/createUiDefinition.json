@@ -238,6 +238,27 @@
                         }
                     },
                     {
+                        "name": "userAssignmentRequired",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "User Assignment Required",
+                        "defaultValue": "No",
+                        "toolTip": "Control whether users must be explicitly assigned to the application before they can access it. 'Yes' provides more security by requiring admin to assign users, 'No' allows all authenticated users in your organization to access the application.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "No - All authenticated users can access (default)",
+                                    "value": "No"
+                                },
+                                {
+                                    "label": "Yes - Only assigned users can access (more secure)",
+                                    "value": "Yes"
+                                }
+                            ],
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
+                        }
+                    },
+                    {
                         "name": "existingClientId",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Existing App Client ID",
@@ -472,6 +493,7 @@
             "AzureAdEnableGroupRead": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').enableGroupRead, 'Yes'), false)]",
             "AzureAdClientSecretDescription": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').clientSecretDescription, '')]",
             "AzureAdClientSecretExpiry": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').clientSecretExpiry, '24')]",
+            "AzureAdUserAssignmentRequired": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').userAssignmentRequired, 'Yes'), false)]",
             "ExistingAzureAdClientId": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingClientId, '')]",
             "ExistingAzureAdClientSecret": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingClientSecret, '')]",
             "ExistingAzureAdTenantId": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingTenantId, subscription().tenantId)]",
