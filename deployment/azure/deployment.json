@@ -131,9 +131,9 @@
         "AzureAdUserAssignmentRequired": {
             "type": "bool",
             "metadata": {
-                "description": "Whether users must be explicitly assigned to the application before they can access it"
+                "description": "Whether users must be explicitly assigned to the application before they can access it - recommended for police applications for proper RBAC control"
             },
-            "defaultValue": false
+            "defaultValue": true
         },
         "ExistingAzureAdClientId": {
             "type": "string",

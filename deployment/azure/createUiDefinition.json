@@ -241,18 +241,18 @@
                         "name": "userAssignmentRequired",
                         "type": "Microsoft.Common.DropDown",
                         "label": "User Assignment Required",
-                        "defaultValue": "No",
-                        "toolTip": "⚠️ IMPORTANT CHOICE: 'No' = Easy setup, all users in your organization can access CoPPA immediately. 'Yes' = Enhanced security, but requires manual user assignment after deployment (admins must assign each user individually in Azure AD Enterprise Applications).",
+                        "defaultValue": "Yes",
+                        "toolTip": "🛡️ POLICE SECURITY: 'Yes' = RECOMMENDED for police applications - enables proper RBAC control and user assignment. 'No' = Less secure, allows all users in your organization to access CoPPA immediately without assignment control.",
                         "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "✅ NO - All authenticated users can access (RECOMMENDED for easier setup)",
-                                    "value": "No"
+                                    "label": "✅ YES - Only assigned users can access (RECOMMENDED for police RBAC security)",
+                                    "value": "Yes"
                                 },
                                 {
-                                    "label": "🔒 YES - Only assigned users can access (enhanced security, requires manual user assignment)",
-                                    "value": "Yes"
+                                    "label": "⚠️ NO - All authenticated users can access (less secure, not recommended for police use)",
+                                    "value": "No"
                                 }
                             ],
                             "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
