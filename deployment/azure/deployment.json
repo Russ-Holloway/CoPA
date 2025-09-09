@@ -812,8 +812,58 @@
             "kind": "AzurePowerShell",
             "properties": {
                 "azPowerShellVersion": "8.3",
-                "scriptContent": "param([string]$SetupUrl,[string]$WebAppUrl,[string]$AppDisplayName)\n\nWrite-Output \"🎉 CoPA Infrastructure Deployment Complete!\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\nWrite-Output \"\"\nWrite-Output \"✅ App Service: Deployed and running\"\nWrite-Output \"✅ Cosmos DB: Configured and ready\"\nWrite-Output \"✅ Azure OpenAI: Connected\"\nWrite-Output \"✅ Storage Account: Provisioned\"\nWrite-Output \"✅ Application Insights: Monitoring enabled\"\nWrite-Output \"\"\nWrite-Output \"🚨 FINAL STEP: Azure AD Authentication Setup Required\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\nWrite-Output \"\"\nWrite-Output \"Your CoPA application infrastructure is now ready, but Azure AD\"\nWrite-Output \"authentication needs to be configured before you can use the app.\"\nWrite-Output \"\"\nWrite-Output \"🔗 CLICK THE LINK BELOW to complete the setup:\"\nWrite-Output \"\"\nWrite-Output \"    👆 $SetupUrl\"\nWrite-Output \"\"\nWrite-Output \"This will take you to a beautiful setup interface where you can:\"\nWrite-Output \"   ✅ Automatically create the Azure AD app registration\"\nWrite-Output \"   ✅ Configure permissions and grant consent\"\nWrite-Output \"   ✅ Set up Enterprise Application settings\"\nWrite-Output \"   ✅ Generate and secure client credentials\"\nWrite-Output \"\"\nWrite-Output \"⏳ This deployment will wait here until you complete the setup...\"\nWrite-Output \"\"\nWrite-Output \"After setup is complete:\"\nWrite-Output \"   🔗 Access your secured CoPA app at: $WebAppUrl\"\nWrite-Output \"   🎯 Your '$AppDisplayName' will be fully operational\"\nWrite-Output \"\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\nWrite-Output \"Please click the setup link above to continue...\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\n\n# Wait for user input to continue (this pauses the deployment)\n$confirmation = Read-Host \"\\n🚀 Press ENTER after you have completed the Azure AD setup via the link above\"\n\nWrite-Output \"\"\nWrite-Output \"🎉 Setup Confirmation Received!\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\nWrite-Output \"✅ CoPA deployment is now complete!\"\nWrite-Output \"✅ Azure AD authentication should now be configured\"\nWrite-Output \"✅ Your application is ready for secure access\"\nWrite-Output \"\"\nWrite-Output \"🔗 Access your CoPA application: $WebAppUrl\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\n\n# Set completion status\n$DeploymentScriptOutputs = @{}\n$DeploymentScriptOutputs['setupCompleted'] = $true\n$DeploymentScriptOutputs['message'] = 'CoPA deployment with Azure AD setup completed successfully'\n$DeploymentScriptOutputs['appUrl'] = $WebAppUrl\n$DeploymentScriptOutputs['timestamp'] = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')",
-                "arguments": "[concat('-SetupUrl \"', 'https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\" -AppDisplayName \"', parameters('AzureAdAppDisplayName'), '\"')]",
+                "scriptContent": "# Build setup URL from environment variables\n$WebsiteName = $env:AZURE_WEB_APP_NAME\n$AppDisplayName = $env:AZURE_AD_APP_DISPLAY_NAME\n$WebAppUrl = \"https://$WebsiteName.azurewebsites.net\"\n\n# Create setup URL with all parameters\n$SetupUrl = \"$WebAppUrl/?setupMode=true\" +\n    \"&displayName=$($env:AZURE_AD_APP_DISPLAY_NAME)\" +\n    \"&supportedAccountTypes=$($env:AZURE_AD_SUPPORTED_ACCOUNT_TYPES)\" +\n    \"&enableImplicitFlow=$($env:AZURE_AD_ENABLE_IMPLICIT_FLOW)\" +\n    \"&enableUserRead=$($env:AZURE_AD_ENABLE_USER_READ)\" +\n    \"&enableGroupRead=$($env:AZURE_AD_ENABLE_GROUP_READ)\" +\n    \"&clientSecretDescription=$($env:AZURE_AD_CLIENT_SECRET_DESCRIPTION)\" +\n    \"&clientSecretExpiry=$($env:AZURE_AD_CLIENT_SECRET_EXPIRY)\" +\n    \"&webAppUrl=$([System.Web.HttpUtility]::UrlEncode($WebAppUrl))\" +\n    \"&tenantId=$($env:AZURE_TENANT_ID)\" +\n    \"&userAssignmentRequired=$($env:AZURE_AD_USER_ASSIGNMENT_REQUIRED)\" +\n    \"&subscriptionId=$($env:AZURE_SUBSCRIPTION_ID)\" +\n    \"&resourceGroupName=$($env:AZURE_RESOURCE_GROUP_NAME)\" +\n    \"&webAppName=$WebsiteName\"\n\nWrite-Output \"🎉 CoPA Infrastructure Deployment Complete!\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\nWrite-Output \"\"\nWrite-Output \"✅ App Service: Deployed and running\"\nWrite-Output \"✅ Cosmos DB: Configured and ready\"\nWrite-Output \"✅ Azure OpenAI: Connected\"\nWrite-Output \"✅ Storage Account: Provisioned\"\nWrite-Output \"✅ Application Insights: Monitoring enabled\"\nWrite-Output \"\"\nWrite-Output \"🚨 FINAL STEP: Azure AD Authentication Setup Required\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\nWrite-Output \"\"\nWrite-Output \"Your CoPA application infrastructure is now ready, but Azure AD\"\nWrite-Output \"authentication needs to be configured before you can use the app.\"\nWrite-Output \"\"\nWrite-Output \"🔗 CLICK THE LINK BELOW to complete the setup:\"\nWrite-Output \"\"\nWrite-Output \"    👆 $SetupUrl\"\nWrite-Output \"\"\nWrite-Output \"This will take you to a beautiful setup interface where you can:\"\nWrite-Output \"   ✅ Automatically create the Azure AD app registration\"\nWrite-Output \"   ✅ Configure permissions and grant consent\"\nWrite-Output \"   ✅ Set up Enterprise Application settings\"\nWrite-Output \"   ✅ Generate and secure client credentials\"\nWrite-Output \"\"\nWrite-Output \"⏳ This deployment will wait here until you complete the setup...\"\nWrite-Output \"\"\nWrite-Output \"After setup is complete:\"\nWrite-Output \"   🔗 Access your secured CoPA app at: $WebAppUrl\"\nWrite-Output \"   🎯 Your '$AppDisplayName' will be fully operational\"\nWrite-Output \"\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\nWrite-Output \"Please click the setup link above to continue...\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\n\n# Wait for user input to continue (this pauses the deployment)\n$confirmation = Read-Host \"\\n🚀 Press ENTER after you have completed the Azure AD setup via the link above\"\n\nWrite-Output \"\"\nWrite-Output \"🎉 Setup Confirmation Received!\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\nWrite-Output \"✅ CoPA deployment is now complete!\"\nWrite-Output \"✅ Azure AD authentication should now be configured\"\nWrite-Output \"✅ Your application is ready for secure access\"\nWrite-Output \"\"\nWrite-Output \"🔗 Access your CoPA application: $WebAppUrl\"\nWrite-Output \"═══════════════════════════════════════════════════════════════\"\n\n# Set completion status\n$DeploymentScriptOutputs = @{}\n$DeploymentScriptOutputs['setupCompleted'] = $true\n$DeploymentScriptOutputs['message'] = 'CoPA deployment with Azure AD setup completed successfully'\n$DeploymentScriptOutputs['appUrl'] = $WebAppUrl\n$DeploymentScriptOutputs['timestamp'] = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')",
+                "arguments": "",
+                "environmentVariables": [
+                    {
+                        "name": "AZURE_WEB_APP_NAME",
+                        "value": "[variables('WebsiteName')]"
+                    },
+                    {
+                        "name": "AZURE_AD_APP_DISPLAY_NAME", 
+                        "value": "[parameters('AzureAdAppDisplayName')]"
+                    },
+                    {
+                        "name": "AZURE_AD_SUPPORTED_ACCOUNT_TYPES",
+                        "value": "[parameters('AzureAdSupportedAccountTypes')]"
+                    },
+                    {
+                        "name": "AZURE_AD_ENABLE_IMPLICIT_FLOW",
+                        "value": "[string(parameters('AzureAdEnableImplicitFlow'))]"
+                    },
+                    {
+                        "name": "AZURE_AD_ENABLE_USER_READ",
+                        "value": "[string(parameters('AzureAdEnableUserRead'))]"
+                    },
+                    {
+                        "name": "AZURE_AD_ENABLE_GROUP_READ", 
+                        "value": "[string(parameters('AzureAdEnableGroupRead'))]"
+                    },
+                    {
+                        "name": "AZURE_AD_CLIENT_SECRET_DESCRIPTION",
+                        "value": "[parameters('AzureAdClientSecretDescription')]"
+                    },
+                    {
+                        "name": "AZURE_AD_CLIENT_SECRET_EXPIRY",
+                        "value": "[parameters('AzureAdClientSecretExpiry')]"
+                    },
+                    {
+                        "name": "AZURE_TENANT_ID",
+                        "value": "[subscription().tenantId]"
+                    },
+                    {
+                        "name": "AZURE_AD_USER_ASSIGNMENT_REQUIRED",
+                        "value": "[string(parameters('AzureAdUserAssignmentRequired'))]"
+                    },
+                    {
+                        "name": "AZURE_SUBSCRIPTION_ID",
+                        "value": "[subscription().subscriptionId]"
+                    },
+                    {
+                        "name": "AZURE_RESOURCE_GROUP_NAME",
+                        "value": "[resourceGroup().name]"
+                    }
+                ],
                 "supportingScriptUris": [],
                 "storageAccountSettings": {
                     "storageAccountName": "[variables('StorageAccountName')]",
