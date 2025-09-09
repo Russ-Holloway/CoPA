@@ -261,9 +261,21 @@
             
             // Update button to show alternative action
             const button = document.getElementById('setupButton');
-            button.textContent = '🔄 Open Azure Portal Deployments';
+            button.textContent = '🔄 Back to Deployment Outputs';
             button.onclick = function() {
-                window.open('https://portal.azure.com/#view/HubsExtension/DeploymentDetailsBlade', '_blank');
+                // Try to get deployment name from URL parameters or use a default pattern
+                const urlParams = new URLSearchParams(window.location.search);
+                const subscriptionId = urlParams.get('subscriptionId') || '';
+                const resourceGroupName = urlParams.get('resourceGroupName') || '';
+                
+                if (subscriptionId && resourceGroupName) {
+                    // Go directly to resource group deployments where they can find the outputs
+                    const resourceGroupUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/deployments`;
+                    window.open(resourceGroupUrl, '_blank');
+                } else {
+                    // Fallback to general deployments view
+                    window.open('https://portal.azure.com/#view/HubsExtension/DeploymentsBlade', '_blank');
+                }
                 return false;
             };
         }
