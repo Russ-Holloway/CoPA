@@ -121,14 +121,10 @@ async def index():
     
     # If Azure AD credentials are not configured, show setup page
     if not azure_client_id or not azure_client_secret or azure_client_id == "your-client-id-here":
-        # Check if this is a setup redirect (contains setup parameters)
-        setup_params = request.args.get('setupMode')
-        if setup_params or any(param in request.args for param in ['displayName', 'webAppUrl', 'tenantId']):
-            # This is a setup redirect, show the setup page with parameters
-            return await render_template("setup_required.html")
-        else:
-            # No setup parameters, show generic setup message
-            return await render_template("setup_required.html")
+        # Always show the setup page - it will handle both scenarios:
+        # 1. With parameters (from deployment output URL)
+        # 2. Without parameters (from direct Browse button - will show helpful fallback)
+        return await render_template("setup_required.html")
     
     # Azure AD is configured, show the normal application
     return await render_template(
