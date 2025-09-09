@@ -76,26 +76,203 @@
             {
                 "name": "azureAdInfo",
                 "type": "Microsoft.Common.Section",
-                "label": "Azure AD Configuration",
+                "label": "Azure AD App Registration Configuration",
                 "elements": [
                     {
                         "name": "createAzureAdApp",
                         "type": "Microsoft.Common.DropDown",
                         "label": "Create Azure AD App Registration",
                         "defaultValue": "Yes",
-                        "toolTip": "Whether to create an Azure AD app registration for authentication",
+                        "toolTip": "Whether to create an Azure AD app registration for authentication. Recommended for first-time deployments.",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes - Create new app registration",
+                                    "label": "Yes - Create new app registration (recommended)",
                                     "value": "Yes"
                                 },
                                 {
-                                    "label": "No - I'll configure manually",
+                                    "label": "No - I'll use existing app registration",
                                     "value": "No"
                                 }
                             ],
                             "required": true
+                        }
+                    },
+                    {
+                        "name": "appDisplayName",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Application Display Name",
+                        "defaultValue": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]",
+                        "toolTip": "The display name for your Azure AD app registration. This will be visible in the Azure Portal and to users during authentication.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                        "constraints": {
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                            "regex": "^[a-zA-Z0-9\\s\\-_\\.]{1,120}$",
+                            "validationMessage": "App name must be 1-120 characters using letters, numbers, spaces, hyphens, underscores, or periods."
+                        }
+                    },
+                    {
+                        "name": "supportedAccountTypes",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Supported Account Types",
+                        "defaultValue": "AzureADMyOrg",
+                        "toolTip": "Who can sign in to this application. Single tenant is recommended for police force applications.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Accounts in this organizational directory only (Single tenant - recommended)",
+                                    "value": "AzureADMyOrg"
+                                },
+                                {
+                                    "label": "Accounts in any organizational directory (Multi-tenant)",
+                                    "value": "AzureADMultipleOrgs"
+                                },
+                                {
+                                    "label": "Accounts in any organizational directory and personal Microsoft accounts",
+                                    "value": "AzureADandPersonalMicrosoftAccount"
+                                }
+                            ],
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
+                        }
+                    },
+                    {
+                        "name": "enableImplicitFlow",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Enable Implicit Flow for ID Tokens",
+                        "defaultValue": "Yes",
+                        "toolTip": "Enable implicit grant flow for ID tokens. Required for web applications using OpenID Connect authentication.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes - Enable ID tokens (required for CoPPA)",
+                                    "value": "Yes"
+                                },
+                                {
+                                    "label": "No - Disable implicit flow",
+                                    "value": "No"
+                                }
+                            ],
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
+                        }
+                    },
+                    {
+                        "name": "enableUserRead",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Grant Microsoft Graph: User.Read Permission",
+                        "defaultValue": "Yes",
+                        "toolTip": "Allow the application to read user profile information. Required for user authentication and profile display.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes - Grant User.Read permission (required)",
+                                    "value": "Yes"
+                                },
+                                {
+                                    "label": "No - Skip this permission",
+                                    "value": "No"
+                                }
+                            ],
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
+                        }
+                    },
+                    {
+                        "name": "enableGroupRead",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Grant Microsoft Graph: Group.Read.All Permission",
+                        "defaultValue": "Yes",
+                        "toolTip": "Allow the application to read group memberships. Recommended for role-based access control in police applications.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes - Grant Group.Read.All permission (recommended)",
+                                    "value": "Yes"
+                                },
+                                {
+                                    "label": "No - Skip group permissions",
+                                    "value": "No"
+                                }
+                            ],
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
+                        }
+                    },
+                    {
+                        "name": "clientSecretDescription",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Client Secret Description",
+                        "defaultValue": "CoPPA Application Secret",
+                        "toolTip": "Description for the client secret to help identify it in the Azure Portal.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                        "constraints": {
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                            "regex": "^[a-zA-Z0-9\\s\\-_\\.]{1,200}$",
+                            "validationMessage": "Description must be 1-200 characters using letters, numbers, spaces, hyphens, underscores, or periods."
+                        }
+                    },
+                    {
+                        "name": "clientSecretExpiry",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Client Secret Expiry Period",
+                        "defaultValue": "24",
+                        "toolTip": "How long the client secret should be valid. Shorter periods are more secure but require more frequent renewal.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "6 months",
+                                    "value": "6"
+                                },
+                                {
+                                    "label": "12 months", 
+                                    "value": "12"
+                                },
+                                {
+                                    "label": "24 months (recommended)",
+                                    "value": "24"
+                                }
+                            ],
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
+                        }
+                    },
+                    {
+                        "name": "existingClientId",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Existing App Client ID",
+                        "toolTip": "The Client ID (Application ID) of your existing Azure AD app registration",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'No')]",
+                        "constraints": {
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'No')]",
+                            "regex": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "validationMessage": "Must be a valid GUID format (e.g., 12345678-1234-1234-1234-123456789012)"
+                        }
+                    },
+                    {
+                        "name": "existingClientSecret",
+                        "type": "Microsoft.Common.PasswordBox",
+                        "label": {
+                            "password": "Existing App Client Secret",
+                            "confirmPassword": "Confirm Client Secret"
+                        },
+                        "toolTip": "The Client Secret of your existing Azure AD app registration",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'No')]",
+                        "constraints": {
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'No')]"
+                        }
+                    },
+                    {
+                        "name": "existingTenantId",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Tenant ID",
+                        "defaultValue": "[subscription().tenantId]",
+                        "toolTip": "Your Azure AD Tenant ID (Directory ID). This is auto-populated from your current context.",
+                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'No')]",
+                        "constraints": {
+                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'No')]",
+                            "regex": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                            "validationMessage": "Must be a valid GUID format (e.g., 12345678-1234-1234-1234-123456789012)"
                         }
                     }
                 ]
@@ -288,7 +465,16 @@
             "EnvironmentSuffix": "[basics('forceInfo').environment]", 
             "InstanceNumber": "[basics('forceInfo').instanceNumber]",
             "CreateAzureAdAppRegistration": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-            "AzureAdAppDisplayName": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]",
+            "AzureAdAppDisplayName": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').appDisplayName, '')]",
+            "AzureAdSupportedAccountTypes": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').supportedAccountTypes, '')]",
+            "AzureAdEnableImplicitFlow": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').enableImplicitFlow, 'Yes'), false)]",
+            "AzureAdEnableUserRead": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').enableUserRead, 'Yes'), false)]",
+            "AzureAdEnableGroupRead": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').enableGroupRead, 'Yes'), false)]",
+            "AzureAdClientSecretDescription": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').clientSecretDescription, '')]",
+            "AzureAdClientSecretExpiry": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').clientSecretExpiry, '24')]",
+            "ExistingAzureAdClientId": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingClientId, '')]",
+            "ExistingAzureAdClientSecret": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingClientSecret, '')]",
+            "ExistingAzureAdTenantId": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingTenantId, subscription().tenantId)]",
             "UIFeedbackEmail": "[steps('uiConfig').uiCustomization.feedbackEmail]",
             "UIFindOutMoreLink": "[steps('uiConfig').uiCustomization.findOutMoreLink]",
             "AppStartupCommand": "[steps('appConfig').startupConfig.startupCommand]",
