@@ -75,7 +75,7 @@
             "metadata": {
                 "description": "Whether to automatically create Azure AD App Registration for authentication"
             },
-            "defaultValue": true
+            "defaultValue": false
         },
         "AzureAdAppDisplayName": {
             "type": "string",
@@ -83,6 +83,27 @@
                 "description": "Display name for the Azure AD application"
             },
             "defaultValue": "[concat('CoPA-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'))]"
+        },
+        "AzureAdClientId": {
+            "type": "string",
+            "metadata": {
+                "description": "Client ID of the pre-created Azure AD application"
+            },
+            "defaultValue": ""
+        },
+        "AzureAdClientSecret": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Client secret of the pre-created Azure AD application"
+            },
+            "defaultValue": ""
+        },
+        "AzureAdTenantId": {
+            "type": "string",
+            "metadata": {
+                "description": "Tenant ID for the Azure AD application"
+            },
+            "defaultValue": "[subscription().tenantId]"
         },
         "UIFeedbackEmail": {
             "type": "string",
@@ -159,7 +180,6 @@
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
-        "deployScriptIdentityName": "[concat('id-', parameters('ForceCode'), '-deploy-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
         "AzureOpenAIEmbeddingName": "[parameters('AzureOpenAIEmbeddingName')]",
         "AzureSearchDataSourceName": "[parameters('SearchDataSourceName')]",
         "AzureSearchIndexName": "[parameters('SearchIndexName')]",
@@ -176,33 +196,22 @@
     },
     "resources": [
 
+
         {
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "apiVersion": "2023-01-31",
-            "name": "[variables('deployScriptIdentityName')]",
-            "location": "[resourceGroup().location]"
-        },
-        {
-            "condition": "[variables('CreateAzureAdAppRegistration')]",
+            "condition": "[parameters('CreateAzureAdAppRegistration')]",
             "apiVersion": "2023-08-01",
-            "name": "[concat('deploy-azuread-app-', uniqueString(resourceGroup().id, variables('AzureAdAppDisplayName')))]",
+            "name": "[concat('configure-azuread-auth-', uniqueString(resourceGroup().id))]",
             "type": "Microsoft.Resources/deploymentScripts",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]",
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]": {}
-                }
-            },
             "kind": "AzurePowerShell",
             "properties": {
                 "azPowerShellVersion": "8.3",
-                "scriptContent": "param([string]$AppDisplayName,[string]$WebAppUrl,[int]$ClientSecretExpirationMonths,[string]$TenantId,[string]$SubscriptionId,[string]$ResourceGroupName,[string]$WebAppName)\n\nWrite-Output \"Starting automatic Azure AD App Registration setup...\"\nWrite-Output \"App Display Name: $AppDisplayName\"\nWrite-Output \"Web App URL: $WebAppUrl\"\nWrite-Output \"Tenant ID: $TenantId\"\n\ntry {\n    # Use deployment context (inherits user permissions from Deploy to Azure button)\n    Write-Output \"Using deployment context with user permissions - no managed identity needed\"\n    Write-Output \"This deployment runs with the permissions of the user who clicked Deploy to Azure\"\n    \n    # Use user-assigned managed identity for deployment script\n    Write-Output \"Using user-assigned managed identity for authentication\"\n    \n    # Get the managed identity client ID from environment\n    $clientId = $env:MSI_CLIENT_ID\n    Write-Output \"Using managed identity client ID: $clientId\"\n    \n    # Get tokens using managed identity endpoint\n    try {\n        # Get ARM management token\n        $mgmtTokenResponse = Invoke-RestMethod -Uri \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/&client_id=$clientId\" -Method Get -Headers @{Metadata=\"true\"} -ErrorAction Stop\n        $mgmtToken = $mgmtTokenResponse.access_token\n        Write-Output \"✅ Successfully obtained ARM management token\"\n        \n        # Try to get Microsoft Graph token (may not work without proper permissions)\n        try {\n            $graphTokenResponse = Invoke-RestMethod -Uri \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://graph.microsoft.com/&client_id=$clientId\" -Method Get -Headers @{Metadata=\"true\"} -ErrorAction Stop\n            $graphToken = $graphTokenResponse.access_token\n            Write-Output \"✅ Successfully obtained Microsoft Graph token\"\n            $useRestAPI = $true\n        } catch {\n            Write-Output \"⚠️ Microsoft Graph token not available - will use ARM API to create service principal\"\n            $graphToken = $null\n            $useRestAPI = $false\n        }\n    } catch {\n        Write-Output \"❌ Failed to get tokens: $($_.Exception.Message)\"\n        throw \"Authentication failed - managed identity token acquisition failed\"\n    }\n    \n    # Use deployment context (inherits user permissions from Deploy to Azure button)\n    Write-Output \"Using deployment context with user permissions...\"\n    \n    # Try Azure CLI approach which may inherit better permissions\n    Write-Output \"Attempting Azure CLI approach for Azure AD operations...\"\n    \n    # Azure AD Application and Service Principal are created by ARM template using your Global Admin permissions\n    Write-Output \"Azure AD application and service principal created by ARM template with your permissions!\"\n    \n    # Get the application details from ARM template outputs\n    # The app ID will be available from the ARM template resource\n    Write-Output \"Retrieving Azure AD application details from ARM template...\"\n    \n    # Create client secret using Graph API with managed identity token\n    Write-Output \"Creating client secret for the application...\"\n    try {\n        if ($graphToken) {\n            # Get the application details to create secret\n            $appsResponse = Invoke-RestMethod -Uri \"https://graph.microsoft.com/v1.0/applications?`$filter=displayName eq '$AppDisplayName'\" -Headers @{'Authorization' = \"Bearer $graphToken\"} -Method Get\n            \n            if ($appsResponse.value.Count -gt 0) {\n                $app = $appsResponse.value[0]\n                Write-Output \"Found application: $($app.appId)\"\n                \n                # Create client secret\n                $endDate = (Get-Date).AddMonths($ClientSecretExpirationMonths).ToString('yyyy-MM-ddTHH:mm:ss.fffZ')\n                $secretBody = @{\n                    passwordCredential = @{\n                        displayName = \"CoPPA Deployment Secret\"\n                        endDateTime = $endDate\n                    }\n                } | ConvertTo-Json -Depth 3\n                \n                $secretResponse = Invoke-RestMethod -Uri \"https://graph.microsoft.com/v1.0/applications/$($app.id)/addPassword\" -Method Post -Body $secretBody -Headers @{'Authorization' = \"Bearer $graphToken\"; 'Content-Type' = 'application/json'}\n                \n                $secret = @{\n                    SecretText = $secretResponse.secretText\n                }\n                \n                Write-Output \"✅ Created client secret successfully\"\n            } else {\n                throw \"Application not found after ARM template creation\"\n            }\n            \n            # Get service principal\n            $spResponse = Invoke-RestMethod -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=appId eq '$($app.appId)'\" -Headers @{'Authorization' = \"Bearer $graphToken\"} -Method Get\n            \n            if ($spResponse.value.Count -gt 0) {\n                $sp = $spResponse.value[0]\n                Write-Output \"Found service principal: $($sp.id)\"\n            } else {\n                throw \"Service principal not found after ARM template creation\"\n            }\n        } else {\n            throw \"Graph token not available for secret creation\"\n        }\n    } catch {\n        Write-Output \"❌ Client secret creation failed: $($_.Exception.Message)\"\n        throw\n    }\n    \n    # Update App Service configuration with the client ID and secret\n    Write-Output \"Updating App Service configuration...\"\n    $headers = @{\n        'Authorization' = \"Bearer $((Get-AzAccessToken).Token)\"\n        'Content-Type' = 'application/json'\n    }\n    \n    # Get current app settings\n    $currentSettingsUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/config/appsettings/list?api-version=2023-01-01\"\n    $currentSettings = Invoke-RestMethod -Uri $currentSettingsUri -Method POST -Headers $headers -ErrorAction Stop\n    \n    # Add the new settings\n    $currentSettings.properties.AZURE_CLIENT_ID = $app.AppId\n    $currentSettings.properties.AZURE_CLIENT_SECRET = $secret.SecretText\n    $currentSettings.properties.AZURE_TENANT_ID = $TenantId\n    \n    # Update app settings\n    $updateSettingsUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/config/appsettings?api-version=2023-01-01\"\n    $settingsBody = $currentSettings | ConvertTo-Json -Depth 10\n    Invoke-RestMethod -Uri $updateSettingsUri -Method PUT -Headers $headers -Body $settingsBody -ErrorAction Stop\n    \n    Write-Output \"App Service configuration updated successfully\"\n    \n    # Update the AuthSettingsV2 with the client ID\n    Write-Output \"Updating authentication configuration...\"\n    $authUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/config/authsettingsV2?api-version=2023-01-01\"\n    $authConfig = @{\n        properties = @{\n            platform = @{\n                enabled = $true\n            }\n            globalValidation = @{\n                requireAuthentication = $true\n                unauthenticatedClientAction = 'RedirectToLoginPage'\n                redirectToProvider = 'azureactivedirectory'\n            }\n            identityProviders = @{\n                azureActiveDirectory = @{\n                    enabled = $true\n                    registration = @{\n                        clientId = $app.AppId\n                        clientSecretSettingName = 'AZURE_CLIENT_SECRET'\n                        openIdIssuer = \"https://sts.windows.net/$TenantId/\"\n                    }\n                    validation = @{\n                        defaultAuthorizationPolicy = @{\n                            allowedApplications = @()\n                        }\n                    }\n                }\n            }\n            login = @{\n                tokenStore = @{\n                    enabled = $true\n                }\n            }\n        }\n    }\n    \n    $authBody = $authConfig | ConvertTo-Json -Depth 10\n    Invoke-RestMethod -Uri $authUri -Method PUT -Headers $headers -Body $authBody -ErrorAction Stop\n    \n    Write-Output \"Authentication configuration updated successfully\"\n    \n    # Set output values\n    $DeploymentScriptOutputs = @{}\n    $DeploymentScriptOutputs['AppId'] = $app.AppId\n    $DeploymentScriptOutputs['TenantId'] = $TenantId\n    $DeploymentScriptOutputs['ServicePrincipalId'] = $sp.Id\n    $DeploymentScriptOutputs['AdminConsentUrl'] = \"https://login.microsoftonline.com/$TenantId/adminconsent?client_id=$($app.AppId)\"\n    $DeploymentScriptOutputs['NextSteps'] = \"Azure AD App Registration completed successfully. Authentication is fully configured and ready to use.\"\n    \n    Write-Output \"✅ Azure AD App Registration completed successfully!\"\n    Write-Output \"App ID: $($app.AppId)\"\n    Write-Output \"🎉 FULL AUTOMATION RESTORED - Everything is configured and ready!\"\n    \n} catch {\n    Write-Error \"Failed to create Azure AD application: $($_.Exception.Message)\"\n    Write-Output \"PowerShell Error Details: $($_.Exception)\"\n    Write-Output \"Error at line: $($_.InvocationInfo.ScriptLineNumber)\"\n    throw\n}",
-                "arguments": "[concat('-AppDisplayName \"', variables('AzureAdAppDisplayName'), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\" -ClientSecretExpirationMonths 24 -TenantId \"', subscription().tenantId, '\" -SubscriptionId \"', subscription().subscriptionId, '\" -ResourceGroupName \"', resourceGroup().name, '\" -WebAppName \"', variables('WebsiteName'), '\"')]",
+                "scriptContent": "param([string]$ClientId,[string]$TenantId,[string]$SubscriptionId,[string]$ResourceGroupName,[string]$WebAppName,[string]$WebAppUrl)\n\nWrite-Output \"🎯 Configuring Azure AD Authentication for pre-created app registration\"\nWrite-Output \"Client ID: $ClientId\"\nWrite-Output \"Web App URL: $WebAppUrl\"\nWrite-Output \"Tenant ID: $TenantId\"\n\ntry {\n    # Configure App Service Authentication using the pre-created Azure AD app\n    Write-Output \"Configuring App Service Authentication...\"\n    \n    $headers = @{\n        'Authorization' = \"Bearer $((Get-AzAccessToken).Token)\"\n        'Content-Type' = 'application/json'\n    }\n    \n    # Configure AuthSettingsV2 with the pre-created app details\n    $authUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/config/authsettingsV2?api-version=2023-01-01\"\n    $authConfig = @{\n        properties = @{\n            platform = @{\n                enabled = $true\n            }\n            globalValidation = @{\n                requireAuthentication = $true\n                unauthenticatedClientAction = 'RedirectToLoginPage'\n                redirectToProvider = 'azureactivedirectory'\n            }\n            identityProviders = @{\n                azureActiveDirectory = @{\n                    enabled = $true\n                    registration = @{\n                        clientId = $ClientId\n                        clientSecretSettingName = 'AZURE_CLIENT_SECRET'\n                        openIdIssuer = \"https://sts.windows.net/$TenantId/\"\n                    }\n                    validation = @{\n                        defaultAuthorizationPolicy = @{\n                            allowedApplications = @()\n                        }\n                    }\n                }\n            }\n            login = @{\n                tokenStore = @{\n                    enabled = $true\n                }\n            }\n        }\n    }\n    \n    $authBody = $authConfig | ConvertTo-Json -Depth 10\n    Invoke-RestMethod -Uri $authUri -Method PUT -Headers $headers -Body $authBody -ErrorAction Stop\n    \n    Write-Output \"✅ App Service Authentication configured successfully\"\n    \n    # Now update the Azure AD app registration with the redirect URIs\n    Write-Output \"Updating Azure AD app registration with redirect URIs...\"\n    \n    # Get Microsoft Graph token for updating the app registration\n    try {\n        $graphTokenResponse = Invoke-RestMethod -Uri \"https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token\" -Method Post -Body @{\n            client_id = $ClientId\n            scope = 'https://graph.microsoft.com/.default'\n            grant_type = 'client_credentials'\n            client_secret = $env:AZURE_CLIENT_SECRET\n        } -ContentType 'application/x-www-form-urlencoded'\n        \n        $graphToken = $graphTokenResponse.access_token\n        Write-Output \"✅ Successfully obtained Microsoft Graph token\"\n        \n        # Get the application details\n        $appsResponse = Invoke-RestMethod -Uri \"https://graph.microsoft.com/v1.0/applications?`$filter=appId eq '$ClientId'\" -Headers @{'Authorization' = \"Bearer $graphToken\"} -Method Get\n        \n        if ($appsResponse.value.Count -gt 0) {\n            $app = $appsResponse.value[0]\n            Write-Output \"Found application: $($app.displayName)\"\n            \n            # Prepare redirect URIs\n            $redirectUris = @(\n                \"$WebAppUrl/.auth/login/aad/callback\",\n                \"$WebAppUrl\"\n            )\n            \n            # Update the application with redirect URIs\n            $updateBody = @{\n                web = @{\n                    redirectUris = $redirectUris\n                    implicitGrantSettings = @{\n                        enableIdTokenIssuance = $true\n                        enableAccessTokenIssuance = $false\n                    }\n                }\n            } | ConvertTo-Json -Depth 5\n            \n            $updateResponse = Invoke-RestMethod -Uri \"https://graph.microsoft.com/v1.0/applications/$($app.id)\" -Method PATCH -Body $updateBody -Headers @{'Authorization' = \"Bearer $graphToken\"; 'Content-Type' = 'application/json'}\n            \n            Write-Output \"✅ Azure AD app registration updated with redirect URIs\"\n            Write-Output \"Redirect URIs configured:\"\n            foreach ($uri in $redirectUris) {\n                Write-Output \"  - $uri\"\n            }\n        } else {\n            Write-Output \"⚠️ Application not found, redirect URIs will need to be configured manually\"\n        }\n    } catch {\n        Write-Output \"⚠️ Could not update redirect URIs automatically: $($_.Exception.Message)\"\n        Write-Output \"Please manually add these redirect URIs to your Azure AD app registration:\"\n        Write-Output \"  - $WebAppUrl/.auth/login/aad/callback\"\n        Write-Output \"  - $WebAppUrl\"\n    }\n    \n    # Set output values\n    $DeploymentScriptOutputs = @{}\n    $DeploymentScriptOutputs['AppId'] = $ClientId\n    $DeploymentScriptOutputs['TenantId'] = $TenantId\n    $DeploymentScriptOutputs['WebAppUrl'] = $WebAppUrl\n    $DeploymentScriptOutputs['AuthenticationConfigured'] = $true\n    $DeploymentScriptOutputs['NextSteps'] = \"Azure AD Authentication configured successfully. Your CoPA application is ready to use!\"\n    \n    Write-Output \"🎉 Azure AD Authentication Configuration Complete!\"\n    Write-Output \"Your CoPA application is now secured with Azure AD authentication.\"\n    \n} catch {\n    Write-Error \"Failed to configure Azure AD authentication: $($_.Exception.Message)\"\n    throw\n}",
+                "arguments": "[concat('-ClientId \"', parameters('AzureAdClientId'), '\" -TenantId \"', parameters('AzureAdTenantId'), '\" -SubscriptionId \"', subscription().subscriptionId, '\" -ResourceGroupName \"', resourceGroup().name, '\" -WebAppName \"', variables('WebsiteName'), '\" -WebAppUrl \"https://', variables('WebsiteName'), '.azurewebsites.net\"')]",
                 "supportingScriptUris": [],
                 "storageAccountSettings": {
                     "storageAccountName": "[variables('StorageAccountName')]",
@@ -213,49 +222,10 @@
                 "timeout": "PT30M"
             },
             "tags": {
-                "displayName": "Azure AD App Registration Creation Script"
+                "displayName": "Azure AD Authentication Configuration Script"
             }
         },
-        {
-            "type": "Microsoft.Graph/applications",
-            "apiVersion": "2023-03-01-preview",
-            "name": "[variables('AzureAdAppDisplayName')]",
-            "properties": {
-                "displayName": "[variables('AzureAdAppDisplayName')]",
-                "signInAudience": "AzureADMyOrg",
-                "web": {
-                    "redirectUris": [
-                        "[concat(variables('WebAppUrl'), '/.auth/login/aad/callback')]",
-                        "[concat(variables('WebAppUrl'), '/redirect')]"
-                    ],
-                    "homePageUrl": "[variables('WebAppUrl')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Graph/servicePrincipals",
-            "apiVersion": "2023-03-01-preview", 
-            "name": "[concat(variables('AzureAdAppDisplayName'), '-sp')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Graph/applications', variables('AzureAdAppDisplayName'))]"  
-            ],
-            "properties": {
-                "appId": "[reference(resourceId('Microsoft.Graph/applications', variables('AzureAdAppDisplayName'))).appId]"
-            }
-        },
-        {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2022-04-01", 
-            "name": "[guid(resourceGroup().id, variables('deployScriptIdentityName'), 'contributor')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployScriptIdentityName'))).principalId]",
-                "principalType": "ServicePrincipal"
-            }
-        },
+
         {
             "apiVersion": "2023-01-01",
             "name": "[variables('HostingPlanName')]",
@@ -479,6 +449,18 @@
                         {
                             "name": "REPOSITORY_URL", 
                             "value": "[parameters('GitRepositoryUrl')]"
+                        },
+                        {
+                            "name": "AZURE_CLIENT_ID",
+                            "value": "[if(parameters('CreateAzureAdAppRegistration'), parameters('AzureAdClientId'), '')]"
+                        },
+                        {
+                            "name": "AZURE_CLIENT_SECRET",
+                            "value": "[if(parameters('CreateAzureAdAppRegistration'), parameters('AzureAdClientSecret'), '')]"
+                        },
+                        {
+                            "name": "AZURE_TENANT_ID",
+                            "value": "[parameters('AzureAdTenantId')]"
                         }
                     ]
                 }

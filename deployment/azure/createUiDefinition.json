@@ -4,15 +4,40 @@
     "version": "0.1.2-preview",
     "parameters": {
         "config": {
+            "isWizard": true,
             "basics": {
-                "description": "Deploy the Policing Assistant solution with automatic resource naming, random suffixes to prevent conflicts, and pre-configured startup commands for optimal performance.",
+                "description": "**CoPA (Conversational Police Assistant)** - AI-powered assistant for UK Police Forces.\n\nThis deployment will create a comprehensive AI assistant with Azure OpenAI, Cognitive Search, and secure authentication.\n\n⚠️ **Important**: You will need to create an Azure AD App Registration as part of this setup process.",
+                "subscription": {
+                    "constraints": {
+                        "validations": [
+                            {
+                                "isValid": "[not(equals(subscription().subscriptionId, 'demo-subscription-id'))]",
+                                "message": "Please select a valid Azure subscription."
+                            }
+                        ]
+                    }
+                },
+                "resourceGroup": {
+                    "allowExisting": true,
+                    "constraints": {
+                        "validations": [
+                            {
+                                "isValid": "[matches(resourceGroup().name, '^rg-[a-z]{2,3}-copa-(prod|dev|test)-[0-9]{2}$')]",
+                                "message": "Resource group name must follow the pattern: rg-{ForceCode}-copa-{Environment}-{Instance} (e.g., rg-met-copa-prod-01)"
+                            }
+                        ]
+                    }
+                },
                 "location": {
                     "visible": true,
                     "allowedValues": [
-                        "uksouth", 
+                        "uksouth",
                         "ukwest",
                         "westeurope",
-                        "northeurope"
+                        "northeurope",
+                        "eastus",
+                        "eastus2",
+                        "westus2"
                     ]
                 }
             }
@@ -20,82 +45,16 @@
         "basics": [
             {
                 "name": "forceInfo",
-                "type": "Microsoft.Common.Section", 
+                "type": "Microsoft.Common.Section",
                 "label": "Police Force Configuration",
                 "elements": [
                     {
-                        "name": "forceCode",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Police Force Code",
-                        "defaultValue": "btp",
-                        "toolTip": "Enter your 2-3 character police force code (e.g., 'btp', 'met', 'gmp'). Must be lowercase letters only.",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[a-z]{2,3}$",
-                            "validationMessage": "Force code must be 2-3 lowercase letters only (e.g., 'btp', 'met', 'gmp')."
-                        }
-                    },
-                    {
-                        "name": "environment",
-                        "type": "Microsoft.Common.DropDown",
-                        "label": "Environment", 
-                        "defaultValue": "prod",
-                        "toolTip": "Select the deployment environment",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "Production",
-                                    "value": "prod"
-                                },
-                                {
-                                    "label": "Development", 
-                                    "value": "dev"
-                                },
-                                {
-                                    "label": "Test",
-                                    "value": "test"
-                                }
-                            ],
-                            "required": true
-                        }
-                    },
-                    {
-                        "name": "instanceNumber",
-                        "type": "Microsoft.Common.TextBox", 
-                        "label": "Instance Number",
-                        "defaultValue": "01",
-                        "toolTip": "Instance number for this deployment (01, 02, etc.)",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[0-9]{2}$",
-                            "validationMessage": "Instance number must be exactly 2 digits (01, 02, 03, etc.)."
-                        }
-                    }
-                ]
-            },
-            {
-                "name": "azureAdInfo",
-                "type": "Microsoft.Common.Section",
-                "label": "Azure AD Configuration",
-                "elements": [
-                    {
-                        "name": "createAzureAdApp",
-                        "type": "Microsoft.Common.DropDown",
-                        "label": "Create Azure AD App Registration",
-                        "defaultValue": "Yes",
-                        "toolTip": "Whether to create an Azure AD app registration for authentication",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "Yes - Create new app registration",
-                                    "value": "Yes"
-                                },
-                                {
-                                    "label": "No - I'll configure manually",
-                                    "value": "No"
-                                }
-                            ],
-                            "required": true
+                        "name": "forceCodeInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "The Police Force Code will be automatically extracted from your resource group name. Ensure your resource group follows the naming convention: rg-{ForceCode}-copa-{Environment}-{Instance}"
                         }
                     }
                 ]
@@ -103,72 +62,56 @@
         ],
         "steps": [
             {
-                "name": "uiConfig",
-                "label": "UI Configuration",
+                "name": "azureAdPreReqs",
+                "label": "Azure AD Prerequisites",
                 "elements": [
                     {
-                        "name": "uiCustomization",
+                        "name": "azureAdInstructions",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Warning",
+                            "text": "**Before continuing, you need to create an Azure AD App Registration.** This is required for secure authentication to your CoPA application.",
+                            "uri": "https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app"
+                        }
+                    },
+                    {
+                        "name": "createAppSteps",
                         "type": "Microsoft.Common.Section",
-                        "label": "User Interface Customization",
+                        "label": "Step-by-Step Azure AD App Registration",
                         "elements": [
                             {
-                                "name": "feedbackEmail",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Feedback Email (Optional)",
-                                "placeholder": "feedback@your-force.police.uk",
-                                "toolTip": "Email address where user feedback will be sent. Leave empty if you don't want a feedback option.",
-                                "constraints": {
-                                    "required": false,
-                                    "regex": "^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-                                    "validationMessage": "Must be a valid email address or leave empty."
+                                "name": "step1",
+                                "type": "Microsoft.Common.InfoBox",
+                                "visible": true,
+                                "options": {
+                                    "icon": "None",
+                                    "text": "**Step 1:** Click the button below to open Azure AD App Registrations in a new tab:",
+                                    "uri": "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade"
                                 }
                             },
                             {
-                                "name": "findOutMoreLink",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Find Out More Link (Optional)",
-                                "placeholder": "https://your-force.police.uk/coppa-info",
-                                "toolTip": "URL for the 'Find Out More' link in the application. Leave empty if you don't want this link.",
-                                "constraints": {
-                                    "required": false,
-                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?$",
-                                    "validationMessage": "Must be a valid URL (starting with http:// or https://) or leave empty."
+                                "name": "step2Text",
+                                "type": "Microsoft.Common.TextBlock",
+                                "visible": true,
+                                "options": {
+                                    "text": "**Step 2:** Click 'New registration' and fill in:\n• **Name**: CoPA-[YourForceCode]-prod (e.g., CoPA-MET-prod)\n• **Supported account types**: Accounts in this organizational directory only\n• **Redirect URI**: Leave blank for now (we'll configure this automatically)"
                                 }
                             },
                             {
-                                "name": "logoUrl",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Main Application Logo URL (Optional)",
-                                "placeholder": "https://example.com/logo.png",
-                                "toolTip": "URL of your main application logo. Should be PNG format, approximately 200x60 pixels. If not provided, a default placeholder will be used.",
-                                "constraints": {
-                                    "required": false,
-                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(png|jpg|jpeg|svg)$",
-                                    "validationMessage": "Must be a valid image URL (PNG, JPG, JPEG, or SVG) or leave empty."
+                                "name": "step3Text",
+                                "type": "Microsoft.Common.TextBlock",
+                                "visible": true,
+                                "options": {
+                                    "text": "**Step 3:** After creating the app:\n• Copy the **Application (client) ID** from the Overview page\n• Go to 'Certificates & secrets' → 'New client secret'\n• Create a secret with 24 months expiry\n• Copy the **Secret Value** (you won't see it again!)"
                                 }
                             },
                             {
-                                "name": "policeForceLogoUrl",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Police Force Logo URL (Optional)",
-                                "placeholder": "https://example.com/force-logo.png",
-                                "toolTip": "URL of your police force logo. Should be PNG format, approximately 100x100 pixels. If not provided, a default placeholder will be used.",
-                                "constraints": {
-                                    "required": false,
-                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(png|jpg|jpeg|svg)$",
-                                    "validationMessage": "Must be a valid image URL (PNG, JPG, JPEG, or SVG) or leave empty."
-                                }
-                            },
-                            {
-                                "name": "faviconUrl",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Favicon URL (Optional)",
-                                "placeholder": "https://example.com/favicon.ico",
-                                "toolTip": "URL of your favicon. Should be ICO format, 32x32 pixels. If not provided, a default favicon will be used.",
-                                "constraints": {
-                                    "required": false,
-                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(ico|png)$",
-                                    "validationMessage": "Must be a valid favicon URL (ICO or PNG) or leave empty."
+                                "name": "step4Text",
+                                "type": "Microsoft.Common.TextBlock",
+                                "visible": true,
+                                "options": {
+                                    "text": "**Step 4:** Note your **Tenant (Directory) ID** from the Overview page\n\n**Step 5:** Enter the copied values in the fields below:"
                                 }
                             }
                         ]
@@ -176,71 +119,227 @@
                 ]
             },
             {
-                "name": "gitConfig",
-                "label": "Git Deployment Configuration",
+                "name": "azureAdConfig",
+                "label": "Azure AD Configuration",
                 "elements": [
                     {
-                        "name": "deploymentConfig",
+                        "name": "enableAzureAd",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable Azure AD Authentication",
+                        "defaultValue": true,
+                        "toolTip": "Uncheck this if you want to configure authentication manually after deployment"
+                    },
+                    {
+                        "name": "azureAdSettings",
                         "type": "Microsoft.Common.Section",
-                        "label": "Source Code Deployment",
+                        "label": "Azure AD Application Details",
+                        "visible": "[steps('azureAdConfig').enableAzureAd]",
                         "elements": [
                             {
-                                "name": "enableGitDeployment",
+                                "name": "clientId",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Application (Client) ID",
+                                "placeholder": "e.g., 12345678-1234-1234-1234-123456789012",
+                                "toolTip": "The Application (Client) ID from your Azure AD App Registration Overview page",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                                    "validationMessage": "Please enter a valid GUID format (e.g., 12345678-1234-1234-1234-123456789012)"
+                                }
+                            },
+                            {
+                                "name": "clientSecret",
+                                "type": "Microsoft.Common.PasswordBox",
+                                "label": {
+                                    "password": "Client Secret",
+                                    "confirmPassword": "Confirm Client Secret"
+                                },
+                                "toolTip": "The client secret value from your Azure AD App Registration (NOT the Secret ID)",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^[A-Za-z0-9~._-]{1,255}$",
+                                    "validationMessage": "Invalid client secret format"
+                                },
+                                "options": {
+                                    "hideConfirmation": false
+                                }
+                            },
+                            {
+                                "name": "tenantId",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Tenant (Directory) ID",
+                                "placeholder": "e.g., 87654321-4321-4321-4321-210987654321",
+                                "toolTip": "The Tenant (Directory) ID from your Azure AD App Registration Overview page",
+                                "defaultValue": "[subscription().tenantId]",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                                    "validationMessage": "Please enter a valid GUID format (e.g., 87654321-4321-4321-4321-210987654321)"
+                                }
+                            },
+                            {
+                                "name": "appDisplayName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "App Registration Display Name",
+                                "defaultValue": "[concat('CoPA-', take(split(resourceGroup().name, '-')[1], 3), '-prod')]",
+                                "toolTip": "This should match the name you used when creating the Azure AD App Registration",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^[a-zA-Z0-9-_. ]{3,120}$",
+                                    "validationMessage": "Display name must be 3-120 characters and contain only letters, numbers, spaces, hyphens, underscores, and periods"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "authValidation",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": "[steps('azureAdConfig').enableAzureAd]",
+                        "options": {
+                            "icon": "Info",
+                            "text": "After deployment completes, the redirect URIs will be automatically configured in your Azure AD App Registration."
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "appConfig",
+                "label": "Application Configuration",
+                "elements": [
+                    {
+                        "name": "openAiConfig",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Azure OpenAI Configuration",
+                        "elements": [
+                            {
+                                "name": "openAiModel",
                                 "type": "Microsoft.Common.DropDown",
-                                "label": "Enable Automatic Git Deployment",
-                                "defaultValue": "Yes",
-                                "toolTip": "Automatically configure Git deployment from the CoPPA repository. This eliminates manual setup in the Deployment Center.",
+                                "label": "OpenAI Model",
+                                "defaultValue": "GPT-4o",
+                                "toolTip": "Select the OpenAI model to deploy",
                                 "constraints": {
                                     "allowedValues": [
                                         {
-                                            "label": "Yes - Configure automatic deployment",
-                                            "value": "Yes"
+                                            "label": "GPT-4o",
+                                            "value": "gpt-4o"
                                         },
                                         {
-                                            "label": "No - I'll configure manually",
-                                            "value": "No"
+                                            "label": "GPT-4o Mini",
+                                            "value": "gpt-4o-mini"
+                                        },
+                                        {
+                                            "label": "GPT-4 Turbo",
+                                            "value": "gpt-4-turbo"
                                         }
                                     ],
                                     "required": true
                                 }
                             },
                             {
-                                "name": "gitRepositoryUrl",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Git Repository URL",
-                                "defaultValue": "https://github.com/Russ-Holloway/CoPPA.git",
-                                "toolTip": "The URL of the Git repository to deploy from. Default is the official CoPPA repository.",
-                                "visible": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
-                                "constraints": {
-                                    "required": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
-                                    "regex": "^https://.*\\.git$",
-                                    "validationMessage": "Must be a valid Git repository URL ending with .git"
-                                }
-                            },
-                            {
-                                "name": "gitBranch",
+                                "name": "embeddingModel",
                                 "type": "Microsoft.Common.DropDown",
-                                "label": "Git Branch",
-                                "defaultValue": "main",
-                                "toolTip": "The branch to deploy from. Use 'main' for production releases.",
-                                "visible": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
+                                "label": "Embedding Model",
+                                "defaultValue": "text-embedding-3-small",
+                                "toolTip": "Select the embedding model for document processing",
                                 "constraints": {
                                     "allowedValues": [
                                         {
-                                            "label": "main (recommended for production)",
-                                            "value": "main"
+                                            "label": "Text Embedding 3 Small",
+                                            "value": "text-embedding-3-small"
                                         },
                                         {
-                                            "label": "develop",
-                                            "value": "develop"
+                                            "label": "Text Embedding 3 Large", 
+                                            "value": "text-embedding-3-large"
                                         },
                                         {
-                                            "label": "feature/latest",
-                                            "value": "Feature-Deployment-Automation"
+                                            "label": "Text Embedding ADA 002",
+                                            "value": "text-embedding-ada-002"
                                         }
                                     ],
-                                    "required": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]"
+                                    "required": true
                                 }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "uiConfig",
+                        "type": "Microsoft.Common.Section",
+                        "label": "User Interface Configuration",
+                        "elements": [
+                            {
+                                "name": "feedbackEmail",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Feedback Email Address",
+                                "placeholder": "feedback@yourforce.police.uk",
+                                "toolTip": "Email address where user feedback will be sent (optional)",
+                                "constraints": {
+                                    "required": false,
+                                    "regex": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                                    "validationMessage": "Please enter a valid email address"
+                                }
+                            },
+                            {
+                                "name": "findOutMoreLink",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Find Out More Link",
+                                "placeholder": "https://yourforce.police.uk/copa-info",
+                                "toolTip": "URL for additional information about CoPA (optional)",
+                                "constraints": {
+                                    "required": false,
+                                    "regex": "^https?://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/.*)?$",
+                                    "validationMessage": "Please enter a valid HTTP or HTTPS URL"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "deployment",
+                "label": "Deployment Options",
+                "elements": [
+                    {
+                        "name": "gitConfig",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Source Code Deployment",
+                        "elements": [
+                            {
+                                "name": "enableGitDeployment",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Enable automatic deployment from GitHub",
+                                "defaultValue": true,
+                                "toolTip": "Automatically deploy the latest CoPA source code from GitHub"
+                            },
+                            {
+                                "name": "gitSettings",
+                                "type": "Microsoft.Common.Section",
+                                "visible": "[steps('deployment').gitConfig.enableGitDeployment]",
+                                "elements": [
+                                    {
+                                        "name": "repositoryUrl",
+                                        "type": "Microsoft.Common.TextBox",
+                                        "label": "Git Repository URL",
+                                        "defaultValue": "https://github.com/Russ-Holloway/CoPA.git",
+                                        "toolTip": "GitHub repository URL for CoPA source code",
+                                        "constraints": {
+                                            "required": true,
+                                            "regex": "^https://github\\.com/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+(\\.git)?$",
+                                            "validationMessage": "Please enter a valid GitHub repository URL"
+                                        }
+                                    },
+                                    {
+                                        "name": "gitBranch",
+                                        "type": "Microsoft.Common.TextBox",
+                                        "label": "Git Branch",
+                                        "defaultValue": "main",
+                                        "toolTip": "Git branch to deploy from",
+                                        "constraints": {
+                                            "required": true,
+                                            "regex": "^[a-zA-Z0-9._/-]+$",
+                                            "validationMessage": "Please enter a valid git branch name"
+                                        }
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -248,19 +347,22 @@
             }
         ],
         "outputs": {
-            "ForceCode": "[basics('forceInfo').forceCode]",
-            "EnvironmentSuffix": "[basics('forceInfo').environment]", 
-            "InstanceNumber": "[basics('forceInfo').instanceNumber]",
-            "CreateAzureAdAppRegistration": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-            "AzureAdAppDisplayName": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]",
-            "UIFeedbackEmail": "[steps('uiConfig').uiCustomization.feedbackEmail]",
-            "UIFindOutMoreLink": "[steps('uiConfig').uiCustomization.findOutMoreLink]",
-            "LogoUrl": "[steps('uiConfig').uiCustomization.logoUrl]",
-            "PoliceForceLogoUrl": "[steps('uiConfig').uiCustomization.policeForceLogoUrl]",
-            "FaviconUrl": "[steps('uiConfig').uiCustomization.faviconUrl]",
-            "EnableGitDeployment": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
-            "GitRepositoryUrl": "[steps('gitConfig').deploymentConfig.gitRepositoryUrl]",
-            "GitBranch": "[steps('gitConfig').deploymentConfig.gitBranch]"
+            "ForceCode": "[take(split(resourceGroup().name, '-')[1], 3)]",
+            "EnvironmentSuffix": "[split(resourceGroup().name, '-')[3]]",
+            "InstanceNumber": "[split(resourceGroup().name, '-')[4]]",
+            "ResourceGroupName": "[resourceGroup().name]",
+            "AzureOpenAIModelName": "[steps('appConfig').openAiConfig.openAiModel]",
+            "AzureOpenAIEmbeddingName": "[steps('appConfig').openAiConfig.embeddingModel]",
+            "CreateAzureAdAppRegistration": "[steps('azureAdConfig').enableAzureAd]",
+            "AzureAdAppDisplayName": "[if(steps('azureAdConfig').enableAzureAd, steps('azureAdConfig').azureAdSettings.appDisplayName, '')]",
+            "AzureAdClientId": "[if(steps('azureAdConfig').enableAzureAd, steps('azureAdConfig').azureAdSettings.clientId, '')]",
+            "AzureAdClientSecret": "[if(steps('azureAdConfig').enableAzureAd, steps('azureAdConfig').azureAdSettings.clientSecret, '')]",
+            "AzureAdTenantId": "[if(steps('azureAdConfig').enableAzureAd, steps('azureAdConfig').azureAdSettings.tenantId, subscription().tenantId)]",
+            "UIFeedbackEmail": "[steps('appConfig').uiConfig.feedbackEmail]",
+            "UIFindOutMoreLink": "[steps('appConfig').uiConfig.findOutMoreLink]",
+            "EnableGitDeployment": "[steps('deployment').gitConfig.enableGitDeployment]",
+            "GitRepositoryUrl": "[if(steps('deployment').gitConfig.enableGitDeployment, steps('deployment').gitConfig.gitSettings.repositoryUrl, '')]",
+            "GitBranch": "[if(steps('deployment').gitConfig.enableGitDeployment, steps('deployment').gitConfig.gitSettings.gitBranch, 'main')]"
         }
     }
 }
