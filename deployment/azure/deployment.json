@@ -495,29 +495,21 @@
                 }
             }
         },
-
-
         {
             "condition": "[parameters('EnableGitDeployment')]",
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2023-08-01",
-            "name": "setupSourceControl",
-            "location": "[resourceGroup().location]",
+            "type": "Microsoft.Web/sites/sourcecontrols",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(variables('WebsiteName'), '/web')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
             ],
-            "kind": "AzurePowerShell",
             "properties": {
-                "azPowerShellVersion": "8.3",
-                "scriptContent": "param([string]$SubscriptionId,[string]$ResourceGroupName,[string]$WebAppName,[string]$GitUrl,[string]$GitBranch)\n\nWrite-Output \"Setting up source control deployment with timing optimization...\"\nWrite-Output \"Web App: $WebAppName\"\nWrite-Output \"Git URL: $GitUrl\"\nWrite-Output \"Branch: $GitBranch\"\n\n# Wait a moment for the app service to be fully ready\nWrite-Output \"Waiting 30 seconds for App Service to fully initialize...\"\nStart-Sleep -Seconds 30\n\n# Set up source control using REST API with proper error handling\n$headers = @{\n    'Authorization' = \"Bearer $((Get-AzAccessToken).Token)\"\n    'Content-Type' = 'application/json'\n}\n\n$sourceControlBody = @{\n    properties = @{\n        repoUrl = $GitUrl\n        branch = $GitBranch\n        isManualIntegration = $true\n        isGitHubAction = $false\n        deploymentRollbackEnabled = $false\n        isMercurial = $false\n    }\n} | ConvertTo-Json -Depth 5\n\n$sourceControlUri = \"https://management.azure.com/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Web/sites/$WebAppName/sourcecontrols/web?api-version=2023-01-01\"\n\ntry {\n    Write-Output \"Configuring source control...\"\n    $response = Invoke-RestMethod -Uri $sourceControlUri -Method PUT -Headers $headers -Body $sourceControlBody\n    Write-Output \"Source control configured successfully\"\n    Write-Output \"Note: The initial deployment may take several minutes to complete in the background\"\n} catch {\n    Write-Output \"Source control setup initiated - deployment will continue asynchronously\"\n    Write-Output \"If needed, you can manually sync from the Deployment Center in the Azure Portal\"\n}\n\nWrite-Output \"Source control setup completed\"",
-                "arguments": "[concat('-SubscriptionId \"', subscription().subscriptionId, '\" -ResourceGroupName \"', resourceGroup().name, '\" -WebAppName \"', variables('WebsiteName'), '\" -GitUrl \"', parameters('GitRepositoryUrl'), '\" -GitBranch \"', parameters('GitBranch'), '\"')]",
-                "timeout": "PT10M",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D",
-                "storageAccountSettings": {
-                    "storageAccountName": "[variables('StorageAccountName')]",
-                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), '2023-04-01').keys[0].value]"
-                }
+                "repoUrl": "[parameters('GitRepositoryUrl')]",
+                "branch": "[parameters('GitBranch')]",
+                "isManualIntegration": true,
+                "isGitHubAction": false,
+                "deploymentRollbackEnabled": false,
+                "isMercurial": false
             }
         },
         {
@@ -801,43 +793,12 @@
     ],
     "outputs": {
         "completeSetupUrl": {
-            "condition": "[parameters('CreateAzureAdAppRegistration')]",
             "type": "string",
-            "value": "[concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')))]",
-            "metadata": {
-                "description": "🎉 CoPA Deployed Successfully! 🚨 SETUP REQUIRED: Copy this URL and paste it into a new browser tab to complete Azure AD app registration setup. Follow the on-screen instructions to secure your application, then access your fully configured CoPA app."
-            }
-        },
-        "websiteUrl": {
-            "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName'))), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]",
-            "metadata": {
-                "description": "[if(parameters('CreateAzureAdAppRegistration'), '🚀 CLICK HERE: Your CoPA application with automatic Azure AD setup', 'Your ready-to-use CoPA application')]"
-            }
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName'))), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]"
         },
         "instructions": {
             "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'SIMPLE SETUP: Just click the websiteUrl above! It will automatically guide you through the Azure AD setup process with a beautiful interface and big clickable buttons.', 'Your CoPA application is ready! Click the websiteUrl to access your application.')]"
-        },
-        "webAppPrincipalId": {
-            "type": "string",
-            "value": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2023-01-01', 'full').identity.principalId]"
-        },
-        "deploymentCenter": {
-            "type": "string",
-            "value": "[concat('https://portal.azure.com/#@/resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', variables('WebsiteName'), '/vstscd')]"
-        },
-        "debugInfo": {
-            "type": "object",
-            "value": {
-                "forceCode": "[parameters('ForceCode')]",
-                "environmentSuffix": "[parameters('EnvironmentSuffix')]",
-                "instanceNumber": "[parameters('InstanceNumber')]",
-                "randomSuffix": "[variables('randomSuffix')]",
-                "searchServiceName": "[variables('AzureSearchService')]",
-                "openAIResourceName": "[variables('AzureOpenAIResource')]",
-                "storageAccountName": "[variables('StorageAccountName')]"
-            }
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'SIMPLE SETUP: Copy the completeSetupUrl above and paste it into a new browser tab. It will automatically guide you through the Azure AD setup process with a beautiful interface and big clickable buttons.', 'Your CoPA application is ready! Use the completeSetupUrl above to access your application.')]"
         }
     }
 }
