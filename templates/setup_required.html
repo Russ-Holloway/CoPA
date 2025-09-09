@@ -267,21 +267,28 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const subscriptionId = urlParams.get('subscriptionId');
                 const resourceGroupName = urlParams.get('resourceGroupName');
+                const deploymentId = urlParams.get('deploymentId');
                 
                 // Debug: log what we have
                 console.log('Available parameters:', {
                     subscriptionId,
                     resourceGroupName,
+                    deploymentId,
                     allParams: Object.fromEntries(urlParams.entries())
                 });
                 
-                if (subscriptionId && resourceGroupName) {
-                    // Try the resource group overview page where deployments are easily accessible
-                    const resourceGroupUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/overview`;
-                    window.open(resourceGroupUrl, '_blank');
+                if (subscriptionId && resourceGroupName && deploymentId) {
+                    // Construct the exact deployment outputs URL
+                    const deploymentPath = encodeURIComponent(`/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Resources/deployments/${deploymentId}`);
+                    const outputsUrl = `https://portal.azure.com/#view/HubsExtension/DeploymentDetailsBlade/~/outputs/id/${deploymentPath}`;
+                    window.open(outputsUrl, '_blank');
+                } else if (subscriptionId && resourceGroupName) {
+                    // Fallback to deployments list
+                    const deploymentsUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/deployments`;
+                    window.open(deploymentsUrl, '_blank');
                 } else {
-                    // Simple fallback - go to home and let user navigate
-                    window.open('https://portal.azure.com/#home', '_blank');
+                    // Final fallback
+                    window.open('https://portal.azure.com/#blade/HubsExtension/DeploymentsBlade', '_blank');
                 }
                 return false;
             };
