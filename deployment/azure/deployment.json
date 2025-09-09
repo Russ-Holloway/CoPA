@@ -1,6 +1,13 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
+    "metadata": {
+        "description": "CoPA (Comprehensive Police Application) - Secure AI-powered police chat application with Azure AD authentication",
+        "_generator": {
+            "name": "CoPA Deployment Template",
+            "version": "2.0.0"
+        }
+    },
     "parameters": {
         "ForceCode": {
             "type": "string",
@@ -793,26 +800,38 @@
         }
     ],
     "outputs": {
-        "webAppPrincipalId": {
+        "deploymentStatus": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2023-01-01', 'full').identity.principalId]"
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), '🎉 CoPA Infrastructure Deployed Successfully! ⚠️ SETUP REQUIRED: Complete Azure AD authentication by clicking the setup link below before accessing your application.', '🎉 CoPA Deployed Successfully! Your application is ready to use.')]"
         },
-        "websiteUrl": {
-            "type": "string",
-            "value": "[concat('https://', variables('WebsiteName'), '.azurewebsites.net')]"
-        },
-        "deploymentCenter": {
-            "type": "string",
-            "value": "[concat('https://portal.azure.com/#@/resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', variables('WebsiteName'), '/vstscd')]"
-        },
-        "nextSteps": {
-            "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'Deployment completed! Please complete Azure AD setup by clicking the link below to configure authentication.', 'Deployment completed! Source control is configured and initial deployment is starting automatically. If you need to redeploy later, use the Deployment Center in Azure Portal.')]"
+        "setupRequired": {
+            "condition": "[parameters('CreateAzureAdAppRegistration')]",
+            "type": "string", 
+            "value": "🚨 COMPLETE SETUP: Click the Azure AD Setup URL below to secure your application"
         },
         "azureAdSetupUrl": {
             "condition": "[parameters('CreateAzureAdAppRegistration')]",
             "type": "string",
             "value": "[concat('https://russ-holloway.github.io/CoPA/azure-ad-setup/?', 'displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')))]"
+        },
+        "websiteUrl": {
+            "type": "string",
+            "value": "[concat('https://', variables('WebsiteName'), '.azurewebsites.net')]",
+            "metadata": {
+                "description": "[if(parameters('CreateAzureAdAppRegistration'), 'Your CoPA application URL (complete Azure AD setup first)', 'Your ready-to-use CoPA application')]"
+            }
+        },
+        "instructions": {
+            "type": "string",
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'IMPORTANT: 1️⃣ Click azureAdSetupUrl above to complete authentication setup 2️⃣ Then access your secured app at websiteUrl', 'Your CoPA application is ready! Click websiteUrl to access your application.')]"
+        },
+        "webAppPrincipalId": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2023-01-01', 'full').identity.principalId]"
+        },
+        "deploymentCenter": {
+            "type": "string",
+            "value": "[concat('https://portal.azure.com/#@/resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Web/sites/', variables('WebsiteName'), '/vstscd')]"
         },
         "debugInfo": {
             "type": "object",
