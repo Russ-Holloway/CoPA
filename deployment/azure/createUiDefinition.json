@@ -4,7 +4,6 @@
     "version": "0.1.2-preview",
     "parameters": {
         "config": {
-            "isWizard": true,
             "basics": {
                 "description": "**CoPA (Conversational Police Assistant)** - AI-powered assistant for UK Police Forces.\n\nThis deployment will create a comprehensive AI assistant with Azure OpenAI, Cognitive Search, and secure authentication.\n\n⚠️ **Important**: You will need to create an Azure AD App Registration as part of this setup process.",
                 "subscription": {
@@ -18,7 +17,6 @@
                     }
                 },
                 "resourceGroup": {
-                    "allowExisting": true,
                     "constraints": {
                         "validations": [
                             {
@@ -126,7 +124,6 @@
                         "name": "enableAzureAd",
                         "type": "Microsoft.Common.CheckBox",
                         "label": "Enable Azure AD Authentication",
-                        "defaultValue": true,
                         "toolTip": "Uncheck this if you want to configure authentication manually after deployment"
                     },
                     {
@@ -307,39 +304,33 @@
                                 "name": "enableGitDeployment",
                                 "type": "Microsoft.Common.CheckBox",
                                 "label": "Enable automatic deployment from GitHub",
-                                "defaultValue": true,
                                 "toolTip": "Automatically deploy the latest CoPA source code from GitHub"
                             },
                             {
-                                "name": "gitSettings",
-                                "type": "Microsoft.Common.Section",
+                                "name": "repositoryUrl",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Git Repository URL",
+                                "defaultValue": "https://github.com/Russ-Holloway/CoPA.git",
+                                "toolTip": "GitHub repository URL for CoPA source code",
                                 "visible": "[steps('deployment').gitConfig.enableGitDeployment]",
-                                "elements": [
-                                    {
-                                        "name": "repositoryUrl",
-                                        "type": "Microsoft.Common.TextBox",
-                                        "label": "Git Repository URL",
-                                        "defaultValue": "https://github.com/Russ-Holloway/CoPA.git",
-                                        "toolTip": "GitHub repository URL for CoPA source code",
-                                        "constraints": {
-                                            "required": true,
-                                            "regex": "^https://github\\.com/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+(\\.git)?$",
-                                            "validationMessage": "Please enter a valid GitHub repository URL"
-                                        }
-                                    },
-                                    {
-                                        "name": "gitBranch",
-                                        "type": "Microsoft.Common.TextBox",
-                                        "label": "Git Branch",
-                                        "defaultValue": "main",
-                                        "toolTip": "Git branch to deploy from",
-                                        "constraints": {
-                                            "required": true,
-                                            "regex": "^[a-zA-Z0-9._/-]+$",
-                                            "validationMessage": "Please enter a valid git branch name"
-                                        }
-                                    }
-                                ]
+                                "constraints": {
+                                    "required": "[steps('deployment').gitConfig.enableGitDeployment]",
+                                    "regex": "^https://github\\.com/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+(\\.git)?$",
+                                    "validationMessage": "Please enter a valid GitHub repository URL"
+                                }
+                            },
+                            {
+                                "name": "gitBranch",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Git Branch",
+                                "defaultValue": "main",
+                                "toolTip": "Git branch to deploy from",
+                                "visible": "[steps('deployment').gitConfig.enableGitDeployment]",
+                                "constraints": {
+                                    "required": "[steps('deployment').gitConfig.enableGitDeployment]",
+                                    "regex": "^[a-zA-Z0-9._/-]+$",
+                                    "validationMessage": "Please enter a valid git branch name"
+                                }
                             }
                         ]
                     }
@@ -361,8 +352,8 @@
             "UIFeedbackEmail": "[steps('appConfig').uiConfig.feedbackEmail]",
             "UIFindOutMoreLink": "[steps('appConfig').uiConfig.findOutMoreLink]",
             "EnableGitDeployment": "[steps('deployment').gitConfig.enableGitDeployment]",
-            "GitRepositoryUrl": "[if(steps('deployment').gitConfig.enableGitDeployment, steps('deployment').gitConfig.gitSettings.repositoryUrl, '')]",
-            "GitBranch": "[if(steps('deployment').gitConfig.enableGitDeployment, steps('deployment').gitConfig.gitSettings.gitBranch, 'main')]"
+            "GitRepositoryUrl": "[if(steps('deployment').gitConfig.enableGitDeployment, steps('deployment').gitConfig.repositoryUrl, '')]",
+            "GitBranch": "[if(steps('deployment').gitConfig.enableGitDeployment, steps('deployment').gitConfig.gitBranch, 'main')]"
         }
     }
 }
