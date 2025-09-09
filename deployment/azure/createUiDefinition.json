@@ -179,27 +179,6 @@
                         }
                     },
                     {
-                        "name": "enableGroupRead",
-                        "type": "Microsoft.Common.DropDown",
-                        "label": "Grant Microsoft Graph: Group.Read.All Permission",
-                        "defaultValue": "Yes",
-                        "toolTip": "Allow the application to read group memberships. Recommended for role-based access control in police applications.",
-                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "✅ YES - Grant Group.Read.All (RECOMMENDED for role-based access)",
-                                    "value": "Yes"
-                                },
-                                {
-                                    "label": "No - Skip group permissions (limits role functionality)",
-                                    "value": "No"
-                                }
-                            ],
-                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
-                        }
-                    },
-                    {
                         "name": "clientSecretDescription",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Client Secret Description",
@@ -490,7 +469,6 @@
             "AzureAdSupportedAccountTypes": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').supportedAccountTypes, '')]",
             "AzureAdEnableImplicitFlow": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').enableImplicitFlow, 'Yes'), false)]",
             "AzureAdEnableUserRead": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').enableUserRead, 'Yes'), false)]",
-            "AzureAdEnableGroupRead": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').enableGroupRead, 'Yes'), false)]",
             "AzureAdClientSecretDescription": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').clientSecretDescription, '')]",
             "AzureAdClientSecretExpiry": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').clientSecretExpiry, '24')]",
             "AzureAdUserAssignmentRequired": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').userAssignmentRequired, 'Yes'), false)]",

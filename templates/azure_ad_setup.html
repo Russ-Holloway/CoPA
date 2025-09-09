@@ -281,7 +281,6 @@
             supportedAccountTypes: urlParams.get('supportedAccountTypes') || '',
             enableImplicitFlow: urlParams.get('enableImplicitFlow') === 'true',
             enableUserRead: urlParams.get('enableUserRead') === 'true',
-            enableGroupRead: urlParams.get('enableGroupRead') === 'true',
             clientSecretDescription: urlParams.get('clientSecretDescription') || '',
             clientSecretExpiry: urlParams.get('clientSecretExpiry') || '',
             webAppUrl: urlParams.get('webAppUrl') || '',
@@ -300,7 +299,6 @@
                 <strong>Web App URL:</strong> ${config.webAppUrl}<br>
                 <strong>Supported Account Types:</strong> ${config.supportedAccountTypes}<br>
                 <strong>Enable User.Read Permission:</strong> ${config.enableUserRead ? 'Yes' : 'No'}<br>
-                <strong>Enable Group.Read.All Permission:</strong> ${config.enableGroupRead ? 'Yes' : 'No'}<br>
                 <strong>User Assignment Required:</strong> ${config.userAssignmentRequired ? 'Yes (Enhanced Security)' : 'No (All org users can access)'}<br>
                 <strong>Client Secret Expiry:</strong> ${config.clientSecretExpiry} months<br>
                 <strong>Tenant ID:</strong> ${config.tenantId}
@@ -336,7 +334,7 @@
                 const appRegistration = await createAppRegistration(graphClient);
                 
                 // Step 3: Add API Permissions
-                if (config.enableUserRead || config.enableGroupRead) {
+                if (config.enableUserRead) {
                     updateProgress('🔐 Adding API Permissions...');
                     await addApiPermissions(graphClient, appRegistration.appId);
                     
@@ -453,13 +451,6 @@
             if (config.enableUserRead) {
                 permissions.push({
                     id: 'e1fe6dd8-ba31-4d61-89e7-88639da4683d', // User.Read
-                    type: 'Scope'
-                });
-            }
-            
-            if (config.enableGroupRead) {
-                permissions.push({
-                    id: '5f8c59db-677d-42c8-9acd-73fe7e144b4a', // Group.Read.All
                     type: 'Scope'
                 });
             }

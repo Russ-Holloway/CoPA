@@ -113,13 +113,6 @@
             },
             "defaultValue": true
         },
-        "AzureAdEnableGroupRead": {
-            "type": "bool",
-            "metadata": {
-                "description": "Grant Group.Read.All permission to the Azure AD app"
-            },
-            "defaultValue": true
-        },
         "AzureAdClientSecretDescription": {
             "type": "string",
             "metadata": {
@@ -794,7 +787,7 @@
     "outputs": {
         "completeSetupUrl": {
             "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&enableGroupRead=', string(parameters('AzureAdEnableGroupRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), '&deploymentId=', uriComponent(deployment().name)), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]"
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), '&deploymentId=', uriComponent(deployment().name)), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]"
         },
         "instructions": {
             "type": "string",
