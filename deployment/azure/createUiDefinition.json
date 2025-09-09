@@ -87,7 +87,7 @@
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes - I have created an Azure AD app registration",
+                                    "label": "Yes - Create new app registration",
                                     "value": "Yes"
                                 },
                                 {
@@ -96,45 +96,6 @@
                                 }
                             ],
                             "required": true
-                        }
-                    },
-                    {
-                        "name": "azureAdClientId",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Azure AD Client ID",
-                        "placeholder": "e.g., 12345678-1234-1234-1234-123456789012",
-                        "toolTip": "The Application (Client) ID from your Azure AD App Registration",
-                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-                        "constraints": {
-                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-                            "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                            "validationMessage": "Please enter a valid GUID format (e.g., 12345678-1234-1234-1234-123456789012)"
-                        }
-                    },
-                    {
-                        "name": "azureAdClientSecret",
-                        "type": "Microsoft.Common.PasswordBox",
-                        "label": {
-                            "password": "Azure AD Client Secret",
-                            "confirmPassword": "Confirm Client Secret"
-                        },
-                        "toolTip": "The client secret value from your Azure AD App Registration",
-                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-                        "constraints": {
-                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]"
-                        }
-                    },
-                    {
-                        "name": "azureAdTenantId",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Azure AD Tenant ID",
-                        "placeholder": "e.g., 87654321-4321-4321-4321-210987654321",
-                        "toolTip": "The Tenant (Directory) ID from your Azure AD App Registration",
-                        "visible": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-                        "constraints": {
-                            "required": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
-                            "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                            "validationMessage": "Please enter a valid GUID format (e.g., 87654321-4321-4321-4321-210987654321)"
                         }
                     }
                 ]
@@ -173,41 +134,73 @@
                                     "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?$",
                                     "validationMessage": "Must be a valid URL (starting with http:// or https://) or leave empty."
                                 }
-                            },
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "appConfig",
+                "label": "Application Configuration",
+                "elements": [
+                    {
+                        "name": "startupConfig",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Application Startup Configuration",
+                        "elements": [
                             {
-                                "name": "logoUrl",
+                                "name": "startupCommand",
                                 "type": "Microsoft.Common.TextBox",
-                                "label": "Main Application Logo URL (Optional)",
-                                "placeholder": "https://example.com/logo.png",
-                                "toolTip": "URL of your main application logo. Should be PNG format, approximately 200x60 pixels. If not provided, a default placeholder will be used.",
+                                "label": "App Startup Command",
+                                "defaultValue": "python -m gunicorn app:app",
+                                "toolTip": "The command used to start the application. This is pre-configured for optimal performance with Gunicorn.",
                                 "constraints": {
-                                    "required": false,
-                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(png|jpg|jpeg|svg)$",
-                                    "validationMessage": "Must be a valid image URL (PNG, JPG, JPEG, or SVG) or leave empty."
+                                    "required": true,
+                                    "validationMessage": "Startup command is required."
                                 }
                             },
                             {
-                                "name": "policeForceLogoUrl",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Police Force Logo URL (Optional)",
-                                "placeholder": "https://example.com/force-logo.png",
-                                "toolTip": "URL of your police force logo. Should be PNG format, approximately 100x100 pixels. If not provided, a default placeholder will be used.",
+                                "name": "deploymentSource",
+                                "type": "Microsoft.Common.DropDown",
+                                "label": "Deployment Center Source",
+                                "defaultValue": "External Git",
+                                "toolTip": "The source type for application deployment. External Git is recommended for CoPPA.",
                                 "constraints": {
-                                    "required": false,
-                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(png|jpg|jpeg|svg)$",
-                                    "validationMessage": "Must be a valid image URL (PNG, JPG, JPEG, or SVG) or leave empty."
+                                    "allowedValues": [
+                                        {
+                                            "label": "External Git",
+                                            "value": "External Git"
+                                        },
+                                        {
+                                            "label": "GitHub",
+                                            "value": "GitHub"
+                                        },
+                                        {
+                                            "label": "Local Git",
+                                            "value": "Local Git"
+                                        }
+                                    ],
+                                    "required": true
                                 }
                             },
                             {
-                                "name": "faviconUrl",
-                                "type": "Microsoft.Common.TextBox",
-                                "label": "Favicon URL (Optional)",
-                                "placeholder": "https://example.com/favicon.ico",
-                                "toolTip": "URL of your favicon. Should be ICO format, 32x32 pixels. If not provided, a default favicon will be used.",
+                                "name": "repositoryType",
+                                "type": "Microsoft.Common.DropDown",
+                                "label": "Repository Type",
+                                "defaultValue": "Public",
+                                "toolTip": "Whether the repository is public or private. The CoPPA repository is public.",
                                 "constraints": {
-                                    "required": false,
-                                    "regex": "^$|^https?://[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:/~\\+#]*[\\w\\-\\@?^=%&/~\\+#])?\\.(ico|png)$",
-                                    "validationMessage": "Must be a valid favicon URL (ICO or PNG) or leave empty."
+                                    "allowedValues": [
+                                        {
+                                            "label": "Public",
+                                            "value": "Public"
+                                        },
+                                        {
+                                            "label": "Private",
+                                            "value": "Private"
+                                        }
+                                    ],
+                                    "required": true
                                 }
                             }
                         ]
@@ -274,6 +267,10 @@
                                             "value": "develop"
                                         },
                                         {
+                                            "label": "Deployment-Template (testing deployment automation)",
+                                            "value": "Deployment-Template"
+                                        },
+                                        {
                                             "label": "feature/latest",
                                             "value": "Feature-Deployment-Automation"
                                         }
@@ -292,14 +289,11 @@
             "InstanceNumber": "[basics('forceInfo').instanceNumber]",
             "CreateAzureAdAppRegistration": "[equals(basics('azureAdInfo').createAzureAdApp, 'Yes')]",
             "AzureAdAppDisplayName": "[concat('CoPPA-', toUpper(basics('forceInfo').forceCode), '-', toUpper(basics('forceInfo').environment))]",
-            "AzureAdClientId": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').azureAdClientId, '')]",
-            "AzureAdClientSecret": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').azureAdClientSecret, '')]",
-            "AzureAdTenantId": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').azureAdTenantId, subscription().tenantId)]",
             "UIFeedbackEmail": "[steps('uiConfig').uiCustomization.feedbackEmail]",
             "UIFindOutMoreLink": "[steps('uiConfig').uiCustomization.findOutMoreLink]",
-            "LogoUrl": "[steps('uiConfig').uiCustomization.logoUrl]",
-            "PoliceForceLogoUrl": "[steps('uiConfig').uiCustomization.policeForceLogoUrl]",
-            "FaviconUrl": "[steps('uiConfig').uiCustomization.faviconUrl]",
+            "AppStartupCommand": "[steps('appConfig').startupConfig.startupCommand]",
+            "DeploymentSource": "[steps('appConfig').startupConfig.deploymentSource]",
+            "RepositoryType": "[steps('appConfig').startupConfig.repositoryType]",
             "EnableGitDeployment": "[equals(steps('gitConfig').deploymentConfig.enableGitDeployment, 'Yes')]",
             "GitRepositoryUrl": "[steps('gitConfig').deploymentConfig.gitRepositoryUrl]",
             "GitBranch": "[steps('gitConfig').deploymentConfig.gitBranch]"
