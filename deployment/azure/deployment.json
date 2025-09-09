@@ -807,8 +807,7 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]",
-                "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName')), resourceId('Microsoft.Web/sites', variables('WebsiteName')), 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StorageAccountName'))]"
             ],
             "kind": "AzurePowerShell",
             "properties": {
