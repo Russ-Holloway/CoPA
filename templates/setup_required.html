@@ -263,18 +263,25 @@
             const button = document.getElementById('setupButton');
             button.textContent = '🔄 Back to Deployment Outputs';
             button.onclick = function() {
-                // Try to get deployment name from URL parameters or use a default pattern
+                // Get parameters from URL
                 const urlParams = new URLSearchParams(window.location.search);
-                const subscriptionId = urlParams.get('subscriptionId') || '';
-                const resourceGroupName = urlParams.get('resourceGroupName') || '';
+                const subscriptionId = urlParams.get('subscriptionId');
+                const resourceGroupName = urlParams.get('resourceGroupName');
+                
+                // Debug: log what we have
+                console.log('Available parameters:', {
+                    subscriptionId,
+                    resourceGroupName,
+                    allParams: Object.fromEntries(urlParams.entries())
+                });
                 
                 if (subscriptionId && resourceGroupName) {
-                    // Go directly to resource group deployments where they can find the outputs
-                    const resourceGroupUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/deployments`;
+                    // Try the resource group overview page where deployments are easily accessible
+                    const resourceGroupUrl = `https://portal.azure.com/#@/resource/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/overview`;
                     window.open(resourceGroupUrl, '_blank');
                 } else {
-                    // Fallback to general deployments view
-                    window.open('https://portal.azure.com/#view/HubsExtension/DeploymentsBlade', '_blank');
+                    // Simple fallback - go to home and let user navigate
+                    window.open('https://portal.azure.com/#home', '_blank');
                 }
                 return false;
             };
