@@ -380,10 +380,11 @@
 
         // Authenticate with Microsoft Graph using MSAL
         async function authenticateWithGraph() {
-            // Initialize MSAL
+            // For broader compatibility, we'll use Azure PowerShell's public client ID
+            // which has more permissive redirect URI configuration
             const msalConfig = {
                 auth: {
-                    clientId: '14d82eec-204b-4c2f-b7e8-296a70dab67e', // Microsoft Graph Explorer (public client)
+                    clientId: '1950a258-227b-4e31-a9cf-717495945fc2', // Azure PowerShell (public client)
                     authority: `https://login.microsoftonline.com/${config.tenantId}`,
                     redirectUri: window.location.origin + window.location.pathname
                 },
