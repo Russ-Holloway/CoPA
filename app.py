@@ -158,28 +158,23 @@ async def api_complete_setup():
         if not all([azure_client_id, azure_client_secret, azure_tenant_id]):
             return jsonify({"error": "Bootstrap credentials not configured"}), 400
         
-        # Import required libraries
-        import urllib.request
-        import urllib.parse
-        import json
-        
         # Get access token using bootstrap credentials
-        token_url = f"https://login.microsoftonline.com/{azure_tenant_id}/oauth2/v2.0/token"
-        token_data = {
-            'grant_type': 'client_credentials',
-            'client_id': azure_client_id,
-            'client_secret': azure_client_secret,
-            'scope': 'https://graph.microsoft.com/.default'
-        }
-        
-        token_request = urllib.request.Request(
-            token_url,
-            data=urllib.parse.urlencode(token_data).encode(),
-            headers={'Content-Type': 'application/x-www-form-urlencoded'}
-        )
-        
-        with urllib.request.urlopen(token_request) as response:
-            token_result = json.loads(response.read().decode())
+        async with httpx.AsyncClient() as client:
+            token_url = f"https://login.microsoftonline.com/{azure_tenant_id}/oauth2/v2.0/token"
+            token_data = {
+                'grant_type': 'client_credentials',
+                'client_id': azure_client_id,
+                'client_secret': azure_client_secret,
+                'scope': 'https://graph.microsoft.com/.default'
+            }
+            
+            token_response = await client.post(
+                token_url,
+                data=token_data,
+                headers={'Content-Type': 'application/x-www-form-urlencoded'}
+            )
+            token_response.raise_for_status()
+            token_result = token_response.json()
             access_token = token_result["access_token"]
         
         results = {}
@@ -210,19 +205,17 @@ async def api_complete_setup():
 
 async def update_redirect_uris(access_token, client_id, results):
     """Add mobile and desktop redirect URIs"""
-    import urllib.request
-    import json
-    
     try:
-        # Get current app registration
-        app_url = f"https://graph.microsoft.com/v1.0/applications?$filter=appId eq '{client_id}'"
-        app_request = urllib.request.Request(
-            app_url,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
-        
-        with urllib.request.urlopen(app_request) as response:
-            app_data = json.loads(response.read().decode())
+        async with httpx.AsyncClient() as client:
+            # Get current app registration
+            app_url = f"https://graph.microsoft.com/v1.0/applications?$filter=appId eq '{client_id}'"
+            app_response = await client.get(
+                app_url,
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            app_response.raise_for_status()
+            app_data = app_response.json()
+            
             if not app_data.get('value'):
                 raise Exception("App registration not found")
             
@@ -230,32 +223,28 @@ async def update_redirect_uris(access_token, client_id, results):
             current_web = app_data['value'][0].get('web', {})
             current_uris = current_web.get('redirectUris', [])
         
-        # Add mobile and desktop URIs
-        new_uris = list(set(current_uris + [
-            'msal://redirect',  # Mobile
-            'https://login.microsoftonline.com/common/oauth2/nativeclient',  # Desktop
-            'http://localhost:3000',  # Local development
-            'http://localhost:8000'   # Alternative local
-        ]))
-        
-        # Update the application
-        update_data = {
-            "web": {
-                "redirectUris": new_uris
+            # Add mobile and desktop URIs
+            new_uris = list(set(current_uris + [
+                'msal://redirect',  # Mobile
+                'https://login.microsoftonline.com/common/oauth2/nativeclient',  # Desktop
+                'http://localhost:3000',  # Local development
+                'http://localhost:8000'   # Alternative local
+            ]))
+            
+            # Update the application
+            update_data = {
+                "web": {
+                    "redirectUris": new_uris
+                }
             }
-        }
-        
-        update_request = urllib.request.Request(
-            f"https://graph.microsoft.com/v1.0/applications/{app_object_id}",
-            data=json.dumps(update_data).encode(),
-            headers={
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type': 'application/json'
-            }
-        )
-        update_request.get_method = lambda: 'PATCH'
-        
-        with urllib.request.urlopen(update_request):
+            
+            update_response = await client.patch(
+                f"https://graph.microsoft.com/v1.0/applications/{app_object_id}",
+                json=update_data,
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            update_response.raise_for_status()
+            
             results['redirect_uris'] = {'status': 'success', 'uris': new_uris}
             
     except Exception as e:
@@ -264,46 +253,39 @@ async def update_redirect_uris(access_token, client_id, results):
 
 async def add_api_permissions(access_token, client_id, results):
     """Add required Microsoft Graph API permissions"""
-    import urllib.request
-    import json
-    
     try:
-        # Get current app registration
-        app_url = f"https://graph.microsoft.com/v1.0/applications?$filter=appId eq '{client_id}'"
-        app_request = urllib.request.Request(
-            app_url,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
-        
-        with urllib.request.urlopen(app_request) as response:
-            app_data = json.loads(response.read().decode())
+        async with httpx.AsyncClient() as client:
+            # Get current app registration
+            app_url = f"https://graph.microsoft.com/v1.0/applications?$filter=appId eq '{client_id}'"
+            app_response = await client.get(
+                app_url,
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            app_response.raise_for_status()
+            app_data = app_response.json()
             app_object_id = app_data['value'][0]['id']
         
-        # Define required permissions
-        required_permissions = {
-            "resourceAppId": "00000003-0000-0000-c000-000000000000",  # Microsoft Graph
-            "resourceAccess": [
-                {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},  # User.Read
-                {"id": "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0", "type": "Scope"},  # User.Read.All
-                {"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", "type": "Scope"}   # offline_access
-            ]
-        }
-        
-        update_data = {
-            "requiredResourceAccess": [required_permissions]
-        }
-        
-        update_request = urllib.request.Request(
-            f"https://graph.microsoft.com/v1.0/applications/{app_object_id}",
-            data=json.dumps(update_data).encode(),
-            headers={
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type': 'application/json'
+            # Define required permissions
+            required_permissions = {
+                "resourceAppId": "00000003-0000-0000-c000-000000000000",  # Microsoft Graph
+                "resourceAccess": [
+                    {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},  # User.Read
+                    {"id": "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0", "type": "Scope"},  # User.Read.All
+                    {"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", "type": "Scope"}   # offline_access
+                ]
             }
-        )
-        update_request.get_method = lambda: 'PATCH'
-        
-        with urllib.request.urlopen(update_request):
+            
+            update_data = {
+                "requiredResourceAccess": [required_permissions]
+            }
+            
+            update_response = await client.patch(
+                f"https://graph.microsoft.com/v1.0/applications/{app_object_id}",
+                json=update_data,
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            update_response.raise_for_status()
+            
             results['api_permissions'] = {'status': 'success', 'permissions': 'Added User.Read, User.Read.All, offline_access'}
             
     except Exception as e:
@@ -312,48 +294,55 @@ async def add_api_permissions(access_token, client_id, results):
 
 async def grant_admin_consent(access_token, client_id, tenant_id, results):
     """Grant admin consent for the enterprise application"""
-    import urllib.request
-    import json
-    
     try:
-        # Get service principal (enterprise app) for this application
-        sp_url = f"https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '{client_id}'"
-        sp_request = urllib.request.Request(
-            sp_url,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
-        
-        with urllib.request.urlopen(sp_request) as response:
-            sp_data = json.loads(response.read().decode())
+        async with httpx.AsyncClient() as client:
+            # Get service principal (enterprise app) for this application
+            sp_url = f"https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '{client_id}'"
+            sp_response = await client.get(
+                sp_url,
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            sp_response.raise_for_status()
+            sp_data = sp_response.json()
+            
             if not sp_data.get('value'):
                 raise Exception("Enterprise application not found")
             
             service_principal_id = sp_data['value'][0]['id']
         
-        # Grant admin consent by creating OAuth2PermissionGrant
-        consent_data = {
-            "clientId": service_principal_id,
-            "consentType": "AllPrincipals",
-            "resourceId": "00000003-0000-0000-c000-000000000000",  # Microsoft Graph service principal ID
-            "scope": "User.Read User.Read.All offline_access"
-        }
-        
-        consent_request = urllib.request.Request(
-            "https://graph.microsoft.com/v1.0/oauth2PermissionGrants",
-            data=json.dumps(consent_data).encode(),
-            headers={
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type': 'application/json'
+            # First, get the Microsoft Graph service principal ID for the tenant
+            graph_sp_response = await client.get(
+                "https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '00000003-0000-0000-c000-000000000000'",
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            graph_sp_response.raise_for_status()
+            graph_sp_data = graph_sp_response.json()
+            
+            if not graph_sp_data.get('value'):
+                raise Exception("Microsoft Graph service principal not found")
+            
+            graph_sp_id = graph_sp_data['value'][0]['id']
+            
+            # Grant admin consent by creating OAuth2PermissionGrant
+            consent_data = {
+                "clientId": service_principal_id,
+                "consentType": "AllPrincipals",
+                "resourceId": graph_sp_id,
+                "scope": "User.Read User.Read.All offline_access"
             }
-        )
-        consent_request.get_method = lambda: 'POST'
-        
-        with urllib.request.urlopen(consent_request):
+            
+            consent_response = await client.post(
+                "https://graph.microsoft.com/v1.0/oauth2PermissionGrants",
+                json=consent_data,
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            consent_response.raise_for_status()
+            
             results['admin_consent'] = {'status': 'success', 'message': 'Admin consent granted for all users'}
             
     except Exception as e:
         # Admin consent might already exist, which is fine
-        if "already exists" in str(e).lower() or "conflict" in str(e).lower():
+        if "already exists" in str(e).lower() or "conflict" in str(e).lower() or "409" in str(e):
             results['admin_consent'] = {'status': 'success', 'message': 'Admin consent already granted'}
         else:
             results['admin_consent'] = {'status': 'error', 'message': str(e)}
@@ -361,38 +350,31 @@ async def grant_admin_consent(access_token, client_id, tenant_id, results):
 
 async def configure_enterprise_app(access_token, client_id, results):
     """Configure enterprise application settings"""
-    import urllib.request
-    import json
-    
     try:
-        # Get service principal
-        sp_url = f"https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '{client_id}'"
-        sp_request = urllib.request.Request(
-            sp_url,
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
-        
-        with urllib.request.urlopen(sp_request) as response:
-            sp_data = json.loads(response.read().decode())
+        async with httpx.AsyncClient() as client:
+            # Get service principal
+            sp_url = f"https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '{client_id}'"
+            sp_response = await client.get(
+                sp_url,
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            sp_response.raise_for_status()
+            sp_data = sp_response.json()
             service_principal_id = sp_data['value'][0]['id']
         
-        # Configure enterprise app settings
-        config_data = {
-            "appRoleAssignmentRequired": True,  # Require user assignment
-            "tags": ["CoPA", "PoliceApplication", "Enterprise"]
-        }
-        
-        config_request = urllib.request.Request(
-            f"https://graph.microsoft.com/v1.0/servicePrincipals/{service_principal_id}",
-            data=json.dumps(config_data).encode(),
-            headers={
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type': 'application/json'
+            # Configure enterprise app settings
+            config_data = {
+                "appRoleAssignmentRequired": True,  # Require user assignment
+                "tags": ["CoPA", "PoliceApplication", "Enterprise"]
             }
-        )
-        config_request.get_method = lambda: 'PATCH'
-        
-        with urllib.request.urlopen(config_request):
+            
+            config_response = await client.patch(
+                f"https://graph.microsoft.com/v1.0/servicePrincipals/{service_principal_id}",
+                json=config_data,
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            config_response.raise_for_status()
+            
             results['enterprise_config'] = {'status': 'success', 'message': 'Enterprise app configured with user assignment requirement'}
             
     except Exception as e:
