@@ -243,7 +243,8 @@
         "AzureOpenAIModelDeploymentName": "policingGptDeployment",
         "AzureOpenAISystemMessage": "You are an AI assistant specialized in policing matters. Your purpose is to help police officers and staff find relevant information from the department's knowledge base to assist with their duties. Provide clear, factual information while maintaining awareness of law enforcement protocols and policies.",
         "WebAppEnableChatHistory": true,
-        "WebAppUrl": "[concat('https://', variables('WebsiteName'), '.azurewebsites.net')]"
+        "WebAppUrl": "[concat('https://', variables('WebsiteName'), '.azurewebsites.net')]",
+        "DeploymentScriptName": "[concat('ds-copa-bootstrap-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]"
     },
     "resources": [
 
@@ -799,7 +800,7 @@
         {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2023-08-01",
-            "name": "[concat('ds-copa-bootstrap-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
+            "name": "[variables('DeploymentScriptName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
@@ -844,11 +845,11 @@
     "outputs": {
         "bootstrapAppClientId": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', concat('ds-copa-bootstrap-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix')))).outputs.bootstrapAppClientId]"
+            "value": "[if(contains(reference(resourceId('Microsoft.Resources/deploymentScripts', variables('DeploymentScriptName'))).outputs, 'bootstrapAppClientId'), reference(resourceId('Microsoft.Resources/deploymentScripts', variables('DeploymentScriptName'))).outputs.bootstrapAppClientId, '')]"
         },
         "completeSetupUrl": {
             "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), '&bootstrapClientId=', reference(resourceId('Microsoft.Resources/deploymentScripts', concat('ds-copa-bootstrap-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix')))).outputs.bootstrapAppClientId, '&deploymentId=', uriComponent(deployment().name)), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]"
+            "value": "[concat('https://', variables('WebsiteName'), '.azurewebsites.net/', if(parameters('CreateAzureAdAppRegistration'), concat('?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(variables('WebAppUrl')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), if(contains(reference(resourceId('Microsoft.Resources/deploymentScripts', variables('DeploymentScriptName'))).outputs, 'bootstrapAppClientId'), concat('&bootstrapClientId=', reference(resourceId('Microsoft.Resources/deploymentScripts', variables('DeploymentScriptName'))).outputs.bootstrapAppClientId), ''), '&deploymentId=', uriComponent(deployment().name)), ''))]"
         },
         "instructions": {
             "type": "string",
