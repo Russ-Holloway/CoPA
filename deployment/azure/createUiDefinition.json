@@ -76,22 +76,22 @@
             {
                 "name": "azureAdInfo",
                 "type": "Microsoft.Common.Section",
-                "label": "Azure AD App Registration Configuration",
+                "label": "🔐 Azure AD App Registration (REQUIRED - Create Before Deployment)",
                 "elements": [
                     {
                         "name": "createAzureAdApp",
                         "type": "Microsoft.Common.DropDown",
                         "label": "Create Azure AD App Registration",
-                        "defaultValue": "Yes",
+                        "defaultValue": "No",
                         "toolTip": "Whether to create an Azure AD app registration for authentication. Recommended for first-time deployments.",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "✅ YES - Create new app registration (RECOMMENDED for first deployment)",
+                                    "label": "❌ YES - Automated creation (NOT SUPPORTED - will fail)",
                                     "value": "Yes"
                                 },
                                 {
-                                    "label": "No - I'll use existing app registration",
+                                    "label": "✅ NO - I have created an app registration (REQUIRED - see Pre-Deployment Guide)",
                                     "value": "No"
                                 }
                             ],
@@ -472,9 +472,9 @@
             "AzureAdClientSecretDescription": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').clientSecretDescription, '')]",
             "AzureAdClientSecretExpiry": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), basics('azureAdInfo').clientSecretExpiry, '24')]",
             "AzureAdUserAssignmentRequired": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'Yes'), equals(basics('azureAdInfo').userAssignmentRequired, 'Yes'), false)]",
-            "AzureClientId": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingClientId, '')]",
-            "AzureClientSecret": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingClientSecret, '')]",
-            "AzureTenantId": "[if(equals(basics('azureAdInfo').createAzureAdApp, 'No'), basics('azureAdInfo').existingTenantId, subscription().tenantId)]",
+            "AzureClientId": "[basics('azureAdInfo').existingClientId]",
+            "AzureClientSecret": "[basics('azureAdInfo').existingClientSecret]",
+            "AzureTenantId": "[basics('azureAdInfo').existingTenantId]",
             "UIFeedbackEmail": "[steps('uiConfig').uiCustomization.feedbackEmail]",
             "UIFindOutMoreLink": "[steps('uiConfig').uiCustomization.findOutMoreLink]",
             "AppStartupCommand": "[steps('appConfig').startupConfig.startupCommand]",
