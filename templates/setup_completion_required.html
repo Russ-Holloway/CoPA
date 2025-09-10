@@ -151,13 +151,13 @@
     <div class="container">
         <div class="header">
             <h1>🚧 Setup Completion Required</h1>
-            <p>Complete your CoPA Azure AD configuration</p>
+            <p>Complete your CoPA (College of Policing Assistant) Azure AD configuration</p>
         </div>
         
         <div class="content">
             <div class="alert info">
                 <h3>✅ Bootstrap Authentication Successful</h3>
-                <p>Your basic Azure AD authentication is working! However, to unlock the full functionality of CoPA, you need to complete the advanced configuration.</p>
+                <p>Your basic Azure AD authentication is working! However, to unlock the full functionality of CoPA (College of Policing Assistant), you need to complete the advanced configuration.</p>
             </div>
             
             <div class="setup-steps">
@@ -198,7 +198,7 @@
         </div>
         
         <div class="footer">
-            <p><strong>CoPA (Comprehensive Police Application)</strong><br>
+            <p><strong>CoPA (College of Policing Assistant)</strong><br>
             Advanced setup ensures full functionality and security compliance<br>
             Contact your system administrator for assistance</p>
         </div>
@@ -352,7 +352,8 @@
                                 <li>Go to <a href="https://portal.azure.com" target="_blank">Azure Portal</a></li>
                                 <li>Navigate to your <strong>App Service</strong></li>
                                 <li>Go to <strong>Settings</strong> → <strong>Environment variables</strong></li>
-                                <li>Add new variable: <code>COPA_SETUP_COMPLETED</code> = <code>true</code></li>
+                                <li>Find existing variable: <code>COPA_SETUP_COMPLETED</code></li>
+                                <li>Change its value from <code>false</code> to <code>true</code></li>
                                 <li>Click <strong>Apply</strong> and <strong>Confirm</strong></li>
                             </ul>
                         </li>
@@ -371,7 +372,7 @@
                     
                     <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin: 15px 0;">
                         <p><strong>🎉 Congratulations!</strong></p>
-                        <p>Your CoPA application is now fully configured for production use with:</p>
+                        <p>Your CoPA (College of Policing Assistant) application is now fully configured for production use with:</p>
                         <ul>
                             <li>✅ Mobile and desktop support</li>
                             <li>✅ Enhanced API permissions</li>
@@ -383,7 +384,7 @@
                     </div>
                     
                     <p><strong>After completing the environment variable setup above:</strong></p>
-                    <button class="button" onclick="launchCopaApp()">🏠 Launch CoPA Application</button>
+                    <button class="button" onclick="launchCopaApp()">🏠 Launch CoPA (College of Policing Assistant)</button>
                 `
             }
         ];
