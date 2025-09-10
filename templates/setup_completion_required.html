@@ -326,15 +326,48 @@
                 `
             },
             {
+                title: "Grant Enterprise Application Admin Consent",
+                content: `
+                    <p><strong>Complete admin consent from Enterprise Application:</strong></p>
+                    <ol>
+                        <li>In your CoPA Enterprise application, go to <strong>Permissions</strong> in the left menu</li>
+                        <li>Review all the permissions that need consent</li>
+                        <li>Click <strong>Grant admin consent for [Your Organization]</strong></li>
+                        <li>Click <strong>Yes</strong> to confirm the consent</li>
+                        <li>Wait for all permissions to show "Granted" status</li>
+                        <li>Verify no permissions show "Not granted" or require additional consent</li>
+                    </ol>
+                    <p>✅ <strong>Verification:</strong> All permissions should show "Granted for [Your Organization]" with green checkmarks.</p>
+                    <p>⚠️ <strong>Important:</strong> This step ensures your app has full permissions to function properly.</p>
+                `
+            },
+            {
                 title: "Complete Setup",
                 content: `
                     <p><strong>Finalize your CoPA configuration:</strong></p>
                     <ol>
-                        <li>Verify all previous steps are completed</li>
-                        <li>Test the application with an assigned user account</li>
-                        <li>Set the environment variable <code>COPA_SETUP_COMPLETED=true</code> in your Azure App Service</li>
-                        <li>Restart your application</li>
+                        <li><strong>Verify all previous steps are completed</strong> - Check each step was successful</li>
+                        <li><strong>Set environment variable in Azure:</strong>
+                            <ul>
+                                <li>Go to <a href="https://portal.azure.com" target="_blank">Azure Portal</a></li>
+                                <li>Navigate to your <strong>App Service</strong></li>
+                                <li>Go to <strong>Settings</strong> → <strong>Environment variables</strong></li>
+                                <li>Add new variable: <code>COPA_SETUP_COMPLETED</code> = <code>true</code></li>
+                                <li>Click <strong>Apply</strong> and <strong>Confirm</strong></li>
+                            </ul>
+                        </li>
+                        <li><strong>Restart your App Service:</strong>
+                            <ul>
+                                <li>In Azure Portal, go to your App Service <strong>Overview</strong></li>
+                                <li>Click <strong>Restart</strong> and confirm</li>
+                                <li>Wait for the restart to complete (~30 seconds)</li>
+                            </ul>
+                        </li>
                     </ol>
+                    
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <p><strong>⚠️ Important:</strong> You must complete step 2 (set environment variable) and step 3 (restart) before the Launch button will work!</p>
+                    </div>
                     
                     <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin: 15px 0;">
                         <p><strong>🎉 Congratulations!</strong></p>
@@ -342,12 +375,24 @@
                         <ul>
                             <li>✅ Mobile and desktop support</li>
                             <li>✅ Enhanced API permissions</li>
-                            <li>✅ Admin consent granted</li>
+                            <li>✅ Admin consent granted (App Registration)</li>
+                            <li>✅ Admin consent granted (Enterprise Application)</li>
                             <li>✅ Enterprise security settings</li>
+                            <li>✅ User assignment configured</li>
                         </ul>
                     </div>
                     
-                    <button class="button" onclick="window.location.href='/'">🏠 Launch CoPA Application</button>
+                    <p><strong>After completing the environment variable setup above:</strong></p>
+                    <button class="button" onclick="launchCopaApp()">🏠 Launch CoPA Application</button>
+                    
+                    <script>
+                        function launchCopaApp() {
+                            // Clear any cached setup state and redirect
+                            sessionStorage.clear();
+                            localStorage.clear();
+                            window.location.href = '/?setup=complete';
+                        }
+                    </script>
                 `
             }
         ];
