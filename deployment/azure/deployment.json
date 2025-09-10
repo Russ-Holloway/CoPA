@@ -784,15 +784,34 @@
             }
         },
         {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-04-01",
+            "name": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), 'bs', variables('randomSuffix'))]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "supportsHttpsTrafficOnly": true
+            }
+        },
+        {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2023-08-01",
             "name": "[concat('ds-copa-bootstrap-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), 'bs', variables('randomSuffix')))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', concat('id-copa-bootstrap-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix')))]"
             ],
             "kind": "AzurePowerShell",
             "properties": {
+                "storageAccountSettings": {
+                    "storageAccountName": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), 'bs', variables('randomSuffix'))]",
+                    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), 'bs', variables('randomSuffix'))), '2023-04-01').keys[0].value]"
+                },
                 "azPowerShellVersion": "11.0",
                 "timeout": "PT10M",
                 "retentionInterval": "PT1H",
