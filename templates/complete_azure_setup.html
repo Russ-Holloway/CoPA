@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoPA - Complete Azure AD Setup</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .step {
+            margin-bottom: 30px;
+        }
+        
+        .step h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .alert.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert.info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        .alert.warning {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        
+        .alert h4 {
+            margin-bottom: 10px;
+        }
+        
+        .config-list {
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .config-list h4 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .config-item:last-child {
+            border-bottom: none;
+        }
+        
+        .config-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .config-description {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 3px;
+        }
+        
+        .config-status {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .config-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .config-status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .config-status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+        }
+        
+        .button:hover {
+            background: #229954;
+        }
+        
+        .button.secondary {
+            background: #3498db;
+        }
+        
+        .button.secondary:hover {
+            background: #2980b9;
+        }
+        
+        .button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .progress {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Complete Azure AD Setup</h1>
+            <p>Finalize your CoPA configuration with advanced Azure AD features</p>
+        </div>
+        
+        <div class="content">
+            <div class="step">
+                <h3>🎯 Current Status</h3>
+                <div class="alert success">
+                    <h4>✅ Bootstrap Authentication Working</h4>
+                    <p>Your basic Azure AD integration is functional. Complete the advanced setup below to unlock full CoPA capabilities.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3>🔧 Advanced Configuration</h3>
+                <div class="config-list">
+                    <h4>Configuration Items to be Applied:</h4>
+                    
+                    <div class="config-item">
+                        <div>
+                            <div class="config-name">Mobile & Desktop Redirect URIs</div>
+                            <div class="config-description">Enables CoPA access from mobile apps and desktop clients</div>
+                        </div>
+                        <span class="config-status pending" id="status-redirects">Pending</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div>
+                            <div class="config-name">Enhanced API Permissions</div>
+                            <div class="config-description">Adds User.Read.All and offline_access for improved functionality</div>
+                        </div>
+                        <span class="config-status pending" id="status-permissions">Pending</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div>
+                            <div class="config-name">Enterprise App Admin Consent</div>
+                            <div class="config-description">Grants organization-wide consent automatically</div>
+                        </div>
+                        <span class="config-status pending" id="status-consent">Pending</span>
+                    </div>
+                    
+                    <div class="config-item">
+                        <div>
+                            <div class="config-name">Enterprise Security Settings</div>
+                            <div class="config-description">Configures user assignment requirements and security tags</div>
+                        </div>
+                        <span class="config-status pending" id="status-enterprise">Pending</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="alert warning">
+                    <h4>⚠️ Administrator Permissions Required</h4>
+                    <p>You need <strong>Global Administrator</strong> or <strong>Application Administrator</strong> permissions to complete this setup. The configuration will use your bootstrap app credentials to make the changes automatically.</p>
+                </div>
+                
+                <button class="button" onclick="startAdvancedSetup()" id="setupButton">
+                    🚀 Start Advanced Configuration
+                </button>
+                
+                <a href="/" class="button secondary">
+                    ⬅️ Skip for Now (Basic Mode)
+                </a>
+            </div>
+            
+            <div class="progress" id="progressSection">
+                <div class="spinner"></div>
+                <p><strong>Applying advanced Azure AD configuration...</strong></p>
+                <p><small>This process may take a few moments. Please wait while we enhance your setup.</small></p>
+            </div>
+            
+            <div class="result" id="resultSection">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>CoPA (Comprehensive Police Application)</strong><br>
+            Secure AI-powered chat application for law enforcement<br>
+            Advanced setup ensures maximum functionality and security</p>
+        </div>
+    </div>
+
+    <script>
+        async function startAdvancedSetup() {
+            const progressSection = document.getElementById('progressSection');
+            const resultSection = document.getElementById('resultSection');
+            const setupButton = document.getElementById('setupButton');
+            
+            // Show progress, hide button
+            progressSection.style.display = 'block';
+            resultSection.style.display = 'none';
+            setupButton.disabled = true;
+            setupButton.innerHTML = '⏳ Configuring...';
+            
+            try {
+                const response = await fetch('/api/complete-setup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                // Hide progress
+                progressSection.style.display = 'none';
+                
+                // Update individual status indicators
+                updateStatus('status-redirects', result.redirect_uris);
+                updateStatus('status-permissions', result.api_permissions);
+                updateStatus('status-consent', result.admin_consent);
+                updateStatus('status-enterprise', result.enterprise_config);
+                
+                // Show final result
+                displayFinalResult(result);
+                
+            } catch (error) {
+                console.error('Setup failed:', error);
+                progressSection.style.display = 'none';
+                displayError(error.message);
+                setupButton.disabled = false;
+                setupButton.innerHTML = '🔄 Retry Configuration';
+            }
+        }
+        
+        function updateStatus(elementId, result) {
+            const statusElement = document.getElementById(elementId);
+            if (!result) return;
+            
+            if (result.status === 'success') {
+                statusElement.className = 'config-status success';
+                statusElement.textContent = 'Success';
+            } else {
+                statusElement.className = 'config-status error';
+                statusElement.textContent = 'Failed';
+            }
+        }
+        
+        function displayFinalResult(results) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.style.display = 'block';
+            
+            const successCount = Object.values(results).filter(r => r && r.status === 'success').length;
+            const totalCount = Object.keys(results).length - 1; // Exclude setup_completed
+            
+            if (successCount === totalCount) {
+                resultSection.className = 'result success';
+                resultSection.innerHTML = `
+                    <h3>🎉 Advanced Setup Complete!</h3>
+                    <p><strong>Congratulations!</strong> Your CoPA application is now fully configured with advanced Azure AD features.</p>
+                    <p>All ${successCount} configuration items were applied successfully.</p>
+                    <div style="margin-top: 20px;">
+                        <a href="/" class="button">🏠 Launch CoPA Application</a>
+                        <a href="https://portal.azure.com" class="button secondary" target="_blank">📊 View in Azure Portal</a>
+                    </div>
+                `;
+            } else {
+                resultSection.className = 'result error';
+                resultSection.innerHTML = `
+                    <h3>⚠️ Setup Partially Complete</h3>
+                    <p><strong>Some configurations failed.</strong> ${successCount} of ${totalCount} items were configured successfully.</p>
+                    <p>Your CoPA application will still work, but some advanced features may not be available.</p>
+                    <div style="margin-top: 20px;">
+                        <button class="button" onclick="startAdvancedSetup()">🔄 Retry Failed Items</button>
+                        <a href="/" class="button secondary">🏠 Continue to CoPA</a>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayError(error) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.style.display = 'block';
+            resultSection.className = 'result error';
+            resultSection.innerHTML = `
+                <h3>❌ Configuration Failed</h3>
+                <p><strong>Error:</strong> ${error}</p>
+                <p>Please check your permissions and try again. You need Global Administrator or Application Administrator rights.</p>
+                <div style="margin-top: 20px;">
+                    <button class="button" onclick="startAdvancedSetup()">🔄 Try Again</button>
+                    <a href="/" class="button secondary">⬅️ Skip Advanced Setup</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

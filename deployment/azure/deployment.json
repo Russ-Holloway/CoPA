@@ -475,6 +475,10 @@
                         {
                             "name": "AZURE_TENANT_ID",
                             "value": "[parameters('AzureTenantId')]"
+                        },
+                        {
+                            "name": "COPA_SETUP_COMPLETED",
+                            "value": "false"
                         }
                     ]
                 }
