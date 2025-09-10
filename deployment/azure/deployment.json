@@ -77,13 +77,7 @@
             },
             "defaultValue": "[concat(parameters('ForceCode'), '-copa-datasource-index-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
         },
-        "CreateAzureAdAppRegistration": {
-            "type": "bool",
-            "metadata": {
-                "description": "Whether to automatically create Azure AD App Registration for authentication"
-            },
-            "defaultValue": false
-        },
+
         "AzureAdAppDisplayName": {
             "type": "string",
             "metadata": {
@@ -105,6 +99,24 @@
                 "description": "Enable implicit flow for ID tokens in the Azure AD app"
             },
             "defaultValue": true
+        },
+        "AzureClientId": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure AD Application (client) ID - REQUIRED: Create app registration before deployment"
+            }
+        },
+        "AzureClientSecret": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Azure AD Client Secret - REQUIRED: Generate in app registration before deployment"
+            }
+        },
+        "AzureTenantId": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure AD Directory (tenant) ID - REQUIRED: Found in Azure AD overview"
+            }
         },
         "AzureAdEnableUserRead": {
             "type": "bool",
@@ -135,27 +147,7 @@
             },
             "defaultValue": true
         },
-        "ExistingAzureAdClientId": {
-            "type": "string",
-            "metadata": {
-                "description": "Client ID of existing Azure AD application (when not creating new)"
-            },
-            "defaultValue": ""
-        },
-        "ExistingAzureAdClientSecret": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Client secret of existing Azure AD application (when not creating new)"
-            },
-            "defaultValue": ""
-        },
-        "ExistingAzureAdTenantId": {
-            "type": "string",
-            "metadata": {
-                "description": "Tenant ID for existing Azure AD application (when not creating new)"
-            },
-            "defaultValue": "[subscription().tenantId]"
-        },
+
         "UIFeedbackEmail": {
             "type": "string",
             "metadata": {
@@ -474,15 +466,15 @@
                         },
                         {
                             "name": "AZURE_CLIENT_ID",
-                            "value": "[parameters('ExistingAzureAdClientId')]"
+                            "value": "[parameters('AzureClientId')]"
                         },
                         {
                             "name": "AZURE_CLIENT_SECRET",
-                            "value": "[parameters('ExistingAzureAdClientSecret')]"
+                            "value": "[parameters('AzureClientSecret')]"
                         },
                         {
                             "name": "AZURE_TENANT_ID",
-                            "value": "[if(parameters('CreateAzureAdAppRegistration'), subscription().tenantId, parameters('ExistingAzureAdTenantId'))]"
+                            "value": "[parameters('AzureTenantId')]"
                         }
                     ]
                 }

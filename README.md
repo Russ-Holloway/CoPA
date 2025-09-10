@@ -27,22 +27,26 @@
 
 ## Deployment
 
-### 🚔 **One-Click Deployment for UK Police Forces**
+### 🚔 **Secure Deployment for UK Police Forces**
 
-Deploy instantly with PDS-compliant naming and automatic configuration:
+**⚠️ IMPORTANT: [Complete Pre-Deployment Setup First](docs/PRE_DEPLOYMENT_GUIDE.md)**
+
+Before deploying, you **MUST** create an Azure AD App Registration. This ensures secure authentication is properly configured.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fstcoppadeployment.blob.core.windows.net%2Fcoppa-deployment%2Fdeployment.json/createUIDefinitionUri/https%3A%2F%2Fstcoppadeployment.blob.core.windows.net%2Fcoppa-deployment%2FcreateUiDefinition.json)
 
 **Deployment Process:**
-1. **Click Deploy** → Azure infrastructure provisioned with PDS naming
-2. **Auto-Configuration** → Environment variables and search components configured
-3. **Ready to Use** → Application immediately available for officers
+1. **📋 [Pre-Deployment](docs/PRE_DEPLOYMENT_GUIDE.md)** → Create Azure AD App Registration (5 minutes)
+2. **🚀 Click Deploy** → Azure infrastructure provisioned with PDS naming  
+3. **🔐 Enter Credentials** → Provide Azure AD details from pre-deployment
+4. **✅ Ready to Use** → Application immediately available with full security
 
-**Post-Deployment Setup:**
-- **Authentication:** Run `deployment/scripts/setup_azure_ad_auth.ps1`
-- **Search Setup:** Run `deployment/scripts/setup-search-components.ps1`
+**Required Parameters:**
+- `AzureClientId` - Application (client) ID from Azure AD app registration
+- `AzureClientSecret` - Client secret from Azure AD app registration  
+- `AzureTenantId` - Directory (tenant) ID from Azure AD
 
-📖 **Guides:** [PDS Deployment](docs/deployment/PDS-DEPLOYMENT-GUIDE.md) | [Azure Naming](docs/deployment/azure-naming-guidelines.md)
+📖 **Guides:** [Pre-Deployment](docs/PRE_DEPLOYMENT_GUIDE.md) | [PDS Deployment](docs/deployment/PDS-DEPLOYMENT-GUIDE.md) | [Azure Naming](docs/deployment/azure-naming-guidelines.md)
 
 ---
 

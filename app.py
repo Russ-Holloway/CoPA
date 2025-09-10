@@ -118,13 +118,11 @@ async def index():
     # Check if Azure AD is configured
     azure_client_id = os.getenv("AZURE_CLIENT_ID")
     azure_client_secret = os.getenv("AZURE_CLIENT_SECRET")
+    azure_tenant_id = os.getenv("AZURE_TENANT_ID")
     
-    # If Azure AD credentials are not configured, show setup page
-    if not azure_client_id or not azure_client_secret or azure_client_id == "your-client-id-here":
-        # Always show the setup page - it will handle both scenarios:
-        # 1. With parameters (from deployment output URL)
-        # 2. Without parameters (from direct Browse button - will show helpful fallback)
-        return await render_template("setup_required.html")
+    # If Azure AD credentials are not configured, show configuration error
+    if not azure_client_id or not azure_client_secret or not azure_tenant_id:
+        return await render_template("configuration_error.html")
     
     # Azure AD is configured, show the normal application
     return await render_template(
@@ -134,10 +132,7 @@ async def index():
     )
 
 
-@bp.route("/azure-ad-setup")
-async def azure_ad_setup():
-    """Azure AD setup interface hosted on Azure App Service"""
-    return await render_template("azure_ad_setup.html")
+
 
 
 @bp.route("/favicon.ico")
