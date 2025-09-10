@@ -327,7 +327,6 @@
             "ForceCode": "[basics('forceInfo').forceCode]",
             "EnvironmentSuffix": "[basics('forceInfo').environment]", 
             "InstanceNumber": "[basics('forceInfo').instanceNumber]",
-            "CreateAzureAdAppRegistration": false,
             "AzureAdAppDisplayName": "N/A - Pre-created",
             "AzureAdSupportedAccountTypes": "AzureADMyOrg",
             "AzureAdEnableImplicitFlow": false,

@@ -77,6 +77,13 @@
             },
             "defaultValue": "[concat(parameters('ForceCode'), '-copa-datasource-index-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'))]"
         },
+        "CreateAzureAdAppRegistration": {
+            "type": "bool",
+            "metadata": {
+                "description": "Whether to create Azure AD app registration (false for pre-created approach)"
+            },
+            "defaultValue": false
+        },
 
         "AzureAdAppDisplayName": {
             "type": "string",
