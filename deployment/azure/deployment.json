@@ -782,29 +782,16 @@
                 "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2023-01-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal"
             }
-        },
-        {
-            "condition": "[parameters('CreateAzureAdAppRegistration')]",
-            "type": "Microsoft.Web/sites/config",
-            "apiVersion": "2023-01-01",
-            "name": "[concat(variables('WebsiteName'), '/appsettings')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
-            ],
-            "properties": {
-                "COPA_BOOTSTRAP_CLIENT_ID": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
-                "COPA_BOOTSTRAP_ENABLED": "true"
-            }
         }
     ],
     "outputs": {
         "completeSetupUrl": {
             "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(variables('WebAppUrl')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), '&bootstrapClientId=14d82eec-204b-4c2f-b7e0-298fc2c55b63', '&deploymentId=', uriComponent(deployment().name)), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]"
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), '&deploymentId=', uriComponent(deployment().name)), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]"
         },
         "instructions": {
             "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'ENHANCED SETUP: Copy the completeSetupUrl above and paste it into a new browser tab. The deployment has automatically created a bootstrap app registration for secure authentication during setup.', 'Your CoPA application is ready! Use the completeSetupUrl above to access your application.')]"
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'SIMPLE SETUP: Copy the completeSetupUrl above and paste it into a new browser tab. It will automatically guide you through the Azure AD setup process with a beautiful interface and big clickable buttons.', 'Your CoPA application is ready! Use the completeSetupUrl above to access your application.')]"
         }
     }
 }

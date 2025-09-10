@@ -228,10 +228,6 @@
                     🚀 Complete Setup
                 </button>
                 
-                <button class="button secondary" onclick="createBootstrapApp()" style="margin-left: 10px;">
-                    🔧 Create Bootstrap App (Alternative)
-                </button>
-                
                 <div class="alert info">
                     <strong>🔐 Simple Process:</strong> Just authenticate and grant consent when prompted. The app registration already exists!
                 </div>
@@ -849,68 +845,6 @@ az webapp config appsettings set \\
                     </a>
                 </div>
             `;
-        }
-
-        // Create bootstrap app using server-side managed identity
-        async function createBootstrapApp() {
-            const progressSection = document.getElementById('progressSection');
-            const resultSection = document.getElementById('resultSection');
-            
-            progressSection.style.display = 'block';
-            resultSection.style.display = 'none';
-            
-            try {
-                updateProgress('🔧 Creating bootstrap app with managed identity...');
-                
-                const response = await fetch('/create-bootstrap', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Store the bootstrap app for future use
-                    localStorage.setItem(`copa-bootstrap-${config.tenantId}`, JSON.stringify({
-                        clientId: result.clientId,
-                        objectId: result.objectId,
-                        createdAt: new Date().toISOString()
-                    }));
-                    
-                    progressSection.style.display = 'none';
-                    resultSection.className = 'result success';
-                    resultSection.style.display = 'block';
-                    
-                    resultSection.innerHTML = `
-                        <h3>🎉 Bootstrap App Created Successfully!</h3>
-                        <p><strong>Your bootstrap app has been created using managed identity.</strong></p>
-                        
-                        <div class="alert info">
-                            <h4>📋 Bootstrap App Details:</h4>
-                            <strong>Client ID:</strong> ${result.clientId}<br>
-                            <strong>Object ID:</strong> ${result.objectId}<br>
-                        </div>
-                        
-                        <div class="alert success">
-                            <h4>✅ Next Steps:</h4>
-                            <p>Now that you have a working bootstrap app, you can proceed with the normal setup process:</p>
-                            <button class="button" onclick="startAzureAdSetup()" style="margin: 10px 0;">
-                                🚀 Continue with Setup Process
-                            </button>
-                        </div>
-                        
-                        <p><small>The bootstrap app has been saved and will be used for future authentication attempts.</small></p>
-                    `;
-                } else {
-                    throw new Error(result.error || 'Failed to create bootstrap app');
-                }
-                
-            } catch (error) {
-                console.error('Bootstrap creation failed:', error);
-                showSetupError(error);
-            }
         }
 
         // Initialize page
