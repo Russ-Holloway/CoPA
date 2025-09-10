@@ -288,13 +288,13 @@
             </div>
             
             <div class="step">
-                <div class="alert warning">
-                    <h4>⚠️ Administrator Permissions Required</h4>
-                    <p>You need <strong>Global Administrator</strong> or <strong>Application Administrator</strong> permissions to complete this setup. The configuration will use your bootstrap app credentials to make the changes automatically.</p>
+                <div class="alert info">
+                    <h4>🎯 Interactive Setup Process</h4>
+                    <p>You'll be guided through each step with direct links to Azure Portal. <strong>Global Administrator</strong> or <strong>Application Administrator</strong> permissions are required to make the changes manually in Azure Portal.</p>
                 </div>
                 
                 <button class="button" onclick="startAdvancedSetup()" id="setupButton">
-                    🚀 Start Advanced Configuration
+                    🚀 Start Guided Setup
                 </button>
                 
                 <a href="/" class="button secondary">
@@ -321,46 +321,217 @@
     </div>
 
     <script>
+        // Interactive guided setup process
+        let currentStep = 0;
+        const setupSteps = [
+            {
+                id: 'redirects',
+                title: 'Mobile & Desktop Support',
+                description: 'Add redirect URIs for mobile and desktop applications',
+                statusId: 'status-redirects',
+                azureUrl: `https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Authentication/appId/\${getClientId()}/isMSAApp~/false`,
+                instructions: `
+                    <h4>📱 Add Mobile & Desktop Redirect URIs</h4>
+                    <ol>
+                        <li>Click "Add a platform" → Select "Mobile and desktop applications"</li>
+                        <li>Add these redirect URIs:
+                            <ul>
+                                <li><code>msal://redirect</code> (for mobile apps)</li>
+                                <li><code>https://login.microsoftonline.com/common/oauth2/nativeclient</code> (for desktop apps)</li>
+                            </ul>
+                        </li>
+                        <li>Click "Configure" and then "Save"</li>
+                    </ol>
+                `
+            },
+            {
+                id: 'permissions',
+                title: 'Enhanced API Permissions',
+                description: 'Add User.Read.All and offline_access permissions',
+                statusId: 'status-permissions',
+                azureUrl: `https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/\${getClientId()}/isMSAApp~/false`,
+                instructions: `
+                    <h4>🔐 Add Microsoft Graph Permissions</h4>
+                    <ol>
+                        <li>Click "Add a permission" → "Microsoft Graph" → "Delegated permissions"</li>
+                        <li>Search for and add:
+                            <ul>
+                                <li><strong>User.Read.All</strong> - Read all users' profiles</li>
+                                <li><strong>offline_access</strong> - Maintain access to data</li>
+                            </ul>
+                        </li>
+                        <li>Click "Add permissions"</li>
+                    </ol>
+                `
+            },
+            {
+                id: 'consent',
+                title: 'Admin Consent',
+                description: 'Grant organization-wide admin consent for all permissions',
+                statusId: 'status-consent',
+                azureUrl: `https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/\${getClientId()}/isMSAApp~/false`,
+                instructions: `
+                    <h4>✅ Grant Admin Consent</h4>
+                    <ol>
+                        <li>On the API permissions page, click <strong>"Grant admin consent for [Your Organization]"</strong></li>
+                        <li>Click <strong>"Yes"</strong> to confirm</li>
+                        <li>Verify all permissions show green checkmarks in the "Status" column</li>
+                    </ol>
+                    <div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <strong>⚠️ Note:</strong> You need Global Administrator or Application Administrator permissions to grant admin consent.
+                    </div>
+                `
+            },
+            {
+                id: 'enterprise',
+                title: 'Enterprise App Settings',
+                description: 'Configure user assignment and security settings',
+                statusId: 'status-enterprise',
+                azureUrl: `https://portal.azure.com/#view/Microsoft_AAD_IAM/ManagedAppMenuBlade/~/Properties/appId/\${getClientId()}`,
+                instructions: `
+                    <h4>🏢 Configure Enterprise Application</h4>
+                    <ol>
+                        <li>Set <strong>"User assignment required?"</strong> to <strong>Yes</strong></li>
+                        <li>Set <strong>"Visible to users?"</strong> to <strong>Yes</strong></li>
+                        <li>Click <strong>"Save"</strong></li>
+                        <li>Go to <strong>"Users and groups"</strong> tab</li>
+                        <li>Click <strong>"Add user/group"</strong> to assign users who can access CoPA</li>
+                    </ol>
+                    <div style="background: #d4edda; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <strong>💡 Pro Tip:</strong> User assignment required = Enhanced security. Only assigned users can access CoPA.
+                    </div>
+                `
+            }
+        ];
+
+        function getClientId() {
+            // Extract client ID from URL or use a default - this should be populated from the setup URL
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('clientId') || 'YOUR-CLIENT-ID';
+        }
+
         async function startAdvancedSetup() {
+            currentStep = 0;
+            showInteractiveStep();
+        }
+
+        function showInteractiveStep() {
+            if (currentStep >= setupSteps.length) {
+                showSetupComplete();
+                return;
+            }
+
+            const step = setupSteps[currentStep];
             const progressSection = document.getElementById('progressSection');
             const resultSection = document.getElementById('resultSection');
-            const setupButton = document.getElementById('setupButton');
             
-            // Show progress, hide button
-            progressSection.style.display = 'block';
-            resultSection.style.display = 'none';
-            setupButton.disabled = true;
-            setupButton.innerHTML = '⏳ Configuring...';
+            // Hide progress, show custom step UI
+            progressSection.style.display = 'none';
+            resultSection.style.display = 'block';
             
-            try {
-                const response = await fetch('/api/complete-setup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+            resultSection.innerHTML = `
+                <div class="setup-step-container">
+                    <div class="step-header">
+                        <h3>🔧 Step ${currentStep + 1} of ${setupSteps.length}: ${step.title}</h3>
+                        <p style="margin: 10px 0; color: #666; font-size: 1.1rem;">${step.description}</p>
+                        <div class="progress-bar" style="background: #e9ecef; height: 8px; border-radius: 4px; margin: 15px 0;">
+                            <div style="background: #28a745; height: 100%; width: ${((currentStep + 1) / setupSteps.length) * 100}%; border-radius: 4px; transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+
+                    <div class="step-actions" style="text-align: center; margin: 30px 0;">
+                        <button onclick="openAzureStep('${step.id}')" class="button" style="background: #0078d4; margin-right: 15px;">
+                            🔗 Open Azure Portal
+                        </button>
+                        <button onclick="showInstructions('${step.id}')" class="button" style="background: #6f42c1; margin-right: 15px;">
+                            📖 Show Instructions  
+                        </button>
+                        <button onclick="markStepComplete('${step.id}')" class="button" style="background: #28a745;">
+                            ✅ I've Completed This Step
+                        </button>
+                    </div>
+
+                    <div id="instructions_${step.id}" style="display: none; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                        ${step.instructions}
+                    </div>
+
+                    <div class="step-navigation" style="text-align: center; margin-top: 30px;">
+                        ${currentStep > 0 ? `<button onclick="previousStep()" class="button" style="background: #6c757d; margin-right: 10px;">← Previous</button>` : ''}
+                        <button onclick="skipStep()" class="button" style="background: #ffc107; color: #000;">Skip This Step</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openAzureStep(stepId) {
+            const step = setupSteps.find(s => s.id === stepId);
+            if (step) {
+                // Replace template variable with actual client ID
+                const url = step.azureUrl.replace('${getClientId()}', getClientId());
+                window.open(url, '_blank');
                 
-                const result = await response.json();
-                
-                // Hide progress
-                progressSection.style.display = 'none';
-                
-                // Update individual status indicators
-                updateStatus('status-redirects', result.redirect_uris);
-                updateStatus('status-permissions', result.api_permissions);
-                updateStatus('status-consent', result.admin_consent);
-                updateStatus('status-enterprise', result.enterprise_config);
-                
-                // Show final result
-                displayFinalResult(result);
-                
-            } catch (error) {
-                console.error('Setup failed:', error);
-                progressSection.style.display = 'none';
-                displayError(error.message);
-                setupButton.disabled = false;
-                setupButton.innerHTML = '🔄 Retry Configuration';
+                // Show instructions after opening
+                showInstructions(stepId);
             }
+        }
+
+        function showInstructions(stepId) {
+            const instructionsDiv = document.getElementById(`instructions_${stepId}`);
+            if (instructionsDiv) {
+                instructionsDiv.style.display = instructionsDiv.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        async function markStepComplete(stepId) {
+            const step = setupSteps.find(s => s.id === stepId);
+            if (step) {
+                // Update the status indicator
+                updateStatus(step.statusId, { status: 'success', message: 'Completed manually by admin' });
+                
+                // Move to next step
+                currentStep++;
+                setTimeout(() => {
+                    showInteractiveStep();
+                }, 1000);
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showInteractiveStep();
+            }
+        }
+
+        function skipStep() {
+            const step = setupSteps[currentStep];
+            updateStatus(step.statusId, { status: 'skipped', message: 'Skipped by admin' });
+            currentStep++;
+            showInteractiveStep();
+        }
+
+        function showSetupComplete() {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h2 style="color: #28a745; margin-bottom: 20px;">🎉 Advanced Setup Complete!</h2>
+                    <p style="font-size: 1.2rem; margin-bottom: 30px;">Your CoPA application now has enhanced Azure AD integration with full functionality.</p>
+                    
+                    <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: left;">
+                        <h4>✅ Configuration Summary:</h4>
+                        <ul style="margin: 10px 0 0 20px;">
+                            <li>Mobile & Desktop Support: Enabled</li>
+                            <li>Enhanced API Permissions: Granted</li>  
+                            <li>Admin Consent: Organization-wide</li>
+                            <li>Enterprise Security: User assignment required</li>
+                        </ul>
+                    </div>
+
+                    <button onclick="window.location.href='/'" class="button" style="background: #28a745; font-size: 1.1rem; padding: 15px 30px;">
+                        🚀 Launch CoPA Application
+                    </button>
+                </div>
+            `;
         }
         
         function updateStatus(elementId, result) {
@@ -369,10 +540,15 @@
             
             if (result.status === 'success') {
                 statusElement.className = 'config-status success';
-                statusElement.textContent = 'Success';
+                statusElement.textContent = '✅ Complete';
+            } else if (result.status === 'skipped') {
+                statusElement.className = 'config-status warning';
+                statusElement.textContent = '⏭️ Skipped';
+                statusElement.style.background = '#fff3cd';
+                statusElement.style.color = '#856404';
             } else {
                 statusElement.className = 'config-status error';
-                statusElement.textContent = 'Failed';
+                statusElement.textContent = '❌ Failed';
             }
         }
         
