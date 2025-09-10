@@ -76,23 +76,31 @@
             {
                 "name": "azureAdInfo",
                 "type": "Microsoft.Common.Section",
-                "label": "🔐 Azure AD App Registration (REQUIRED - Create Before Deployment)",
+                "label": "🔐 Azure AD App Registration (Required)",
                 "elements": [
+                    {
+                        "name": "appRegistrationInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "options": {
+                            "icon": "Info",
+                            "text": "Azure AD App Registration is required for authentication. If you haven't created one yet, click here to create: https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/CreateApplicationBlade\n\nQuick Setup Guide:\n1. Application name: CoPPA-[YourForce]-[Environment] (e.g., CoPPA-BTP-PROD)\n2. Supported account types: Accounts in this organizational directory only\n3. Redirect URI: Web - https://[your-app-name].azurewebsites.net/auth/callback\n4. After creation, go to 'Certificates & secrets' → 'New client secret' → Copy the secret value\n5. Note down: Application (client) ID, Client secret value, and Directory (tenant) ID\n\nNeed help? See the Pre-Deployment Guide in the repository documentation."
+                        }
+                    },
                     {
                         "name": "createAzureAdApp",
                         "type": "Microsoft.Common.DropDown",
-                        "label": "Create Azure AD App Registration",
+                        "label": "Azure AD App Registration Status",
                         "defaultValue": "No",
-                        "toolTip": "Whether to create an Azure AD app registration for authentication. Recommended for first-time deployments.",
+                        "toolTip": "Select whether you have already created an Azure AD app registration or need to use automated creation.",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "❌ YES - Automated creation (NOT SUPPORTED - will fail)",
-                                    "value": "Yes"
+                                    "label": "✅ I have created an app registration",
+                                    "value": "No"
                                 },
                                 {
-                                    "label": "✅ NO - I have created an app registration (REQUIRED - see Pre-Deployment Guide)",
-                                    "value": "No"
+                                    "label": "🤖 Use automated creation (experimental)",
+                                    "value": "Yes"
                                 }
                             ],
                             "required": true
