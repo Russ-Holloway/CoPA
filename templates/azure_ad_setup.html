@@ -277,7 +277,8 @@
             subscriptionId: urlParams.get('subscriptionId') || '',
             resourceGroupName: urlParams.get('resourceGroupName') || '',
             webAppName: urlParams.get('webAppName') || '',
-            clientId: urlParams.get('clientId') || ''  // App registration client ID
+            clientId: urlParams.get('clientId') || '',  // App registration client ID
+            bootstrapClientId: urlParams.get('bootstrapClientId') || ''  // Bootstrap app client ID
         };
 
         // Debug: Log the URL parameters to see what we're getting
@@ -457,6 +458,17 @@
                 'https://graph.microsoft.com/Application.ReadWrite.All',
                 'https://graph.microsoft.com/Directory.ReadWrite.All'
             ];
+            
+            // Check if we have a bootstrap app from ARM deployment
+            if (config.bootstrapClientId) {
+                try {
+                    console.log('Using ARM-deployed bootstrap app:', config.bootstrapClientId);
+                    const authResult = await tryAuthenticate(config.bootstrapClientId, graphScopes);
+                    if (authResult) return authResult;
+                } catch (e) {
+                    console.log('ARM bootstrap app failed, trying fallback clients:', e.message);
+                }
+            }
             
             // Check if we have a stored bootstrap app for this tenant
             const storedBootstrap = localStorage.getItem(`copa-bootstrap-${config.tenantId}`);

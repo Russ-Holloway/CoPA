@@ -782,58 +782,16 @@
                 "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('WebsiteName')), '2023-01-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal"
             }
-        },
-        {
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2023-08-01",
-            "name": "[concat('create-bootstrap-app-', variables('randomSuffix'))]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('WebsiteName'))]"
-            ],
-            "kind": "AzurePowerShell",
-            "properties": {
-                "azPowerShellVersion": "11.0",
-                "timeout": "PT10M",
-                "retentionInterval": "PT1H",
-                "scriptContent": "# Create minimal bootstrap app registration for CoPA setup\ntry {\n    Write-Output 'Creating CoPA bootstrap app registration...'\n    \n    # Connect using managed identity\n    Connect-AzAccount -Identity\n    \n    # Install Microsoft.Graph module if not available\n    if (!(Get-Module -ListAvailable -Name Microsoft.Graph.Applications)) {\n        Install-Module Microsoft.Graph.Applications -Force -AllowClobber -Scope CurrentUser\n    }\n    \n    Import-Module Microsoft.Graph.Applications\n    Connect-MgGraph -Identity\n    \n    $appName = $env:BOOTSTRAP_APP_NAME\n    $webAppUrl = $env:WEB_APP_URL\n    \n    # Create the app registration\n    $app = New-MgApplication -DisplayName $appName -SignInAudience 'AzureADMyOrg' -Web @{\n        RedirectUris = @(\n            \"$webAppUrl\"\n            \"$webAppUrl/setup-callback\"\n        )\n    } -RequiredResourceAccess @(\n        @{\n            ResourceAppId = '00000003-0000-0000-c000-000000000000'\n            ResourceAccess = @(\n                @{ Id = '1bfefb4e-e0b5-418b-a88f-73c46d2cc8e9'; Type = 'Role' }\n                @{ Id = '19dbc75e-c2e2-444c-a770-ec69d8559fc7'; Type = 'Role' }\n            )\n        }\n    )\n    \n    Write-Output \"Bootstrap app created: $($app.AppId)\"\n    \n    # Output the client ID for the template\n    $DeploymentScriptOutputs = @{\n        bootstrapAppClientId = $app.AppId\n        bootstrapAppObjectId = $app.Id\n    }\n}\ncatch {\n    Write-Error \"Failed to create bootstrap app: $($_.Exception.Message)\"\n    # Don't fail the entire deployment - continue without bootstrap app\n    $DeploymentScriptOutputs = @{\n        bootstrapAppClientId = ''\n        bootstrapAppObjectId = ''\n        error = $_.Exception.Message\n    }\n}",
-                "environmentVariables": [
-                    {
-                        "name": "BOOTSTRAP_APP_NAME",
-                        "value": "[concat('CoPA-Bootstrap-', parameters('ForceCode'), '-', variables('randomSuffix'))]"
-                    },
-                    {
-                        "name": "WEB_APP_URL",
-                        "value": "[variables('WebAppUrl')]"
-                    }
-                ]
-            },
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', concat('bootstrap-identity-', variables('randomSuffix')))]": {}
-                }
-            }
-        },
-        {
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "apiVersion": "2023-01-31",
-            "name": "[concat('bootstrap-identity-', variables('randomSuffix'))]",
-            "location": "[resourceGroup().location]"
         }
     ],
     "outputs": {
-        "bootstrapAppClientId": {
-            "type": "string",
-            "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', concat('create-bootstrap-app-', variables('randomSuffix')))).outputs.bootstrapAppClientId]"
-        },
         "completeSetupUrl": {
             "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), '&bootstrapClientId=', reference(resourceId('Microsoft.Resources/deploymentScripts', concat('create-bootstrap-app-', variables('randomSuffix')))).outputs.bootstrapAppClientId, '&deploymentId=', uriComponent(deployment().name)), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]"
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), concat('https://', variables('WebsiteName'), '.azurewebsites.net/?setupMode=true&displayName=', uriComponent(parameters('AzureAdAppDisplayName')), '&supportedAccountTypes=', uriComponent(parameters('AzureAdSupportedAccountTypes')), '&enableImplicitFlow=', string(parameters('AzureAdEnableImplicitFlow')), '&enableUserRead=', string(parameters('AzureAdEnableUserRead')), '&clientSecretDescription=', uriComponent(parameters('AzureAdClientSecretDescription')), '&clientSecretExpiry=', parameters('AzureAdClientSecretExpiry'), '&webAppUrl=', uriComponent(concat('https://', variables('WebsiteName'), '.azurewebsites.net')), '&tenantId=', uriComponent(subscription().tenantId), '&userAssignmentRequired=', string(parameters('AzureAdUserAssignmentRequired')), '&subscriptionId=', uriComponent(subscription().subscriptionId), '&resourceGroupName=', uriComponent(resourceGroup().name), '&webAppName=', uriComponent(variables('WebsiteName')), '&deploymentId=', uriComponent(deployment().name)), concat('https://', variables('WebsiteName'), '.azurewebsites.net'))]"
         },
         "instructions": {
             "type": "string",
-            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'ENHANCED SETUP: Copy the completeSetupUrl above and paste it into a new browser tab. The deployment has automatically created a bootstrap app registration for secure authentication during setup.', 'Your CoPA application is ready! Use the completeSetupUrl above to access your application.')]"
+            "value": "[if(parameters('CreateAzureAdAppRegistration'), 'SIMPLE SETUP: Copy the completeSetupUrl above and paste it into a new browser tab. It will automatically guide you through the Azure AD setup process with a beautiful interface and big clickable buttons.', 'Your CoPA application is ready! Use the completeSetupUrl above to access your application.')]"
         }
     }
 }
