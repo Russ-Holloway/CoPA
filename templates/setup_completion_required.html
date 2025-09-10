@@ -384,15 +384,6 @@
                     
                     <p><strong>After completing the environment variable setup above:</strong></p>
                     <button class="button" onclick="launchCopaApp()">🏠 Launch CoPA Application</button>
-                    
-                    <script>
-                        function launchCopaApp() {
-                            // Clear any cached setup state and redirect
-                            sessionStorage.clear();
-                            localStorage.clear();
-                            window.location.href = '/?setup=complete';
-                        }
-                    </script>
                 `
             }
         ];
@@ -450,6 +441,13 @@
                 currentStep--;
                 showInteractiveStep();
             }
+        }
+
+        function launchCopaApp() {
+            // Clear any cached setup state and redirect
+            sessionStorage.clear();
+            localStorage.clear();
+            window.location.href = '/?setup=complete';
         }
     </script>
 </body>
