@@ -140,6 +140,79 @@ async def azure_ad_setup():
     return await render_template("azure_ad_setup.html")
 
 
+@bp.route("/create-bootstrap", methods=["POST"])
+async def create_bootstrap():
+    """Create a bootstrap app registration using managed identity"""
+    try:
+        # This endpoint creates a bootstrap app that can then be used to create the main app
+        import json
+        import urllib.request
+        import urllib.parse
+        
+        # Get managed identity token for Microsoft Graph
+        identity_endpoint = os.environ.get("IDENTITY_ENDPOINT")
+        identity_header = os.environ.get("IDENTITY_HEADER") 
+        
+        if not identity_endpoint or not identity_header:
+            return jsonify({"error": "Managed identity not available"}), 500
+            
+        # Get token for Microsoft Graph
+        token_url = f"{identity_endpoint}?resource=https://graph.microsoft.com/&api-version=2019-08-01"
+        req = urllib.request.Request(token_url)
+        req.add_header("X-IDENTITY-HEADER", identity_header)
+        
+        with urllib.request.urlopen(req) as response:
+            token_data = json.loads(response.read().decode())
+            access_token = token_data["access_token"]
+        
+        # Create bootstrap app registration
+        app_data = {
+            "displayName": "CoPA Bootstrap App",
+            "signInAudience": "AzureADMyOrg",
+            "web": {
+                "redirectUris": [
+                    f"https://{request.headers.get('HOST', 'localhost')}/azure-ad-setup"
+                ]
+            },
+            "requiredResourceAccess": [
+                {
+                    "resourceAppId": "00000003-0000-0000-c000-000000000000",  # Microsoft Graph
+                    "resourceAccess": [
+                        {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},  # User.Read
+                        {"id": "19dbc75e-c2e2-444c-a770-ec69d8559fc7", "type": "Role"},   # Directory.ReadWrite.All
+                        {"id": "1bfefb4e-e0b5-418b-a88f-73c46d2cc8e9", "type": "Role"}    # Application.ReadWrite.All
+                    ]
+                }
+            ]
+        }
+        
+        # Create the app registration
+        graph_url = "https://graph.microsoft.com/v1.0/applications"
+        app_req = urllib.request.Request(
+            graph_url,
+            data=json.dumps(app_data).encode(),
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json"
+            }
+        )
+        app_req.get_method = lambda: "POST"
+        
+        with urllib.request.urlopen(app_req) as response:
+            app_result = json.loads(response.read().decode())
+            
+        return jsonify({
+            "success": True,
+            "clientId": app_result["appId"],
+            "objectId": app_result["id"],
+            "message": "Bootstrap app created successfully"
+        })
+        
+    except Exception as e:
+        logging.exception("Failed to create bootstrap app")
+        return jsonify({"error": str(e)}), 500
+
+
 @bp.route("/favicon.ico")
 async def favicon():
     return await bp.send_static_file("favicon.ico")
