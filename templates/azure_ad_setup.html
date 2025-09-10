@@ -333,8 +333,45 @@
                 
             } catch (error) {
                 console.error('Setup failed:', error);
-                showManualInstructions();
+                showSetupError(error);
             }
+        }
+
+        // Show detailed error information
+        function showSetupError(error) {
+            const progressSection = document.getElementById('progressSection');
+            const resultSection = document.getElementById('resultSection');
+            
+            progressSection.style.display = 'none';
+            resultSection.className = 'result error';
+            resultSection.style.display = 'block';
+            
+            resultSection.innerHTML = `
+                <h3>❌ Setup Failed</h3>
+                <p><strong>Error:</strong> ${error.message}</p>
+                
+                <div class="alert warning">
+                    <h4>🔧 Troubleshooting Steps:</h4>
+                    <ol style="margin-left: 20px;">
+                        <li><strong>Check Admin Rights:</strong> Ensure you're signed in as a Global Administrator</li>
+                        <li><strong>Check Tenant:</strong> Verify you're in the correct Azure AD tenant (${config.tenantId})</li>
+                        <li><strong>Retry Setup:</strong> <button onclick="startAzureAdSetup()" class="button secondary">Try Again</button></li>
+                        <li><strong>Browser Issues:</strong> Try in an incognito/private window</li>
+                    </ol>
+                </div>
+                
+                <div class="alert info">
+                    <h4>📋 Manual Alternative:</h4>
+                    <p>If automatic setup continues to fail, you can create the app registration manually:</p>
+                    <ol style="margin-left: 20px;">
+                        <li>Go to <a href="https://portal.azure.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/RegisteredApps" target="_blank">Azure Portal → App registrations</a></li>
+                        <li>Create new registration with name: <code>${config.displayName}</code></li>
+                        <li>Add redirect URI: <code>${config.webAppUrl}/.auth/login/aad/callback</code></li>
+                        <li>Copy the Application (client) ID</li>
+                        <li>Update your app settings with the new client ID</li>
+                    </ol>
+                </div>
+            `;
         }
 
         function updateProgress(message) {
@@ -415,10 +452,10 @@
 
         // Authenticate with Microsoft Graph to get access for creating app registration
         async function authenticateWithGraph() {
+            // Use DELEGATED permissions (not application permissions) for implicit flow
             const graphScopes = [
                 'https://graph.microsoft.com/Application.ReadWrite.All',
-                'https://graph.microsoft.com/Directory.ReadWrite.All',
-                'https://graph.microsoft.com/AppRoleAssignment.ReadWrite.All'
+                'https://graph.microsoft.com/Directory.ReadWrite.All'
             ];
             
             // Check if we have a stored bootstrap app for this tenant
@@ -461,8 +498,20 @@
             throw new Error('All authentication methods failed. Please ensure you have Global Admin rights.');
         }
 
-        // Try to authenticate with a specific client ID
+        // Try to authenticate with a specific client ID using device code flow
         async function tryAuthenticate(clientId, scopes) {
+            try {
+                // First try implicit flow (faster but more restricted)
+                return await tryImplicitFlow(clientId, scopes);
+            } catch (error) {
+                console.log(`Implicit flow failed for ${clientId}:`, error.message);
+                // Fallback to device code flow (more reliable)
+                return await tryDeviceCodeFlow(clientId, scopes);
+            }
+        }
+
+        // Try implicit flow with popup
+        async function tryImplicitFlow(clientId, scopes) {
             const authUrl = `https://login.microsoftonline.com/${config.tenantId}/oauth2/v2.0/authorize` +
                            `?client_id=${clientId}` +
                            `&response_type=token` +
@@ -504,8 +553,86 @@
                         popup.close();
                     }
                     reject(new Error('Authentication timeout'));
-                }, 30000); // Shorter timeout for fallback attempts
+                }, 15000); // Shorter timeout for implicit flow
             });
+        }
+
+        // Try device code flow (more reliable but requires user interaction)
+        async function tryDeviceCodeFlow(clientId, scopes) {
+            // Start device code flow
+            const deviceCodeResponse = await fetch(`https://login.microsoftonline.com/${config.tenantId}/oauth2/v2.0/devicecode`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    client_id: clientId,
+                    scope: scopes.join(' ')
+                })
+            });
+
+            if (!deviceCodeResponse.ok) {
+                throw new Error('Failed to start device code flow');
+            }
+
+            const deviceCodeData = await deviceCodeResponse.json();
+            
+            // Show device code to user
+            const deviceCodeHtml = `
+                <div class="alert info" style="margin: 20px 0;">
+                    <h4>🔐 Authentication Required</h4>
+                    <p><strong>Step 1:</strong> Copy this code: <code style="background: #f0f0f0; padding: 5px; font-size: 16px; font-weight: bold;">${deviceCodeData.user_code}</code></p>
+                    <p><strong>Step 2:</strong> <a href="${deviceCodeData.verification_uri}" target="_blank" style="background: #0078d4; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px;">Click here to sign in</a></p>
+                    <p><strong>Step 3:</strong> Paste the code when prompted and sign in with your admin account</p>
+                    <p style="margin-top: 10px;"><small>Checking for completion automatically...</small></p>
+                </div>
+            `;
+            
+            // Insert device code instructions
+            const progressSection = document.getElementById('progressSection');
+            progressSection.innerHTML = deviceCodeHtml;
+
+            // Poll for completion
+            const interval = deviceCodeData.interval || 5;
+            const expiresIn = deviceCodeData.expires_in || 900;
+            const maxPolls = Math.floor(expiresIn / interval);
+            
+            for (let i = 0; i < maxPolls; i++) {
+                await new Promise(resolve => setTimeout(resolve, interval * 1000));
+                
+                try {
+                    const tokenResponse = await fetch(`https://login.microsoftonline.com/${config.tenantId}/oauth2/v2.0/token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+                            client_id: clientId,
+                            device_code: deviceCodeData.device_code
+                        })
+                    });
+
+                    if (tokenResponse.ok) {
+                        const tokenData = await tokenResponse.json();
+                        return { accessToken: tokenData.access_token };
+                    } else {
+                        const errorData = await tokenResponse.json();
+                        if (errorData.error === 'authorization_pending') {
+                            // Still waiting for user to complete authentication
+                            continue;
+                        } else {
+                            throw new Error(errorData.error_description || 'Device code authentication failed');
+                        }
+                    }
+                } catch (error) {
+                    if (i === maxPolls - 1) {
+                        throw error;
+                    }
+                }
+            }
+            
+            throw new Error('Device code authentication timed out');
         }
 
         // Create and store a bootstrap app for future use
