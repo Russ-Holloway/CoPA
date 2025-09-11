@@ -255,21 +255,31 @@
             {
                 title: "Create App Registration Redirect URIs",
                 content: `
-                    <p><strong>Add additional redirect URIs to your Azure AD App Registration:</strong></p>
+                    <p><strong>Add redirect URIs and enable Mobile & Desktop (MSAL) support:</strong></p>
                     <ol>
                         <li>Go to <a href="https://portal.azure.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/RegisteredApps" target="_blank">Azure Portal → App Registrations</a></li>
-                        <li>Find and click your CoPA app registration</li>
-                        <li>Go to <strong>Authentication</strong> in the left menu</li>
-                        <li>In the "Redirect URIs" section, click <strong>Add URI</strong></li>
-                        <li>Add these additional URIs:
+                        <li>Find and open your <strong>CoPA</strong> app registration</li>
+                        <li>Select <strong>Authentication</strong> in the left menu</li>
+                        <li><strong>Web redirect URIs</strong> should already include your site URL and the callback (e.g. <code>https://&lt;your-site&gt;/.auth/login/aad/callback</code>)</li>
+                        <li>Click <strong>Add a platform</strong></li>
+                        <li>In the panel that opens, choose <strong>Mobile & Desktop applications</strong></li>
+                        <li>Tick <strong>ALL THREE</strong> built‑in redirect URI checkboxes:
                             <ul>
-                                <li><code>msal://redirect</code> (for mobile)</li>
-                                <li><code>http://localhost:8080/redirect</code> (for desktop)</li>
+                                <li><code>https://login.microsoftonline.com/common/oauth2/nativeclient</code></li>
+                                <li><code>https://login.live.com/oauth20_desktop.srf</code></li>
+                                <li><code>msal&lt;Application (client) ID&gt;://auth</code> (MSAL only)</li>
                             </ul>
                         </li>
-                        <li>Click <strong>Save</strong></li>
+                        <li>Click <strong>Configure</strong> (or <strong>Save</strong> if already added)</li>
+                        <li>Under <strong>Web → Redirect URIs</strong> (same page), if not already present, click <strong>Add URI</strong> and add (optional for local tools):
+                            <ul>
+                                <li><code>http://localhost:8080/redirect</code> (desktop development)</li>
+                            </ul>
+                        </li>
+                        <li>In <strong>Implicit grant and hybrid flows</strong>, ensure at least <strong>ID tokens</strong> is checked (Access tokens optional per your policy)</li>
+                        <li>Click <strong>Save</strong> at the bottom of the page</li>
                     </ol>
-                    <p>✅ <strong>Verification:</strong> Your app should now have multiple redirect URIs listed.</p>
+                    <p>✅ <strong>Verification:</strong> The <em>Mobile & Desktop</em> platform now shows with three redirect URIs and your Web redirect URIs are listed.</p>
                 `
             },
             {
