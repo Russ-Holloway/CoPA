@@ -99,42 +99,41 @@ export const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) 
       return result
     }
 
-    const getHistoryEnsure = async () => {
+    const pollHistoryEnsure = async (attempt = 0) => {
       dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Loading })
-      historyEnsure()
-        .then(response => {
-          if (response?.cosmosDB) {
-            fetchChatHistory()
-              .then(res => {
-                if (res) {
-                  dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Success })
-                  dispatch({ type: 'SET_COSMOSDB_STATUS', payload: response })
-                } else {
-                  dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Fail })
-                  dispatch({
-                    type: 'SET_COSMOSDB_STATUS',
-                    payload: { cosmosDB: false, status: CosmosDBStatus.NotWorking }
-                  })
-                }
-              })
-              .catch(_err => {
-                dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Fail })
-                dispatch({
-                  type: 'SET_COSMOSDB_STATUS',
-                  payload: { cosmosDB: false, status: CosmosDBStatus.NotWorking }
-                })
-              })
-          } else {
-            dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Fail })
-            dispatch({ type: 'SET_COSMOSDB_STATUS', payload: response })
-          }
-        })
-        .catch(_err => {
+      const response = await historyEnsure().catch(() => null)
+      if (!response) {
+        dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Fail })
+        dispatch({ type: 'SET_COSMOSDB_STATUS', payload: { cosmosDB: false, status: CosmosDBStatus.NotConfigured } })
+        return
+      }
+
+      // If still initializing, keep polling up to a limit (e.g., 10 attempts ~ backoff handled server side)
+      if (response.status === CosmosDBStatus.Initializing && attempt < 10) {
+        dispatch({ type: 'SET_COSMOSDB_STATUS', payload: response })
+        setTimeout(() => pollHistoryEnsure(attempt + 1), 5000)
+        return
+      }
+
+      if (response?.cosmosDB) {
+        const history = await fetchChatHistory().catch(() => null)
+        if (history) {
+          dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Success })
+          dispatch({ type: 'SET_COSMOSDB_STATUS', payload: response })
+        } else {
           dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Fail })
-          dispatch({ type: 'SET_COSMOSDB_STATUS', payload: { cosmosDB: false, status: CosmosDBStatus.NotConfigured } })
-        })
+          dispatch({
+            type: 'SET_COSMOSDB_STATUS',
+            payload: { cosmosDB: false, status: CosmosDBStatus.NotWorking }
+          })
+        }
+      } else {
+        // Terminal non-working / not configured state
+        dispatch({ type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState.Fail })
+        dispatch({ type: 'SET_COSMOSDB_STATUS', payload: response })
+      }
     }
-    getHistoryEnsure()
+    pollHistoryEnsure()
   }, [])
 
   useEffect(() => {

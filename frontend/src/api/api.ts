@@ -281,7 +281,15 @@ export const historyEnsure = async (): Promise<CosmosDBHealth> => {
       if (respJson.message) {
         formattedResponse = CosmosDBStatus.Working
       } else {
-        if (res.status === 500) {
+        const errText: string = respJson.error || ''
+        const lower = errText.toLowerCase()
+        const isInitializing =
+          lower.includes('authorization not yet active') ||
+          lower.includes('not yet visible') ||
+          lower.includes('deployment may still be finalizing')
+        if (isInitializing) {
+          formattedResponse = CosmosDBStatus.Initializing
+        } else if (res.status === 500) {
           formattedResponse = CosmosDBStatus.NotWorking
         } else if (res.status === 401) {
           formattedResponse = CosmosDBStatus.InvalidCredentials

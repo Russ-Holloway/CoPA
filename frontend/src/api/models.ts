@@ -100,6 +100,7 @@ export type UserInfo = {
 }
 
 export enum CosmosDBStatus {
+  Initializing = 'CosmosDB is initializing',
   NotConfigured = 'CosmosDB is not configured',
   NotWorking = 'CosmosDB is not working',
   InvalidCredentials = 'CosmosDB has invalid credentials',

@@ -104,6 +104,24 @@ const Chat = () => {
     }
   }, [appStateContext?.state.isCosmosDBAvailable])
 
+  const renderInitializingBanner = () => {
+    if (appStateContext?.state.isCosmosDBAvailable?.status === CosmosDBStatus.Initializing) {
+      return (
+        <div style={{
+          background: '#fff4ce',
+          border: '1px solid #ffaa44',
+          padding: '8px 12px',
+          borderRadius: 4,
+          marginBottom: 12,
+          fontSize: 14
+        }}>
+          Initializing chat history… You can start asking questions; conversation saving will begin once ready.
+        </div>
+      )
+    }
+    return null
+  }
+
   const handleErrorDialogClose = () => {
     toggleErrorDialog()
     setTimeout(() => {

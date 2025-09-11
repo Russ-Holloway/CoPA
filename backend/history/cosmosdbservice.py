@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from azure.cosmos.aio import CosmosClient
 from azure.cosmos import exceptions
+import asyncio
   
 class CosmosConversationClient():
     
@@ -30,20 +31,51 @@ class CosmosConversationClient():
             raise ValueError("Invalid CosmosDB container name") 
         
 
-    async def ensure(self):
+    async def ensure(self, max_attempts: int = 6, base_delay: float = 2.0):
+        """Validate database + container existence with bounded retries.
+
+        Retries on 403/404 to mask eventual consistency / RBAC propagation delays
+        often seen immediately after deployment.
+        """
         if not self.cosmosdb_client or not self.database_client or not self.container_client:
             return False, "CosmosDB client not initialized correctly"
-        try:
-            database_info = await self.database_client.read()
-        except:
-            return False, f"CosmosDB database {self.database_name} on account {self.cosmosdb_endpoint} not found"
-        
-        try:
-            container_info = await self.container_client.read()
-        except:
-            return False, f"CosmosDB container {self.container_name} not found"
-            
-        return True, "CosmosDB client initialized successfully"
+
+        attempt = 0
+        while attempt < max_attempts:
+            attempt += 1
+            try:
+                await self.database_client.read()
+                await self.container_client.read()
+                return True, "CosmosDB client initialized successfully"
+            except exceptions.CosmosHttpResponseError as e:
+                status = getattr(e, 'status_code', None)
+                # 403: RBAC role assignment not yet active; 404: resource not yet visible
+                if status in (403, 404):
+                    if attempt < max_attempts:
+                        delay = base_delay * (2 ** (attempt - 1))
+                        # Cap the delay to avoid very long waits (> 32s)
+                        delay = min(delay, 32)
+                        await asyncio.sleep(delay)
+                        continue
+                    # Exhausted retries
+                    if status == 403:
+                        return False, (
+                            f"CosmosDB authorization not yet active for managed identity (HTTP 403) after {attempt} attempts. "
+                            "Role assignment propagation can take a few minutes. Please refresh shortly."
+                        )
+                    if status == 404:
+                        return False, (
+                            f"CosmosDB database {self.database_name} or container {self.container_name} not found (HTTP 404) after {attempt} attempts. "
+                            "Deployment may still be finalizing."
+                        )
+                elif status == 401:
+                    return False, "Invalid credentials"
+                else:
+                    return False, f"CosmosDB unexpected error (HTTP {status}): {str(e)}"
+            except Exception as e:  # noqa: BLE001
+                return False, f"CosmosDB unexpected exception: {str(e)}"
+
+        return False, "CosmosDB validation failed for unknown reasons"
 
     async def create_conversation(self, user_id, title = ''):
         conversation = {

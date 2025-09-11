@@ -267,7 +267,13 @@
             "type": "Microsoft.Web/sites",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
+                // The following dependencies ensure Cosmos DB resources exist before the Web App starts
+                // NOTE: If WebAppEnableChatHistory is later set to false, these dependencies should be removed
+                // or wrapped via a deployment-level indirection because the conditioned resources will not deploy.
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name'))]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_account_name'), variables('cosmosdb_database_name'))]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', variables('cosmosdb_account_name'), variables('cosmosdb_database_name'), variables('cosmosdb_container_name'))]"
             ],
             "kind": "app,linux",
             "identity": {
