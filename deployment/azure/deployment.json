@@ -210,23 +210,38 @@
                 "description": "Repository access type (Public or Private)"
             },
             "defaultValue": "Public"
+        },
+        "UseRandomSuffix": {
+            "type": "bool",
+            "metadata": {
+                "description": "If true (default) a short random suffix is appended to resource names to avoid global naming collisions. Set to false for fully deterministic names (pre-deployment app registration)."
+            },
+            "defaultValue": true
+        },
+        "FixedNameSuffix": {
+            "type": "string",
+            "metadata": {
+                "description": "Optional explicit suffix (e.g. hm24z). Used only when UseRandomSuffix = false. Leave blank for no suffix." 
+            },
+            "defaultValue": ""
         }
     },
     "variables": {
-        "resourceGroupHash": "[substring(uniqueString(resourceGroup().name), 0, 8)]",
-        "randomSuffix": "[substring(uniqueString(resourceGroup().id, deployment().name, parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), variables('resourceGroupHash')), 0, 5)]",
-        "HostingPlanName": "[concat('asp-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
+    "_rawSuffix": "[if(parameters('UseRandomSuffix'), substring(uniqueString(resourceGroup().id, deployment().name, parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber')), 0, 5), parameters('FixedNameSuffix'))]",
+    "nameSuffixDashed": "[if(equals(variables('_rawSuffix'), ''), '', concat('-', variables('_rawSuffix')))]",
+    "nameSuffixCompact": "[variables('_rawSuffix')]",
+        "HostingPlanName": "[concat('asp-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
         "HostingPlanSku": "B3",
-        "WebsiteName": "[concat('app-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
-        "ApplicationInsightsName": "[concat('appi-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
-        "LogAnalyticsWorkspaceName": "[concat('log-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
-        "AzureSearchService": "[concat('srch-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
-        "AzureOpenAIResource": "[concat('cog-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), '-', variables('randomSuffix'))]",
+        "WebsiteName": "[concat('app-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
+        "ApplicationInsightsName": "[concat('appi-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
+        "LogAnalyticsWorkspaceName": "[concat('log-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
+        "AzureSearchService": "[concat('srch-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
+        "AzureOpenAIResource": "[concat('cog-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
         "AzureSearchSku": "standard",
-        "StorageAccountName": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), variables('randomSuffix'))]",
+        "StorageAccountName": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), variables('nameSuffixCompact'))]",
         "AILibraryContainerName": "ai-library",
         "WebAppLogosContainerName": "web-app-logos",
-        "cosmosdb_account_name": "[concat('db-app-', parameters('ForceCode'), '-coppa-', variables('randomSuffix'))]",
+        "cosmosdb_account_name": "[concat('db-app-', parameters('ForceCode'), '-coppa', variables('nameSuffixDashed'))]",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
@@ -268,9 +283,6 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('HostingPlanName'))]",
-                // The following dependencies ensure Cosmos DB resources exist before the Web App starts
-                // NOTE: If WebAppEnableChatHistory is later set to false, these dependencies should be removed
-                // or wrapped via a deployment-level indirection because the conditioned resources will not deploy.
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name'))]",
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosdb_account_name'), variables('cosmosdb_database_name'))]",
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', variables('cosmosdb_account_name'), variables('cosmosdb_database_name'), variables('cosmosdb_container_name'))]"
