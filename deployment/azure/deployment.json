@@ -224,24 +224,33 @@
                 "description": "Optional explicit suffix (e.g. hm24z). Used only when UseRandomSuffix = false. Leave blank for no suffix." 
             },
             "defaultValue": ""
+        },
+        "ScenarioSuffix": {
+            "type": "string",
+            "metadata": {
+                "description": "Functional scenario suffix appended to resource names (hyphenated forms). Example: copa-stop-search"
+            },
+            "defaultValue": "copa-stop-search"
         }
     },
     "variables": {
     "_rawSuffix": "[if(parameters('UseRandomSuffix'), substring(uniqueString(resourceGroup().id, deployment().name, parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber')), 0, 5), parameters('FixedNameSuffix'))]",
     "nameSuffixDashed": "[if(equals(variables('_rawSuffix'), ''), '', concat('-', variables('_rawSuffix')))]",
     "nameSuffixCompact": "[variables('_rawSuffix')]",
-        "HostingPlanName": "[concat('asp-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
+        "scenarioSuffixHyphen": "[parameters('ScenarioSuffix')]",
+        "scenarioSuffixCompact": "[toLower(replace(parameters('ScenarioSuffix'), '-', ''))]",
+        "HostingPlanName": "[concat('asp-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', variables('scenarioSuffixHyphen'))]",
         "HostingPlanSku": "B3",
-        "WebsiteName": "[concat('app-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
-        "ApplicationInsightsName": "[concat('appi-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
-        "LogAnalyticsWorkspaceName": "[concat('log-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
-        "AzureSearchService": "[concat('srch-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
-        "AzureOpenAIResource": "[concat('cog-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', parameters('InstanceNumber'), variables('nameSuffixDashed'))]",
+        "WebsiteName": "[concat('app-', parameters('ForceCode'), '-p-', variables('scenarioSuffixHyphen'))]",
+        "ApplicationInsightsName": "[concat('appi-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', variables('scenarioSuffixHyphen'))]",
+        "LogAnalyticsWorkspaceName": "[concat('log-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', variables('scenarioSuffixHyphen'))]",
+        "AzureSearchService": "[concat('srch-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', variables('scenarioSuffixHyphen'))]",
+        "AzureOpenAIResource": "[concat('cog-', parameters('ForceCode'), '-', parameters('EnvironmentSuffix'), '-', variables('scenarioSuffixHyphen'))]",
         "AzureSearchSku": "standard",
-        "StorageAccountName": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), parameters('InstanceNumber'), variables('nameSuffixCompact'))]",
+        "StorageAccountName": "[concat('st', parameters('ForceCode'), parameters('EnvironmentSuffix'), variables('scenarioSuffixCompact'))]",
         "AILibraryContainerName": "ai-library",
         "WebAppLogosContainerName": "web-app-logos",
-        "cosmosdb_account_name": "[concat('db-app-', parameters('ForceCode'), '-coppa', variables('nameSuffixDashed'))]",
+        "cosmosdb_account_name": "[concat('db-app-', parameters('ForceCode'), '-', variables('scenarioSuffixHyphen'))]",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
         "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
