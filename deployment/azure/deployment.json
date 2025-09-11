@@ -216,7 +216,7 @@
             "metadata": {
                 "description": "If true (default) a short random suffix is appended to resource names to avoid global naming collisions. Set to false for fully deterministic names (pre-deployment app registration)."
             },
-            "defaultValue": true
+            "defaultValue": false
         },
         "FixedNameSuffix": {
             "type": "string",
