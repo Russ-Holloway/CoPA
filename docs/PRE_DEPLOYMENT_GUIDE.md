@@ -23,7 +23,25 @@
 
 ### 1.3 Click "Register"
 
-## Step 2: Create Client Secret
+## Step 2: Configure Authentication Settings
+
+### 2.1 Enable ID Tokens (Required for Easy Auth)
+1. In your app registration, go to **Authentication**
+2. Scroll down to **Implicit grant and hybrid flows**
+3. **Check the box for "ID tokens"** (used for implicit and hybrid flows)
+4. Click **Save**
+
+### 2.2 Add Easy Auth Redirect URI
+1. Still in the **Authentication** page
+2. In the **Redirect URIs** section, click **Add URI**
+3. Add: `https://<your-planned-app-service-name>.azurewebsites.net/.auth/login/aad/callback`
+   - *Example: `https://app-btp-prod-01-abc123.azurewebsites.net/.auth/login/aad/callback`*
+   - *Note: Replace `<your-planned-app-service-name>` with your actual App Service name*
+4. Click **Save**
+
+**⚠️ Important:** These two steps are **required** for Easy Auth to work properly. Without them, you'll get authentication errors when trying to access your deployed application.
+
+## Step 3: Create Client Secret
 
 ### 2.1 Generate Secret
 1. In your new app registration, go to **Certificates & secrets**
@@ -37,7 +55,7 @@
 - **Store it securely** - you cannot view it again once you leave this page
 - This is your `AZURE_CLIENT_SECRET` for deployment
 
-## Step 3: Collect Required Information
+## Step 4: Collect Required Information
 
 From your app registration, collect these three values:
 
@@ -47,7 +65,7 @@ From your app registration, collect these three values:
 | **Directory (tenant) ID** | App registration **Overview** page | `87654321-4321-4321-4321-210987654321` |
 | **Client secret value** | From Step 2.2 above | `abc123def456ghi789...` |
 
-## Step 4: Deploy CoPA
+## Step 5: Deploy CoPA
 
 Now you're ready to deploy CoPA using your ARM template. You'll need to provide these parameters:
 
