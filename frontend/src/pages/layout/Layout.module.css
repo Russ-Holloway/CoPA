@@ -2,13 +2,12 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--bg-primary);
   min-height: 100vh;
 }
 
 .header {
-  background: #003366;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: var(--accent-primary);
   padding: 35px 0;
   position: relative;
   overflow: hidden;
@@ -81,8 +80,7 @@
   font-weight: 700;
   font-size: 45px;
   line-height: 55px;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #ffffff !important;
   margin: 0;
   letter-spacing: -0.5px;
   text-align: center;
@@ -90,19 +88,43 @@
   width: 100%;
 }
 
+/* Ensure Link doesn't override title color */
+.headerCenterContent a .headerTitle {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.headerCenterContent a:visited .headerTitle,
+.headerCenterContent a:hover .headerTitle,
+.headerCenterContent a:active .headerTitle,
+.headerCenterContent a:focus .headerTitle {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
 .headerSubtitle {
   font-style: normal;
   font-weight: 400;
   font-size: 20px;
   line-height: 25px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.9) !important;
   margin: 0;
   margin-top: 8px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 1000px;
+  display: block;
+  text-align: center;
+}
+
+/* Ensure Link doesn't override subtitle color */
+.headerCenterContent a .headerSubtitle {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration: none !important;
+}
+
+.headerText {
+  text-decoration: none !important;
 }
 
 .headerCustomSubtitle {
@@ -114,19 +136,16 @@
   margin: 0;
   margin-top: 4px;
   max-width: 600px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .headerIcon {
   height: 125px;
   width: auto;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .forceLogo {
   height: 125px;
   width: auto;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .shareButtonContainer {
@@ -138,7 +157,7 @@
 }
 
 .shareButton {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--border-primary);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   padding: 8px 16px;
@@ -167,12 +186,11 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 20px;
-  color: #707070;
-  border: 1px solid #e1e5e9;
+  color: var(--text-muted);
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
   padding: 12px;
-  background: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--bg-secondary);
 }
 
 .copyButtonContainer {
@@ -183,23 +201,21 @@
   align-items: center;
   padding: 12px 16px;
   gap: 8px;
-  background: #ffffff;
-  border: 1px solid #e1e5e9;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .copyButtonContainer:hover {
   cursor: pointer;
-  background: #f8f9fa;
-  border-color: #667eea;
+  background: var(--bg-tertiary);
+  border-color: #1a1761;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .copyButton {
-  color: #667eea;
+  color: #1a1761;
 }
 
 .copyButtonText {
@@ -207,28 +223,7 @@
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  color: #495057;
-}
-
-/* Dark mode styles */
-:global(.dark-mode) .header {
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-:global(.dark-mode) .headerTitle {
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-:global(.dark-mode) .headerSubtitle {
-  color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-:global(.dark-mode) .headerCustomSubtitle {
-  color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  color: var(--text-secondary);
 }
 
 @media (max-width: 480px) {

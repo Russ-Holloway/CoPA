@@ -1,13 +1,47 @@
+.button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+}
+
+.button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
 .shareButtonRoot {
   width: 86px;
   height: 32px;
   border-radius: 4px;
-  background: radial-gradient(109.81% 107.82% at 100.1% 90.19%, #0f6cbd 33.63%, #2d87c3 70.31%, #8dddd8 100%);
+  background: radial-gradient(109.81% 107.82% at 100.1% 90.19%, #0f6cbd 33.63%, #2d87c3 70.31%, #8dddd8);
   padding: 5px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
 }
 
 .shareButtonRoot:hover {
-  background: linear-gradient(135deg, #0f6cbd 0%, #2d87c3 51.04%, #8dddd8 100%);
+  background: linear-gradient(135deg, #0f6cbd, #2d87c3 51.04%, #8dddd8);
+}
+
+.shareButtonRoot:focus {
+  background: linear-gradient(135deg, #0f6cbd, #2d87c3 51.04%, #8dddd8);
 }
 
 .shareButtonRoot span {
@@ -25,40 +59,97 @@
 .historyButtonRoot {
   width: 180px;
   border: 1px solid #d1d1d1;
+  background: #ffffff;
+  color: var(--text-primary);
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .historyButtonRoot:hover {
   border: 1px solid #d1d1d1;
+  background: #f3f2f1;
+}
+
+.historyButtonRoot:focus {
+  background: #f3f2f1;
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .historyButtonRoot:active {
   border: 1px solid #d1d1d1;
+  background: #edebe9;
 }
 
 .feedbackButtonRoot {
   width: 180px;
   border: 1px solid #d1d1d1;
+  background: #ffffff;
+  color: #323130;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .feedbackButtonRoot:hover {
   border: 1px solid #d1d1d1;
+  background: #f3f2f1;
+}
+
+.feedbackButtonRoot:focus {
+  background: #f3f2f1;
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .feedbackButtonRoot:active {
   border: 1px solid #d1d1d1;
+  background: #edebe9;
 }
 
 .findOutMoreButtonRoot {
   width: 180px;
   border: 1px solid #d1d1d1;
+  background: #ffffff;
+  color: #323130;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .findOutMoreButtonRoot:hover {
   border: 1px solid #d1d1d1;
+  background: #f3f2f1;
+}
+
+.findOutMoreButtonRoot:focus {
+  background: #f3f2f1;
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .findOutMoreButtonRoot:active {
   border: 1px solid #d1d1d1;
+  background: #edebe9;
 }
 
 @media (max-width: 480px) {
@@ -67,16 +158,8 @@
     padding: 5px 8px;
   }
 
-  .historyButtonRoot {
-    width: auto;
-    padding: 0 8px;
-  }
-
-  .feedbackButtonRoot {
-    width: auto;
-    padding: 0 8px;
-  }
-
+  .historyButtonRoot,
+  .feedbackButtonRoot,
   .findOutMoreButtonRoot {
     width: auto;
     padding: 0 8px;
