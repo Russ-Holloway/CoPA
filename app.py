@@ -7,6 +7,10 @@ import httpx
 import asyncio
 import threading
 from functools import wraps
+from dotenv import load_dotenv
+
+# Load environment variables from .env file for local development
+load_dotenv()
 
 from quart import (
     Blueprint,
@@ -116,23 +120,19 @@ def create_app():
 
 @bp.route("/")
 async def index():
-    # Check if authentication is enabled
-    auth_enabled = os.getenv("AUTH_ENABLED", "true").lower() == "true"
+    # Check if Azure AD is configured
+    azure_client_id = os.getenv("AZURE_CLIENT_ID")
+    azure_client_secret = os.getenv("AZURE_CLIENT_SECRET")
+    azure_tenant_id = os.getenv("AZURE_TENANT_ID")
     
-    if auth_enabled:
-        # Check if Azure AD is configured
-        azure_client_id = os.getenv("AZURE_CLIENT_ID")
-        azure_client_secret = os.getenv("AZURE_CLIENT_SECRET")
-        azure_tenant_id = os.getenv("AZURE_TENANT_ID")
-        
-        # If Azure AD credentials are not configured, show configuration error
-        if not azure_client_id or not azure_client_secret or not azure_tenant_id:
-            return await render_template("configuration_error.html")
-        
-        # Check if advanced setup is completed
-        setup_completed = os.getenv("COPA_SETUP_COMPLETED", "false").lower() == "true"
-        if not setup_completed:
-            return await render_template("setup_completion_required.html")
+    # If Azure AD credentials are not configured, show configuration error
+    if not azure_client_id or not azure_client_secret or not azure_tenant_id:
+        return await render_template("configuration_error.html")
+    
+    # Check if advanced setup is completed
+    setup_completed = os.getenv("COPA_SETUP_COMPLETED", "false").lower() == "true"
+    if not setup_completed:
+        return await render_template("setup_completion_required.html")
     
     # Azure AD is configured and setup completed, show the normal application
     return await render_template(
