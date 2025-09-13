@@ -7,10 +7,6 @@ import httpx
 import asyncio
 import threading
 from functools import wraps
-from dotenv import load_dotenv
-
-# Load environment variables from .env file (don't override existing env vars)
-load_dotenv(override=False)
 
 from quart import (
     Blueprint,
