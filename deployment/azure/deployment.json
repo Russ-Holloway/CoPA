@@ -448,7 +448,11 @@
                         },
                         {
                             "name": "DISABLE_NODE_BUILD",
-                            "value": "true"
+                            "value": "false"
+                        },
+                        {
+                            "name": "PRE_BUILD_SCRIPT_PATH",
+                            "value": "cd frontend && npm install && npm run build"
                         },
                         {
                             "name": "UI_CHAT_TITLE",
