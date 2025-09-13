@@ -134,7 +134,10 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
   const sendQuestionDisabled = disabled || !question.trim()
 
   return (
-    <Stack className={styles.questionInputContainer}>
+    <Stack 
+      className={styles.questionInputContainer} 
+      style={{ width: '90%', maxWidth: '480px' }}
+    >
       {/* Screen reader only status announcements */}
       <div aria-live="polite" aria-atomic="true" className={styles.srOnly}>
         {statusMessage}

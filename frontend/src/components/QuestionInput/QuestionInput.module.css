@@ -27,6 +27,16 @@
   max-width: 480px !important;
 }
 
+/* Ultra high specificity overrides to beat end-of-file FluentUI rules */
+:global(div.ms-Stack[class*="questionInputContainer"].ms-Stack),
+:global(div.ms-Stack[class*="questionInputContainer"]),
+:global(div[class*="questionInputContainer"].ms-Stack),
+:global(.ms-Stack[class*="questionInputContainer"]):not(.dummy) {
+  width: 90% !important;
+  max-width: 480px !important;
+  margin: 0 auto !important;
+}
+
 /* Dark mode styling for question input container */
 :global(.dark-mode) .questionInputContainer {
   background: #4a5568;
@@ -306,4 +316,15 @@
     right: 16px;
     bottom: 12px;
   }
+}
+
+/* FINAL OVERRIDES: Ultra-high specificity to beat all FluentUI rules */
+:global(html) :global(body) :global(.ms-Stack[class*="questionInputContainer"]),
+:global(html) :global(body) :global(div.ms-Stack[class*="questionInputContainer"]),
+:global(html) :global(body) :global(div[class*="questionInputContainer"].ms-Stack),
+:global(div.ms-Stack[class*="questionInputContainer"][class*="questionInputContainer"]),
+:global(.ms-Stack[class*="questionInputContainer"]:not(.never-match)) {
+  width: 90% !important;
+  max-width: 480px !important;
+  margin: 0 auto !important;
 }
