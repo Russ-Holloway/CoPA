@@ -6,7 +6,6 @@
   background: var(--bg-primary);
   min-height: calc(100vh - 100px);
   transition: background 0.3s ease;
-  padding: 0 24px; /* Add horizontal padding to prevent chat history cutoff */
 }
 
 .chatRoot {
@@ -14,6 +13,8 @@
   display: flex;
   margin: 20px;
   gap: 20px;
+  max-width: 98vw; /* Allow maximum screen utilization for Answer-level citations */
+  width: 98vw;
 }
 
 /* When no citation panel is present, chat container takes full width */
@@ -25,17 +26,20 @@
 
 /* When no citation panel is present, message stream takes full width */
 .chatRoot:not(:has(.citationPanel)) .chatMessageStream {
+  max-width: 100% !important;
   width: 100% !important;
   flex: 1 !important;
 }
 
 /* When no citation panel is present, GPT messages take full width */
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt {
+  max-width: 100% !important;
   width: 100% !important;
 }
 
 /* Triple enforce full width for all message content when no citation */
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt > * {
+  max-width: 100% !important;
   width: 100% !important;
 }
 
@@ -43,6 +47,7 @@
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt div,
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt p,
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt span {
+  max-width: 100% !important;
   width: 100% !important;
 }
 
@@ -130,7 +135,13 @@
   border: 1px solid var(--border-primary);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
-  margin: 20px;
+}
+
+/* When citation panel is present, chat container takes 60% for much larger answer box */
+.chatRoot:has(.citationPanel) .chatContainer {
+  flex: 3;
+  max-width: 60%;
+  width: 60%;
 }
 
 .chatEmptyState {
@@ -192,7 +203,7 @@
 
 .inputFullWidth {
   width: 95% !important;
-  max-width: 780px !important; /* Constrain to reasonable width for input box */
+  max-width: 1200px !important; /* Allow wider input area */
   margin: 0 auto;
 }
 
@@ -201,7 +212,11 @@
   font-weight: 700;
   font-size: 48px;
   line-height: 56px;
-  color: #003366;
+  color: var(--chat-empty-title);
+  background: var(--accent-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   transition: all 0.3s ease;
   margin: 0 auto;
   letter-spacing: -0.5px;
@@ -233,65 +248,14 @@
   line-height: 30px;
   text-align: center;
   letter-spacing: -0.01em;
-  color: #003366 !important;
-  background: transparent !important;
-  background-image: none !important;
-  background-clip: border-box !important;
-  -webkit-background-clip: border-box !important;
-  -webkit-text-fill-color: #003366 !important;
-  -webkit-text-stroke-color: #003366 !important;
+  color: #1a1761;
   max-width: 600px;
   transition: all 0.3s ease;
 }
 
-/* Force solid blue with maximum specificity */
-.chatEmptyStateTagline.chatEmptyStateTagline.chatEmptyStateTagline {
-  color: #003366 !important;
-  background: none !important;
-  background-image: none !important;
-  background-clip: initial !important;
-  -webkit-background-clip: initial !important;
-  -webkit-text-fill-color: #003366 !important;
-}
-
-/* Additional specificity to override any inherited styles */
-p.chatEmptyStateTagline,
-.chatEmptyStateTagline p {
-  color: #003366 !important;
-  background: transparent !important;
-  background-image: none !important;
-  -webkit-text-fill-color: #003366 !important;
-}
-
-/* New class specifically for solid blue text */
-.solidBlueText {
-  color: #003366 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  background-clip: border-box !important;
-  -webkit-background-clip: border-box !important;
-  -webkit-text-fill-color: #003366 !important;
-  -webkit-text-stroke-width: 0 !important;
-  -webkit-text-stroke-color: transparent !important;
-  text-shadow: none !important;
-  filter: none !important;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 30px;
-  text-align: center;
-  letter-spacing: -0.01em;
-  margin-top: 12px;
-  max-width: 600px;
-}
-
-/* Ultra-specific override to ensure solid blue text */
-.solidBlueText.solidBlueText.solidBlueText.solidBlueText {
-  color: #003366 !important;
-  background: transparent !important;
-  background-image: none !important;
-  -webkit-text-fill-color: #003366 !important;
+/* Dark mode styling for taglines */
+:global(.dark-mode) .chatEmptyStateTagline {
+  color: #ffffff !important;
 }
 
 .chatIcon {
@@ -301,7 +265,7 @@ p.chatEmptyStateTagline,
 
 .chatMessageStream {
   flex-grow: 1 !important;
-  max-width: 100% !important; /* Use full available width */
+  max-width: 1600px !important; /* Even larger container for optimal space usage */
   width: 100% !important;
   overflow-y: auto;
   padding: 24px;
@@ -314,6 +278,7 @@ p.chatEmptyStateTagline,
 
 /* ABSOLUTE FULL WIDTH OVERRIDE when no citation */
 .chatRoot:not(:has(.citationPanel)) .chatMessageStream {
+  max-width: 1200px !important;
   width: 100% !important;
   flex: 1 !important;
   padding: 24px 40px !important;
@@ -348,7 +313,7 @@ p.chatEmptyStateTagline,
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  max-width: 600px;
+  max-width: 80%;
   border: 1px solid var(--border-user-message);
   order: 0;
   flex-grow: 0;
@@ -362,7 +327,7 @@ p.chatEmptyStateTagline,
 
 .chatMessageGpt {
   margin-bottom: 16px;
-  max-width: 100% !important; /* Use full available width */
+  max-width: 1200px !important; /* Much larger for better space usage */
   width: 100% !important;
   display: flex;
   background: transparent;
@@ -371,6 +336,7 @@ p.chatEmptyStateTagline,
 
 /* FORCE FULL WIDTH when no citation - ABSOLUTE OVERRIDE */
 .chatRoot:not(:has(.citationPanel)) .chatMessageGpt {
+  max-width: 1200px !important;
   width: 100% !important;
   flex: 1 !important;
 }
@@ -393,11 +359,11 @@ p.chatEmptyStateTagline,
 .chatMessageError {
   padding: 20px;
   border-radius: 8px;
-  color: #242424;
+  color: var(--text-primary);
   flex: none;
   order: 0;
   flex-grow: 0;
-  max-width: 1200px; /* Allow wider error messages */
+  max-width: 100%; /* REMOVED 800px restriction for larger layout */
   margin-bottom: 12px;
 }
 
@@ -417,7 +383,7 @@ p.chatEmptyStateTagline,
   flex: 0 0 auto;
   padding: 24px;
   width: 100% !important;
-  max-width: 100% !important; /* Use full available width */
+  max-width: 1200px !important; /* Allow wider input area */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -437,7 +403,7 @@ p.chatEmptyStateTagline,
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 780px; /* Constrain to reasonable width for input box */
+  max-width: 1200px; /* Allow wider centered container */
   margin: 40px auto;
   padding: 20px;
 }
@@ -449,7 +415,7 @@ p.chatEmptyStateTagline,
   gap: 32px;
   width: 100%;
   justify-content: center;
-  max-width: 100%; /* Use full available width */
+  max-width: 1200px; /* Allow wider input row */
 }
 
 .sideControls {
@@ -540,7 +506,7 @@ p.chatEmptyStateTagline,
 .stopGeneratingIcon {
   width: 14px;
   height: 14px;
-  color: #424242;
+  color: var(--text-primary);
 }
 
 .stopGeneratingText {
@@ -552,7 +518,7 @@ p.chatEmptyStateTagline,
   line-height: 20px;
   display: flex;
   align-items: center;
-  color: #242424;
+  color: var(--text-primary);
   flex: none;
   order: 0;
   flex-grow: 0;
@@ -565,12 +531,15 @@ p.chatEmptyStateTagline,
   padding: 16px !important;
   gap: 8px !important;
   background: var(--bg-secondary) !important;
+  box-shadow:
+    0px 2px 4px var(--shadow-light),
+    0px 0px 2px var(--shadow-light) !important;
   border-radius: 8px !important;
-  flex: 0 0 min(40vw, 600px) !important; /* Responsive width: 40% of viewport or max 600px */
+  flex: 0 0 900px !important; /* Significantly larger width for better citation reading */
   order: 0 !important;
   align-self: stretch !important;
-  max-width: min(40vw, 600px) !important;
-  min-width: 320px !important; /* Minimum readable width */
+  max-width: 900px !important;
+  min-width: 850px !important;
   overflow-y: scroll !important;
   max-height: calc(100vh - 100px) !important;
   color: var(--text-primary) !important;
@@ -581,10 +550,10 @@ p.chatEmptyStateTagline,
 
 /* Stronger override to ensure FluentUI Stack.Item doesn't interfere */
 :global(.ms-Stack-item).citationPanel {
-  flex: 0 0 min(40vw, 600px) !important;
-  max-width: min(40vw, 600px) !important;
-  min-width: 320px !important;
-  width: min(40vw, 600px) !important;
+  flex: 0 0 900px !important;
+  max-width: 900px !important;
+  min-width: 850px !important;
+  width: 900px !important;
 }
 
 .citationPanelHeaderContainer {
@@ -596,7 +565,7 @@ p.chatEmptyStateTagline,
   font-weight: 600;
   font-size: 18px;
   line-height: 24px;
-  color: #000000;
+  color: var(--text-primary);
   flex: none;
   order: 0;
   flex-grow: 0;
@@ -609,7 +578,7 @@ p.chatEmptyStateTagline,
 .citationPanelDismiss {
   width: 18px;
   height: 18px;
-  color: #424242;
+  color: var(--text-secondary);
 }
 
 :global(.dark-mode) .citationPanelDismiss {
@@ -630,7 +599,7 @@ p.chatEmptyStateTagline,
   font-weight: 600;
   font-size: 16px;
   line-height: 22px;
-  color: #323130;
+  color: var(--text-primary);
   margin-top: 12px;
   margin-bottom: 12px;
 }
@@ -649,7 +618,7 @@ p.chatEmptyStateTagline,
   font-weight: 400;
   font-size: 14px;
   line-height: 20px;
-  color: #000000;
+  color: var(--text-primary);
   flex: none;
   order: 1;
   align-self: stretch;
@@ -725,7 +694,7 @@ a {
 }
 
 .clearChatButton {
-  background: #003366;
+  background: linear-gradient(135deg, #1a1761 0%, #2a2b8a 100%);
   border: 2px solid var(--chat-container-bg);
   border-radius: 12px;
   padding: 18px 36px;
@@ -734,6 +703,10 @@ a {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow:
+    0 6px 20px rgba(26, 23, 97, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -746,12 +719,20 @@ a {
 
 .clearChatButton:hover {
   transform: translateY(-1px);
-  background: #002244;
+  box-shadow:
+    0 8px 25px rgba(26, 23, 97, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #0f0d45 0%, #1a1761 100%);
   border-color: #f0f9ff;
 }
 
 .clearChatButton:active {
   transform: translateY(1px);
+  box-shadow:
+    0 2px 8px rgba(26, 23, 97, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .clearChatButton:disabled {
@@ -759,6 +740,9 @@ a {
   color: #94a3b8;
   cursor: not-allowed;
   transform: none;
+  box-shadow:
+    0 2px 8px rgba(148, 163, 184, 0.2),
+    inset 0 1px 2px rgba(0, 0, 0, 0.05);
   border: 2px solid #e2e8f0;
 }
 
@@ -788,7 +772,7 @@ a {
 .taglineInput {
   width: 100%;
   padding: 16px 20px;
-  border: 2px solid rgba(102, 126, 234, 0.3);
+  border: 2px solid rgba(26, 23, 97, 0.3);
   border-radius: 12px;
   font-size: 16px;
   line-height: 24px;
@@ -800,17 +784,172 @@ a {
 
 .taglineInput:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #1a1761;
   background: var(--bg-secondary);
   color: var(--text-primary);
 }
 
 .taglineInput::placeholder {
-  color: rgba(102, 126, 234, 0.6);
+  color: rgba(26, 23, 97, 0.6);
   font-style: italic;
 }
 
 @media (max-width: 768px) {
+  .container {
+    gap: 16px;
+  }
+
+  .chatInput {
+    padding: 16px;
+    max-width: 95%;
+  }
+
+  .chatInputCentered {
+    margin: 24px auto;
+    padding: 16px;
+  }
+
+  .inputRow {
+    gap: 16px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chatInput {
+    width: 90%;
+    max-width: 90%;
+    padding: 12px;
+  }
+
+  .chatMessageGpt {
+    max-width: 95%;
+    margin: 0 auto 16px auto;
+  }
+
+  .newChatIcon {
+    left: 0px;
+  }
+
+  .clearChatBroom {
+    left: 0px;
+  }
+
+  .clearChatBroomNoCosmos {
+    left: 0px;
+  }
+
+  .chatEmptyStateTitle {
+    font-size: 36px;
+    line-height: 44px;
+  }
+
+  .citationPanel {
+    max-width: 100%;
+  }
+
+  .taglineInput {
+    font-size: 14px;
+    padding: 14px 18px;
+  }
+
+  .customTaglinePlaceholder {
+    max-width: 90%;
+  }
+
+  .chatInputCentered {
+    margin: 16px auto;
+    padding: 12px;
+  }
+}
+
+/* Additional responsive design for citation layout */
+@media (max-width: 1024px) {
+  .chatRoot {
+    max-width: 100%;
+    gap: 20px;
+  }
+
+  .chatRoot:has(.citationPanel) .chatContainer {
+    flex: 1.5;
+    max-width: 65%;
+    width: 65%;
+  }
+
+  .citationPanel {
+    flex: 1;
+    max-width: 35%;
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chatRoot {
+    flex-direction: column;
+    gap: 16px;
+    margin: 16px;
+    max-width: 100%;
+  }
+
+  .chatRoot:has(.citationPanel) .chatContainer {
+    flex: none;
+    max-width: none;
+    width: 100%;
+  }
+
+  .citationPanel {
+    flex: none;
+    max-width: none;
+    width: 100%;
+    min-width: auto;
+    position: static;
+    order: 2;
+  }
+}
+
+/* Additional responsive design for citation layout */
+@media (max-width: 1024px) {
+  .chatRoot {
+    max-width: 100%;
+    gap: 20px;
+  }
+
+  .chatRoot:has(.citationPanel) .chatContainer {
+    flex: 1.5;
+    max-width: 60%; /* Maintain larger answer box */
+    width: 60%;
+  }
+
+  .citationPanel {
+    flex: 1;
+    max-width: 40%; /* Larger citation panel */
+    min-width: 350px; /* Increased minimum width */
+  }
+}
+
+@media (max-width: 768px) {
+  .inputRow {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .sideControls {
+    flex-direction: row;
+    min-width: auto;
+    justify-content: center;
+  }
+
+  .controlsContainer {
+    flex-direction: row;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .darkModeToggleWrapper {
+    width: auto;
+  }
+
   .citationPanel {
     flex: 0 0 500px !important;
     max-width: 500px !important;
@@ -818,7 +957,7 @@ a {
     padding: 14px !important;
     width: 500px !important;
   }
-  
+
   /* Stronger override for FluentUI on tablets */
   :global(.ms-Stack-item).citationPanel {
     flex: 0 0 500px !important;

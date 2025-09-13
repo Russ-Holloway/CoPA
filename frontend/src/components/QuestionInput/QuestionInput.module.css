@@ -4,32 +4,20 @@
   height: auto;
   min-height: 120px;
   position: relative;
-  margin: 0;
-  back.sendButtonDisabled {
-  width: 32px;
-  height: 56px;
-  border-radius: 10px;
-  background: #e5e7eb;
-  border: 2px solid #d1d5db;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: not-allowed;
-  color: #6b7280;
-  transition: all 0.2s ease;
-}
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
   width: 100%;
   max-width: 600px;
+  transition: all 0.2s ease;
 }
 
 /* Dark mode styling for question input container */
 :global(.dark-mode) .questionInputContainer {
   background: #2d3748;
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: #4a5568;
 }
 
 /* Speech-to-text toggle container */
@@ -70,24 +58,41 @@
 }
 
 .questionInputTextArea {
-  width: calc(100% - 40px);
-  min-height: 60px;
-  margin: 16px 20px 20px 20px;
-  padding: 16px 20px;
+  width: calc(100% - 24px);
+  min-height: calc(100% - 24px);
+  margin: 12px;
+  padding: 16px;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 16px;
-  line-height: 24px;
-  resize: none;
-  transition: all 0.3s ease;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.2s ease;
   background: transparent;
-  color: #1f2937;
+  color: var(--text-primary);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Dark mode styling for question input text area */
 :global(.dark-mode) .questionInputTextArea {
   background: transparent;
   color: #ffffff;
+}
+
+.questionInputTextArea::placeholder,
+.questionInputTextArea .ms-TextField-field::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+:global(.dark-mode) .questionInputTextArea::placeholder,
+:global(.dark-mode) .questionInputTextArea .ms-TextField-field::placeholder,
+:global(.dark-mode) .questionInputTextArea textarea::placeholder,
+:global(.dark-mode) .questionInputTextArea textarea::-webkit-input-placeholder,
+:global(.dark-mode) .questionInputTextArea textarea::-moz-placeholder,
+:global(.dark-mode) .questionInputTextArea textarea:-ms-input-placeholder {
+  color: #ffffff !important;
+  opacity: 0.7 !important;
 }
 
 /* Force FluentUI TextField to respect our width */
@@ -115,46 +120,33 @@
 }
 
 .questionInputSendButton {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
-  background: #1f2937;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #6366f1;
   color: #ffffff;
-  border: 2px solid #ffffff;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow:
-    0 6px 20px rgba(31, 41, 55, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
 }
 
 .questionInputSendButton:hover {
   transform: translateY(-1px);
-  background: #111827;
-  box-shadow:
-    0 8px 25px rgba(31, 41, 55, 0.4),
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: #f0f9ff;
+  background: #5855eb;
 }
 
 .questionInputSendButton:focus {
-  outline: 2px solid #fbbf24;
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
 
 .questionInputSendButton:active {
   transform: translateY(1px);
-  box-shadow:
-    0 2px 8px rgba(102, 126, 234, 0.3),
-    0 1px 2px rgba(0, 0, 0, 0.1),
-    inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .questionInputSendButtonDisabled {
@@ -167,11 +159,14 @@
   align-items: center;
   justify-content: center;
   cursor: not-allowed;
-  color: #6b7280;
+  color: var(--text-muted);
   transition: all 0.2s ease;
-  box-shadow:
-    0 2px 8px rgba(107, 114, 128, 0.2),
-    inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.questionInputSendButtonContainer {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
 }
 
 .questionInputBottomBorder {
@@ -180,7 +175,7 @@
   height: 4px;
   left: 0%;
   bottom: 0%;
-  background: #003366;
+  background: #1a1761;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
 }
@@ -190,13 +185,13 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: rgba(26, 23, 97, 0.1);
+  border: 1px solid rgba(26, 23, 97, 0.2);
   transition: all 0.3s ease;
 }
 
 .questionInputOptionsButton:hover {
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(26, 23, 97, 0.2);
   transform: scale(1.05);
 }
 
@@ -227,36 +222,58 @@
   border: 0;
 }
 
+@media (max-width: 768px) {
+  .questionInputContainer {
+    min-height: 100px;
+    max-width: 95%;
+    margin: 0 auto;
+  }
+
+  .questionInputTextArea {
+    font-size: 16px;
+    padding: 14px;
+    margin: 10px;
+    width: calc(100% - 20px);
+    min-height: calc(100% - 20px);
+  }
+
+  .questionInputSendButton {
+    width: 36px;
+    height: 36px;
+  }
+
+  .questionInputSendButtonContainer {
+    right: 14px;
+    bottom: 14px;
+  }
+}
+
 @media (max-width: 480px) {
   .questionInputContainer {
     margin: 0 auto;
-    min-height: 100px;
+    min-height: 90px;
     width: 95%;
     max-width: 95%;
   }
 
   .questionInputTextArea {
     font-size: 16px;
-    line-height: 22px;
-    min-height: 50px;
-    padding: 14px 18px;
-    width: calc(100% - 40px);
-    margin: 20px;
+    line-height: 1.4;
+    min-height: 60px;
+    padding: 12px;
+    width: calc(100% - 24px);
+    margin: 12px;
   }
 
-  .questionInputSendButton {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
-  }
-
+  .questionInputSendButton,
   .questionInputSendButtonDisabled {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
   }
 
   .questionInputSendButtonContainer {
-    right: 20px;
+    right: 16px;
+    bottom: 12px;
   }
 }
