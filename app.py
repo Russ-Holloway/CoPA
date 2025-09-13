@@ -115,21 +115,7 @@ def create_app():
 
 @bp.route("/")
 async def index():
-    # Check if Azure AD is configured
-    azure_client_id = os.getenv("AZURE_CLIENT_ID")
-    azure_client_secret = os.getenv("AZURE_CLIENT_SECRET")
-    azure_tenant_id = os.getenv("AZURE_TENANT_ID")
-    
-    # If Azure AD credentials are not configured, show configuration error
-    if not azure_client_id or not azure_client_secret or not azure_tenant_id:
-        return await render_template("configuration_error.html")
-    
-    # Check if advanced setup is completed
-    setup_completed = os.getenv("COPA_SETUP_COMPLETED", "false").lower() == "true"
-    if not setup_completed:
-        return await render_template("setup_completion_required.html")
-    
-    # Azure AD is configured and setup completed, show the normal application
+    # Show the normal application - authentication handled by Azure App Service Easy Auth
     return await render_template(
         "index.html",
         title=app_settings.ui.title,
