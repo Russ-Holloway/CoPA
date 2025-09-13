@@ -9,9 +9,22 @@
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   overflow: hidden;
-  width: 90%;
-  max-width: 480px;
+  width: 90% !important;
+  max-width: 480px !important;
   transition: all 0.2s ease;
+}
+
+/* Force override FluentUI width constraints with higher specificity */
+.questionInputContainer.questionInputContainer {
+  width: 90% !important;
+  max-width: 480px !important;
+}
+
+/* Target FluentUI Stack component specifically */
+:global(.ms-Stack.questionInputContainer),
+:global(.ms-Stack)[class*="questionInputContainer"] {
+  width: 90% !important;
+  max-width: 480px !important;
 }
 
 /* Dark mode styling for question input container */
@@ -225,8 +238,17 @@
 @media (max-width: 768px) {
   .questionInputContainer {
     min-height: 100px;
-    max-width: 95%;
+    max-width: 95% !important;
+    width: 95% !important;
     margin: 0 auto;
+  }
+
+  /* Force override for mobile FluentUI constraints */
+  .questionInputContainer.questionInputContainer,
+  :global(.ms-Stack.questionInputContainer),
+  :global(.ms-Stack)[class*="questionInputContainer"] {
+    width: 95% !important;
+    max-width: 95% !important;
   }
 
   .questionInputTextArea {
@@ -252,8 +274,16 @@
   .questionInputContainer {
     margin: 0 auto;
     min-height: 90px;
-    width: 95%;
-    max-width: 95%;
+    width: 95% !important;
+    max-width: 95% !important;
+  }
+
+  /* Force override for small mobile FluentUI constraints */
+  .questionInputContainer.questionInputContainer,
+  :global(.ms-Stack.questionInputContainer),
+  :global(.ms-Stack)[class*="questionInputContainer"] {
+    width: 95% !important;
+    max-width: 95% !important;
   }
 
   .questionInputTextArea {
