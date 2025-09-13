@@ -9,8 +9,8 @@
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   overflow: hidden;
-  width: 100%;
-  max-width: 600px;
+  width: 90%;
+  max-width: 480px;
   transition: all 0.2s ease;
 }
 
