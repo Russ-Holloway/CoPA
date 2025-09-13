@@ -119,9 +119,9 @@ const Layout = () => {
           </div>
           <div className={styles.headerCenterContent}>
             <Link to="/" style={{ textDecoration: 'none' }}>
-              <h1 className={styles.headerTitle}>CoPA</h1>
+              <h1 className={styles.headerTitle}>{ui?.title || 'CoPA'}</h1>
               <p className={styles.headerSubtitle}>
-                College of Policing Assistant
+                {ui?.subtitle || 'College of Policing Assistant'}
               </p>
             </Link>
           </div>
