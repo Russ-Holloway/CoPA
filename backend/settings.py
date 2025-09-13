@@ -41,7 +41,7 @@ class _UiSettings(BaseSettings):
         env_ignore_empty=True
     )
 
-    title: str = "CoPPA - College of Policing Assistant"
+    title: str = "CoPA - College of Policing Assistant"
     logo: Optional[str] = None
     chat_logo: Optional[str] = None
     chat_title: str = "Start chatting with CoPPA"

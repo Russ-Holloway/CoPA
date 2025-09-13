@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { Stack, TextField, ITextField, Toggle } from '@fluentui/react'
 import { ArrowEnterRegular, ArrowEnterFilled } from '@fluentui/react-icons'
 
 import styles from './QuestionInput.module.css'
@@ -24,7 +23,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
   const [showSpeechToText, setShowSpeechToText] = useState<boolean>(false)
   const [forceStopSpeech, setForceStopSpeech] = useState<boolean>(false)
   const speechStartTextRef = useRef<string>('')
-  const textAreaRef = useRef<ITextField>(null)
+  const textAreaRef = useRef<HTMLTextAreaElement>(null)
 
   // Clear error when user starts typing
   useEffect(() => {
@@ -75,10 +74,6 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
       ev.preventDefault()
       sendQuestion()
     }
-  }
-
-  const onQuestionChange = (_ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-    setQuestion(newValue || '')
   }
 
   // Speech-to-text handlers
@@ -134,10 +129,7 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
   const sendQuestionDisabled = disabled || !question.trim()
 
   return (
-    <Stack 
-      className={styles.questionInputContainer} 
-      style={{ width: '90%', maxWidth: '480px' }}
-    >
+    <div className={styles.questionInputContainer}>
       {/* Screen reader only status announcements */}
       <div aria-live="polite" aria-atomic="true" className={styles.srOnly}>
         {statusMessage}
@@ -145,15 +137,17 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
 
       {/* Speech-to-text component */}
       {enableSpeechToText && (
-        <Stack horizontal className={styles.speechToggleContainer}>
-          <Toggle
-            label="Speech to Text"
-            checked={showSpeechToText}
-            onChange={handleSpeechToggleChange}
-            disabled={disabled}
-            className={styles.speechToggle}
-          />
-        </Stack>
+        <div className={styles.speechToggleContainer}>
+          <label className={styles.speechToggle}>
+            <input
+              type="checkbox"
+              checked={showSpeechToText}
+              onChange={(e) => handleSpeechToggleChange(e, e.target.checked)}
+              disabled={disabled}
+            />
+            <span>Speech to Text</span>
+          </label>
+        </div>
       )}
 
       {/* Show speech-to-text component when enabled */}
@@ -168,20 +162,18 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
         />
       )}
 
-      <Stack horizontal className={styles.questionInputMainContainer}>
-        <TextField
-          componentRef={textAreaRef}
+      <div className={styles.questionInputMainContainer}>
+        <textarea
+          ref={textAreaRef}
           className={styles.questionInputTextArea}
           placeholder={showSpeechToText ? "Speak or type your question here..." : placeholder}
-          multiline
-          resizable={false}
-          borderless
           value={question}
-          onChange={onQuestionChange}
+          onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={onEnterPress}
           aria-invalid={hasError}
           aria-describedby={hasError ? 'question-error' : undefined}
           aria-label="Type your question here"
+          rows={3}
         />
 
         {hasError && (
@@ -204,9 +196,9 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, conv
             <ArrowEnterFilled className={styles.questionInputSendButton} title="Press Enter to send" aria-hidden="true" />
           )}
         </div>
-      </Stack>
+      </div>
       
       <div className={styles.questionInputBottomBorder} />
-    </Stack>
+    </div>
   )
 }

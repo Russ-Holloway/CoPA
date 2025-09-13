@@ -1,3 +1,5 @@
+/* CACHE BUST v3 - Clean HTML 90% width working! */
+/* Force cache refresh v2 - clean HTML solution working */
 .questionInputContainer {
   display: flex;
   flex-direction: column;
@@ -9,32 +11,9 @@
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   overflow: hidden;
-  width: 90% !important;
-  max-width: 480px !important;
+  width: 90%;
+  max-width: 480px;
   transition: all 0.2s ease;
-}
-
-/* Force override FluentUI width constraints with higher specificity */
-.questionInputContainer.questionInputContainer {
-  width: 90% !important;
-  max-width: 480px !important;
-}
-
-/* Target FluentUI Stack component specifically */
-:global(.ms-Stack.questionInputContainer),
-:global(.ms-Stack)[class*="questionInputContainer"] {
-  width: 90% !important;
-  max-width: 480px !important;
-}
-
-/* Ultra high specificity overrides to beat end-of-file FluentUI rules */
-:global(div.ms-Stack[class*="questionInputContainer"].ms-Stack),
-:global(div.ms-Stack[class*="questionInputContainer"]),
-:global(div[class*="questionInputContainer"].ms-Stack),
-:global(.ms-Stack[class*="questionInputContainer"]):not(.dummy) {
-  width: 90% !important;
-  max-width: 480px !important;
-  margin: 0 auto !important;
 }
 
 /* Dark mode styling for question input container */
@@ -46,6 +25,7 @@
 /* Speech-to-text toggle container */
 .speechToggleContainer {
   padding: 20px 20px 12px 20px;
+  display: flex;
   align-items: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   margin-bottom: 8px;
@@ -58,6 +38,17 @@
 
 .speechToggle {
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.speechToggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
 }
 
 /* Dark mode styling for speech toggle label - comprehensive approach */
@@ -78,6 +69,9 @@
 .questionInputMainContainer {
   position: relative;
   flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
 }
 
 .questionInputTextArea {
@@ -248,17 +242,9 @@
 @media (max-width: 768px) {
   .questionInputContainer {
     min-height: 100px;
-    max-width: 95% !important;
-    width: 95% !important;
+    width: 95%;
+    max-width: 95%;
     margin: 0 auto;
-  }
-
-  /* Force override for mobile FluentUI constraints */
-  .questionInputContainer.questionInputContainer,
-  :global(.ms-Stack.questionInputContainer),
-  :global(.ms-Stack)[class*="questionInputContainer"] {
-    width: 95% !important;
-    max-width: 95% !important;
   }
 
   .questionInputTextArea {
@@ -285,15 +271,8 @@
     margin: 0 auto;
     min-height: 90px;
     width: 95% !important;
-    max-width: 95% !important;
-  }
-
-  /* Force override for small mobile FluentUI constraints */
-  .questionInputContainer.questionInputContainer,
-  :global(.ms-Stack.questionInputContainer),
-  :global(.ms-Stack)[class*="questionInputContainer"] {
-    width: 95% !important;
-    max-width: 95% !important;
+    width: 95%;
+    max-width: 95%;
   }
 
   .questionInputTextArea {
@@ -316,15 +295,4 @@
     right: 16px;
     bottom: 12px;
   }
-}
-
-/* FINAL OVERRIDES: Ultra-high specificity to beat all FluentUI rules */
-:global(html) :global(body) :global(.ms-Stack[class*="questionInputContainer"]),
-:global(html) :global(body) :global(div.ms-Stack[class*="questionInputContainer"]),
-:global(html) :global(body) :global(div[class*="questionInputContainer"].ms-Stack),
-:global(div.ms-Stack[class*="questionInputContainer"][class*="questionInputContainer"]),
-:global(.ms-Stack[class*="questionInputContainer"]:not(.never-match)) {
-  width: 90% !important;
-  max-width: 480px !important;
-  margin: 0 auto !important;
 }
